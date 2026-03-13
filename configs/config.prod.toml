@@ -21,3 +21,4 @@ cleanup_interval = 600
 [log]
 level = "info"
 format = "json"
+add_source = false

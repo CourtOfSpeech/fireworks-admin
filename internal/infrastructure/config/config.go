@@ -44,6 +44,7 @@ type CacheConfig struct {
 }
 
 type LogConfig struct {
-	Level  string `mapstructure:"level"`
-	Format string `mapstructure:"format"`
+	Level     string `mapstructure:"level"`
+	Format    string `mapstructure:"format"`
+	AddSource bool   `mapstructure:"add_source"`
 }

@@ -21,3 +21,4 @@ cleanup_interval = 600
 [log]
 level = "debug"
 format = "console"
+add_source = true
