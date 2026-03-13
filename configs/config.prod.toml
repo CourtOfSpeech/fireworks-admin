@@ -1,0 +1,23 @@
+[server]
+port = 8080
+mode = "release"
+
+[database]
+host = "localhost"
+port = 5432
+user = "postgres"
+password = "your-password"
+dbname = "postgres"
+sslmode = "disable"
+
+[jwt]
+secret = "your-production-secret-key"
+expire_time = 7200
+
+[cache]
+default_expiration = 3600
+cleanup_interval = 600
+
+[log]
+level = "info"
+format = "json"
