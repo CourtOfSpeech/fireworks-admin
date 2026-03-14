@@ -2,6 +2,9 @@ package http
 
 import (
 	"errors"
+	"fmt"
+	"log/slog"
+	"os"
 
 	"net/http"
 
@@ -16,12 +19,20 @@ import (
 type Server struct {
 	echo   *echo.Echo
 	config *config.Config
+	log    *slog.Logger
 }
 
-func NewServer(cfg *config.Config) (*Server, error) {
-	logger := logger.NewLogger(cfg.Log.Level, cfg.Log.Format)
+func NewServer() (*Server, error) {
+	cfg, err := config.LoadByEnv()
+	if err != nil {
+		logger.Error("failed to load config", slog.Any("error", err))
+		os.Exit(1)
+	}
+
+	log := logger.NewLogger(cfg.Log.Level, cfg.Log.Format, cfg.Log.AddSource)
+
 	e := echo.NewWithConfig(echo.Config{
-		Logger:           logger,
+		Logger:           log,
 		HTTPErrorHandler: customHTTPErrorHandler,
 		Validator:        validate.NewValidator(),
 	})
@@ -29,7 +40,16 @@ func NewServer(cfg *config.Config) (*Server, error) {
 	return &Server{
 		echo:   e,
 		config: cfg,
+		log:    log,
 	}, nil
+}
+
+func (s *Server) Start() error {
+	logger.Info("server starting", slog.Int("port", s.config.Server.Port))
+	if err := s.echo.Start(fmt.Sprintf(":%d", s.config.Server.Port)); err != nil && err != http.ErrServerClosed {
+		return fmt.Errorf("server failed: %w", err)
+	}
+	return nil
 }
 
 // customHTTPErrorHandler handles HTTP errors.
@@ -47,11 +67,11 @@ func customHTTPErrorHandler(c *echo.Context, err error) {
 		message = he.Message
 	}
 
-	c.Logger().Error("HTTP error",
-		"status", code,
-		"method", c.Request().Method,
-		"path", c.Request().URL.Path,
-		"error", message,
+	logger.Error("HTTP error",
+		slog.Int("status", code),
+		slog.String("method", c.Request().Method),
+		slog.String("path", c.Request().URL.Path),
+		slog.String("error", message),
 	)
 
 	if c.Request().Method == http.MethodHead {

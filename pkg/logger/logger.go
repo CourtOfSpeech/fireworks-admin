@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"context"
 	"log/slog"
 	"os"
 	"time"
@@ -18,6 +19,54 @@ func NewLogger(level string, format string, addSource bool) *slog.Logger {
 	logger := slog.New(handler)
 	slog.SetDefault(logger)
 	return logger
+}
+
+// Info 使用默认 context 记录 INFO 级别日志。
+// 这是一个高性能函数，使用 LogAttrs 方法避免反射开销。
+func Info(msg string, attrs ...slog.Attr) {
+	slog.LogAttrs(context.Background(), slog.LevelInfo, msg, attrs...)
+}
+
+// InfoCtx 使用指定的 context 记录 INFO 级别日志。
+// 这是一个高性能函数，使用 LogAttrs 方法避免反射开销。
+func InfoCtx(ctx context.Context, msg string, attrs ...slog.Attr) {
+	slog.LogAttrs(ctx, slog.LevelInfo, msg, attrs...)
+}
+
+// Debug 使用默认 context 记录 DEBUG 级别日志。
+// 这是一个高性能函数，使用 LogAttrs 方法避免反射开销。
+func Debug(msg string, attrs ...slog.Attr) {
+	slog.LogAttrs(context.Background(), slog.LevelDebug, msg, attrs...)
+}
+
+// DebugCtx 使用指定的 context 记录 DEBUG 级别日志。
+// 这是一个高性能函数，使用 LogAttrs 方法避免反射开销。
+func DebugCtx(ctx context.Context, msg string, attrs ...slog.Attr) {
+	slog.LogAttrs(ctx, slog.LevelDebug, msg, attrs...)
+}
+
+// Warn 使用默认 context 记录 WARN 级别日志。
+// 这是一个高性能函数，使用 LogAttrs 方法避免反射开销。
+func Warn(msg string, attrs ...slog.Attr) {
+	slog.LogAttrs(context.Background(), slog.LevelWarn, msg, attrs...)
+}
+
+// WarnCtx 使用指定的 context 记录 WARN 级别日志。
+// 这是一个高性能函数，使用 LogAttrs 方法避免反射开销。
+func WarnCtx(ctx context.Context, msg string, attrs ...slog.Attr) {
+	slog.LogAttrs(ctx, slog.LevelWarn, msg, attrs...)
+}
+
+// Error 使用默认 context 记录 ERROR 级别日志。
+// 这是一个高性能函数，使用 LogAttrs 方法避免反射开销。
+func Error(msg string, attrs ...slog.Attr) {
+	slog.LogAttrs(context.Background(), slog.LevelError, msg, attrs...)
+}
+
+// ErrorCtx 使用指定的 context 记录 ERROR 级别日志。
+// 这是一个高性能函数，使用 LogAttrs 方法避免反射开销。
+func ErrorCtx(ctx context.Context, msg string, attrs ...slog.Attr) {
+	slog.LogAttrs(ctx, slog.LevelError, msg, attrs...)
 }
 
 // buildHandle 根据指定的格式创建日志处理器。

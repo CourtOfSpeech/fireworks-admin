@@ -1,21 +1,23 @@
 package main
 
 import (
-	"net/http"
+	"log/slog"
+	"os"
 
-	"github.com/labstack/echo/v5"
-	"github.com/labstack/echo/v5/middleware"
+	_ "github.com/lib/pq"
+	"github.com/speech/fireworks-admin/internal/infrastructure/http"
+	"github.com/speech/fireworks-admin/pkg/logger"
 )
 
 func main() {
-	e := echo.New()
-	e.Use(middleware.RequestLogger())
+	server, err := http.NewServer()
+	if err != nil {
+		logger.Error("failed to create server", slog.Any("error", err))
+		os.Exit(1)
+	}
 
-	e.GET("/", func(c *echo.Context) error {
-		return c.String(http.StatusOK, "Hello, World!")
-	})
-
-	if err := e.Start(":1323"); err != nil {
-		e.Logger.Error("failed to start server", "error", err)
+	if err := server.Start(); err != nil {
+		logger.Error("server error", slog.Any("error", err))
+		os.Exit(1)
 	}
 }
