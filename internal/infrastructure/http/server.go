@@ -9,8 +9,8 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v5"
-	_ "github.com/lib/pq"
 	"github.com/speech/fireworks-admin/internal/infrastructure/config"
+	"github.com/speech/fireworks-admin/internal/infrastructure/http/middleware"
 	"github.com/speech/fireworks-admin/pkg/logger"
 	"github.com/speech/fireworks-admin/pkg/response"
 	"github.com/speech/fireworks-admin/pkg/validate"
@@ -32,10 +32,18 @@ func NewServer() (*Server, error) {
 	log := logger.NewLogger(cfg.Log.Level, cfg.Log.Format, cfg.Log.AddSource)
 
 	e := echo.NewWithConfig(echo.Config{
-		Logger:           log,
-		HTTPErrorHandler: customHTTPErrorHandler,
-		Validator:        validate.NewValidator(),
+		Logger:             log,
+		HTTPErrorHandler:   customHTTPErrorHandler,
+		Validator:          validate.NewValidator(),
+		FormParseMaxMemory: 10 << 20, // 10MB
 	})
+
+	// 添加中间件
+	e.Use(middleware.RequestID())
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
+	e.Use(middleware.CORS(cfg.Server.AllowOrigins))
+	e.Use(middleware.Timeout(cfg.Server.Timeout))
 
 	return &Server{
 		echo:   e,

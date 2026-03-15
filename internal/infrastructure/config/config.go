@@ -11,8 +11,10 @@ type Config struct {
 }
 
 type ServerConfig struct {
-	Port int    `mapstructure:"port"`
-	Mode string `mapstructure:"mode"`
+	Port         int      `mapstructure:"port"`
+	Mode         string   `mapstructure:"mode"`
+	AllowOrigins []string `mapstructure:"allow_origins"`
+	Timeout      int      `mapstructure:"timeout"`
 }
 
 type DatabaseConfig struct {
