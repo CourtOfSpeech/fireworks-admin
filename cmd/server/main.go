@@ -15,6 +15,7 @@ func main() {
 		logger.Error("failed to create server", slog.Any("error", err))
 		os.Exit(1)
 	}
+	defer server.Close()
 
 	if err := server.Start(); err != nil {
 		logger.Error("server error", slog.Any("error", err))
