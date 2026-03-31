@@ -1,7 +1,7 @@
 .PHONY: run build clean test dev stop restart help ent ent-clean wire wire-clean atlas-diff atlas-apply atlas-status atlas-new atlas-baseline atlas-inspect atlas-validate atlas-hash
 
 APP_NAME := fireworks-admin
-MAIN_PATH := cmd/server/mian.go
+MAIN_PATH := cmd/server/main.go
 BUILD_DIR := bin
 BINARY := $(BUILD_DIR)/$(APP_NAME)
 PORT := 1323

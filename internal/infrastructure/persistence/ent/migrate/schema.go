@@ -3,6 +3,7 @@
 package migrate
 
 import (
+	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/dialect/sql/schema"
 	"entgo.io/ent/schema/field"
 )
@@ -15,7 +16,7 @@ var (
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
-		{Name: "certificate_no", Type: field.TypeString, Unique: true, Size: 50},
+		{Name: "certificate_no", Type: field.TypeString, Size: 50},
 		{Name: "name", Type: field.TypeString, Size: 100},
 		{Name: "type", Type: field.TypeInt8, Default: 1},
 		{Name: "contact_name", Type: field.TypeString, Size: 50},
@@ -30,14 +31,28 @@ var (
 		PrimaryKey: []*schema.Column{TeltentsColumns[0]},
 		Indexes: []*schema.Index{
 			{
-				Name:    "idx_phone_id",
-				Unique:  false,
-				Columns: []*schema.Column{TeltentsColumns[10], TeltentsColumns[0]},
+				Name:    "uk_email",
+				Unique:  true,
+				Columns: []*schema.Column{TeltentsColumns[9]},
+				Annotation: &entsql.IndexAnnotation{
+					Where: "deleted_at IS NULL",
+				},
 			},
 			{
-				Name:    "idx_email_id",
-				Unique:  false,
-				Columns: []*schema.Column{TeltentsColumns[9], TeltentsColumns[0]},
+				Name:    "uk_phone",
+				Unique:  true,
+				Columns: []*schema.Column{TeltentsColumns[10]},
+				Annotation: &entsql.IndexAnnotation{
+					Where: "deleted_at IS NULL",
+				},
+			},
+			{
+				Name:    "uk_certificate_no",
+				Unique:  true,
+				Columns: []*schema.Column{TeltentsColumns[5]},
+				Annotation: &entsql.IndexAnnotation{
+					Where: "deleted_at IS NULL",
+				},
 			},
 		},
 	}

@@ -2,9 +2,10 @@ package schema
 
 import (
 	"entgo.io/ent"
+	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
-	"github.com/speech/fireworks-admin/internal/infrastructure/persistence/ent/mixin"
+	"github.com/speech/fireworks-admin/internal/infrastructure/persistence/ent/schema/mixin"
 )
 
 // Teltent 租户实体
@@ -29,7 +30,6 @@ func (Teltent) Fields() []ent.Field {
 		field.String("certificate_no").
 			NotEmpty().
 			MaxLen(50).
-			Unique().
 			Comment("证件号码：企业-统一社会信用代码 个人-身份证号"),
 		field.String("name").
 			NotEmpty().
@@ -58,12 +58,24 @@ func (Teltent) Fields() []ent.Field {
 	}
 }
 
-// Indexes 索引
-// 电话 和 ID 的联合唯一索引
-// 邮箱和 ID 的联合唯一索引
+// Indexes 定义表的索引。
+// 使用部分索引（Partial Index）确保唯一约束只对未删除的记录生效。
 func (Teltent) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("phone", "id").StorageKey("idx_phone_id"),
-		index.Fields("email", "id").StorageKey("idx_email_id"),
+		// 邮箱唯一索引（仅对未删除记录）
+		index.Fields("email").
+			Unique().
+			StorageKey("uk_email").
+			Annotations(entsql.IndexWhere("deleted_at IS NULL")),
+		// 电话唯一索引（仅对未删除记录）
+		index.Fields("phone").
+			Unique().
+			StorageKey("uk_phone").
+			Annotations(entsql.IndexWhere("deleted_at IS NULL")),
+		// 证件号唯一索引（仅对未删除记录）
+		index.Fields("certificate_no").
+			Unique().
+			StorageKey("uk_certificate_no").
+			Annotations(entsql.IndexWhere("deleted_at IS NULL")),
 	}
 }
