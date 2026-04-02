@@ -5,8 +5,8 @@ MAIN_PATH := cmd/server/main.go
 BUILD_DIR := bin
 BINARY := $(BUILD_DIR)/$(APP_NAME)
 PORT := 1323
-ENT_DIR := internal/infrastructure/persistence
-DI_DIR := internal/di
+ENT_DIR := internal/ent
+APP_DIR := internal/app
 
 stop:
 	@echo "🛑 Stopping server on port $(PORT)..."
@@ -60,18 +60,18 @@ ent:
 
 ent-clean:
 	@echo "🧹 Cleaning Ent generated code..."
-	@rm -rf $(ENT_DIR)/ent/*.go 2>/dev/null || true
-	@rm -rf $(ENT_DIR)/ent/runtime 2>/dev/null || true
+	@find $(ENT_DIR) -name "*.go" ! -path "$(ENT_DIR)/schema/*" ! -name "generate.go" -delete 2>/dev/null || true
+	@rm -rf $(ENT_DIR)/enttest $(ENT_DIR)/hook $(ENT_DIR)/migrate $(ENT_DIR)/predicate $(ENT_DIR)/runtime $(ENT_DIR)/teltent 2>/dev/null || true
 	@echo "✅ Ent generated code cleaned"
 
 wire:
 	@echo "🔧 Generating Wire code..."
-	@cd $(DI_DIR) && go run github.com/google/wire/cmd/wire
+	@cd $(APP_DIR) && wire
 	@echo "✅ Wire code generated successfully"
 
 wire-clean:
 	@echo "🧹 Cleaning Wire generated code..."
-	@rm -f $(DI_DIR)/wire_gen.go 2>/dev/null || true
+	@rm -f $(APP_DIR)/wire_gen.go 2>/dev/null || true
 	@echo "✅ Wire generated code cleaned"
 
 # Atlas migration commands
