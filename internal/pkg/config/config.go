@@ -11,19 +11,28 @@ type Config struct {
 }
 
 type ServerConfig struct {
-	Port         int      `mapstructure:"port"`
-	Mode         string   `mapstructure:"mode"`
-	AllowOrigins []string `mapstructure:"allow_origins"`
-	Timeout      int      `mapstructure:"timeout"`
+	Port            int      `mapstructure:"port"`
+	Mode            string   `mapstructure:"mode"`
+	AllowOrigins    []string `mapstructure:"allow_origins"`
+	Timeout         int      `mapstructure:"timeout"`
+	ReadTimeout     int      `mapstructure:"read_timeout"`
+	WriteTimeout    int      `mapstructure:"write_timeout"`
+	IdleTimeout     int      `mapstructure:"idle_timeout"`
+	MaxHeaderBytes  int      `mapstructure:"max_header_bytes"`
+	ShutdownTimeout int      `mapstructure:"shutdown_timeout"`
 }
 
 type DatabaseConfig struct {
-	Host     string `mapstructure:"host"`
-	Port     int    `mapstructure:"port"`
-	User     string `mapstructure:"user"`
-	Password string `mapstructure:"password"`
-	DBName   string `mapstructure:"dbname"`
-	SSLMode  string `mapstructure:"sslmode"`
+	Host             string `mapstructure:"host"`
+	Port             int    `mapstructure:"port"`
+	User             string `mapstructure:"user"`
+	Password         string `mapstructure:"password"`
+	DBName           string `mapstructure:"dbname"`
+	SSLMode          string `mapstructure:"sslmode"`
+	MaxOpenConns     int    `mapstructure:"max_open_conns"`
+	MaxIdleConns     int    `mapstructure:"max_idle_conns"`
+	ConnMaxLifetime  int    `mapstructure:"conn_max_lifetime"`
+	ConnMaxIdleTime  int    `mapstructure:"conn_max_idle_time"`
 }
 
 func (c *DatabaseConfig) DSN() string {

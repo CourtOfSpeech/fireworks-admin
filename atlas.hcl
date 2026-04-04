@@ -1,6 +1,6 @@
 # atlas.hcl
 env "local" {
-  src = "ent://internal/infrastructure/persistence/ent/schema"
+  src = "ent://internal/ent/schema"
   url = "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable"
   dev = "docker://postgres/16/dev?search_path=public"
 

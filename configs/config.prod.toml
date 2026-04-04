@@ -1,6 +1,12 @@
 [server]
 port = 8080
 mode = "release"
+timeout = 30
+read_timeout = 15
+write_timeout = 15
+idle_timeout = 60
+max_header_bytes = 1048576
+shutdown_timeout = 30
 
 [database]
 host = "localhost"

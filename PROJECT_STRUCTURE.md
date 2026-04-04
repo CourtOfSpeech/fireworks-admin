@@ -21,7 +21,7 @@ fireworks-admin/
 ├── internal/                     # 私有应用代码目录
 │   ├── app/                      # 应用层：应用初始化和组装
 │   │   ├── app.go                # App 结构体定义，包含全局依赖
-│   │   ├── echo.go               # Echo HTTP 服务器配置和启动
+│   │   ├── server.go             # HTTP 服务器配置和启动
 │   │   ├── router.go             # 路由注册，连接各模块 Handler
 │   │   ├── wire.go               # Wire 依赖注入定义
 │   │   └── wire_gen.go           # Wire 自动生成的依赖注入代码
@@ -75,6 +75,10 @@ fireworks-admin/
 │   │   └── timeout.go            # 请求超时中间件
 │   │
 │   └── pkg/                      # 内部共享工具包目录
+│       ├── api/                  # API 响应工具
+│       │   ├── page.go           # 分页查询和结果结构体
+│       │   └── response.go       # 统一 API 响应封装
+│       │
 │       ├── config/               # 配置管理
 │       │   ├── config.go         # 配置结构体定义
 │       │   ├── loader.go         # 配置加载器（支持 TOML）
@@ -84,18 +88,14 @@ fireworks-admin/
 │       │   ├── db.go             # Ent 客户端初始化
 │       │   └── provider.go       # Wire ProviderSet
 │       │
-│       ├── httpx/                # HTTP 响应工具
-│       │   ├── page.go           # 分页查询和结果结构体
-│       │   └── response.go       # 统一 API 响应封装
+│       ├── idgen/                # ID 生成工具
+│       │   └── uuid.go           # UUID v4/v7 生成工具
 │       │
 │       ├── logger/               # 日志工具
 │       │   ├── logger.go         # Slog 日志封装
 │       │   └── provider.go       # Wire ProviderSet
 │       │
-│       ├── uuidx/                # UUID 工具
-│       │   └── uuidx.go          # UUID v7 生成工具
-│       │
-│       └── validate/             # 参数验证
+│       └── validator/            # 参数验证
 │           └── validator.go      # Echo 请求验证器
 │
 ├── test/                         # 测试目录
@@ -106,6 +106,7 @@ fireworks-admin/
 ├── .gitignore                    # Git 忽略文件配置
 ├── LICENSE                       # 开源许可证
 ├── Makefile                      # 构建和开发命令
+├── PROJECT_STRUCTURE.md          # 项目目录结构文档
 ├── atlas.hcl                     # Atlas 数据库迁移配置
 ├── go.mod                        # Go 模块定义
 └── go.sum                        # Go 模块校验
@@ -143,9 +144,20 @@ features/
 
 ### HTTP 框架（Echo v5）
 
-- 服务器配置在 `internal/app/echo.go`
+- 服务器配置在 `internal/app/server.go`
 - 中间件在 `internal/middleware/`
 - 路由注册在 `internal/app/router.go`
+
+## 包说明
+
+| 包名 | 路径 | 说明 |
+|------|------|------|
+| api | `internal/pkg/api` | API 响应封装，分页结构 |
+| config | `internal/pkg/config` | 配置加载和管理 |
+| db | `internal/pkg/db` | 数据库连接初始化 |
+| idgen | `internal/pkg/idgen` | UUID v4/v7 生成工具 |
+| logger | `internal/pkg/logger` | 结构化日志封装 |
+| validator | `internal/pkg/validator` | 请求参数验证 |
 
 ## 快速命令
 

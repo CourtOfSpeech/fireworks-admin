@@ -17,6 +17,10 @@ func InitializeApp() (*App, func(), error) {
 		logger.ProviderSet,
 		db.ProviderSet,
 		teltent.ProviderSet,
+		NewHealthRouter,
+
+		wire.Struct(new(RegistrarIn), "*"),
+		ProvideRegistrars,
 		wire.Struct(new(App), "*"),
 	)
 	return nil, nil, nil

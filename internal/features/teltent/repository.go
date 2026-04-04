@@ -135,6 +135,37 @@ func (r *Repository) GetByID(ctx context.Context, id string) (*Teltent, error) {
 	return toEntity(t), nil
 }
 
+// ExistsByCertificateNo 根据证件号检查租户是否已存在。
+// 返回 true 表示该证件号已被使用，false 表示未使用。
+func (r *Repository) ExistsByCertificateNo(ctx context.Context, certNo string) (bool, error) {
+	count, err := r.client.Teltent.Query().
+		Where(teltent.CertificateNoEQ(certNo)).
+		Count(ctx)
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
+
+// ExistsByCertificateNoExcludingID 根据证件号检查除指定ID外的租户是否已存在。
+// 用于更新操作时排除自身记录的唯一性校验。
+func (r *Repository) ExistsByCertificateNoExcludingID(ctx context.Context, certNo string, excludeID string) (bool, error) {
+	telentId, err := idgen.Parse(excludeID)
+	if err != nil {
+		return false, err
+	}
+	count, err := r.client.Teltent.Query().
+		Where(
+			teltent.CertificateNoEQ(certNo),
+			teltent.IDNEQ(telentId),
+		).
+		Count(ctx)
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
+
 // Update 根据ID更新数据库中的租户信息。
 func (r *Repository) Update(ctx context.Context, id string, req *UpdateTeltentReq) (*Teltent, error) {
 	telentId, err := idgen.Parse(id)

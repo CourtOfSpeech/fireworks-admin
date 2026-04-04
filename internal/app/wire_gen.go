@@ -29,11 +29,17 @@ func InitializeApp() (*App, func(), error) {
 	repository := teltent.NewRepository(client)
 	service := teltent.NewService(repository)
 	handler := teltent.NewHandler(service)
+	healthRouter := NewHealthRouter(client)
+	registrarIn := RegistrarIn{
+		Teltent: handler,
+		Health:  healthRouter,
+	}
+	v := ProvideRegistrars(registrarIn)
 	app := &App{
-		Config:         configConfig,
-		Logger:         slogLogger,
-		EntClient:      client,
-		TeltentHandler: handler,
+		Config:     configConfig,
+		Logger:     slogLogger,
+		EntClient:  client,
+		Registrars: v,
 	}
 	return app, func() {
 		cleanup()

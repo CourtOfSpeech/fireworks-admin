@@ -44,6 +44,12 @@ func NotFound(c *echo.Context, message string) error {
 	return Error(c, http.StatusNotFound, message)
 }
 
+// Conflict 返回 HTTP 409 Conflict 响应。
+// 用于表示资源冲突，如唯一约束违反等场景。
+func Conflict(c *echo.Context, message string) error {
+	return Error(c, http.StatusConflict, message)
+}
+
 func InternalError(c *echo.Context, message string) error {
 	return Error(c, http.StatusInternalServerError, message)
 }
