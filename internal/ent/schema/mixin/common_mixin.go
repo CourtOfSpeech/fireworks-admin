@@ -7,7 +7,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
-	"github.com/speech/fireworks-admin/internal/pkg/util"
+	"github.com/speech/fireworks-admin/internal/pkg/idgen"
 )
 
 // CommonMixin 通用 Mixin。
@@ -16,7 +16,7 @@ import (
 // 该 Mixin 还提供了 deleted_at 字段，用于实现软删除功能。
 // 该 Mixin 还提供了 tenant_id 字段，用于记录实体所属租户。
 type CommonMixin struct {
-	ent.Mixin
+	ent.Schema
 }
 
 // Fields of the common mixin.
@@ -41,7 +41,7 @@ type TenantId struct{ ent.Schema }
 func (TenantId) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("tenant_id", uuid.UUID{}).
-			Default(utils.NewV7Safe).
+			Default(idgen.NewV7Safe).
 			Immutable().
 			Comment("租户ID"),
 	}
@@ -57,7 +57,7 @@ type Id struct{ ent.Schema }
 func (Id) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("id", uuid.UUID{}).
-			Default(utils.NewV7Safe).
+			Default(idgen.NewV7Safe).
 			Unique().
 			Immutable().
 			Comment("主键"),

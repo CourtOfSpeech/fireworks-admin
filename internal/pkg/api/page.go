@@ -1,4 +1,4 @@
-package response
+package api
 
 // PageQuery 公共分页查询条件
 // 可嵌入到具体的查询条件结构体中

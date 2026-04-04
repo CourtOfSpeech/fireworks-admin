@@ -5,7 +5,7 @@ import (
 
 	entgo "github.com/speech/fireworks-admin/internal/ent"
 	"github.com/speech/fireworks-admin/internal/ent/teltent"
-	"github.com/speech/fireworks-admin/internal/pkg/util"
+	"github.com/speech/fireworks-admin/internal/pkg/idgen"
 )
 
 // Repository 租户数据持久化操作。
@@ -23,7 +23,7 @@ func NewRepository(client *entgo.Client) *Repository {
 // toEntity 将 Ent Teltent 模型转换为领域 Teltent 实体。
 func toEntity(t *entgo.Teltent) *Teltent {
 	return &Teltent{
-		ID:            utils.ToString(t.ID),
+		ID:            idgen.ToString(t.ID),
 		CertificateNo: t.CertificateNo,
 		Name:          t.Name,
 		Type:          t.Type,
@@ -39,7 +39,7 @@ func toEntity(t *entgo.Teltent) *Teltent {
 
 // Create 在数据库中创建新租户。
 func (r *Repository) Create(ctx context.Context, req *CreateTeltentReq) (*Teltent, error) {
-	id, err := utils.NewV7()
+	id, err := idgen.NewV7()
 	if err != nil {
 		return nil, err
 	}
@@ -68,7 +68,7 @@ func (r *Repository) Create(ctx context.Context, req *CreateTeltentReq) (*Telten
 
 // Delete 根据ID从数据库中删除租户。
 func (r *Repository) Delete(ctx context.Context, id string) error {
-	telentId, err := utils.Parse(id)
+	telentId, err := idgen.Parse(id)
 	if err != nil {
 		return err
 	}
@@ -124,7 +124,7 @@ func (r *Repository) FindByPage(ctx context.Context, query *TeltentQuery) ([]*Te
 
 // GetByID 根据ID从数据库查询租户。
 func (r *Repository) GetByID(ctx context.Context, id string) (*Teltent, error) {
-	telentId, err := utils.Parse(id)
+	telentId, err := idgen.Parse(id)
 	if err != nil {
 		return nil, err
 	}
@@ -137,7 +137,7 @@ func (r *Repository) GetByID(ctx context.Context, id string) (*Teltent, error) {
 
 // Update 根据ID更新数据库中的租户信息。
 func (r *Repository) Update(ctx context.Context, id string, req *UpdateTeltentReq) (*Teltent, error) {
-	telentId, err := utils.Parse(id)
+	telentId, err := idgen.Parse(id)
 	if err != nil {
 		return nil, err
 	}

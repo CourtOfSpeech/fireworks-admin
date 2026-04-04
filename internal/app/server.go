@@ -1,4 +1,4 @@
-package server
+package app
 
 import (
 	"errors"
@@ -7,38 +7,37 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v5"
-	"github.com/speech/fireworks-admin/internal/app"
-	"github.com/speech/fireworks-admin/internal/pkg/mw"
+	"github.com/speech/fireworks-admin/internal/middleware"
+	"github.com/speech/fireworks-admin/internal/pkg/api"
 	"github.com/speech/fireworks-admin/internal/pkg/logger"
-	"github.com/speech/fireworks-admin/internal/pkg/response"
-	"github.com/speech/fireworks-admin/internal/pkg/validate"
+	"github.com/speech/fireworks-admin/internal/pkg/validator"
 )
 
 // Server HTTP 服务器。
 type Server struct {
 	echo    *echo.Echo
-	app     *app.App
+	app     *App
 	cleanup func()
 }
 
 // NewServer 创建 HTTP 服务器实例。
-func NewServer(app *app.App, cleanup func()) *Server {
+func NewServer(a *App, cleanup func()) *Server {
 	e := echo.NewWithConfig(echo.Config{
-		Logger:             app.Logger,
+		Logger:             a.Logger,
 		HTTPErrorHandler:   customHTTPErrorHandler,
-		Validator:          validate.NewValidator(),
+		Validator:          validator.NewValidator(),
 		FormParseMaxMemory: 10 << 20,
 	})
 
 	e.Use(middleware.RequestID())
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
-	e.Use(middleware.CORS(app.Config.Server.AllowOrigins))
-	e.Use(middleware.Timeout(app.Config.Server.Timeout))
+	e.Use(middleware.CORS(a.Config.Server.AllowOrigins))
+	e.Use(middleware.Timeout(a.Config.Server.Timeout))
 
 	return &Server{
 		echo:    e,
-		app:     app,
+		app:     a,
 		cleanup: cleanup,
 	}
 }
@@ -55,13 +54,6 @@ func (s *Server) Start() error {
 // Echo 返回 Echo 实例。
 func (s *Server) Echo() *echo.Echo {
 	return s.echo
-}
-
-// Close 关闭 HTTP 服务器。
-func (s *Server) Close() {
-	if s.cleanup != nil {
-		s.cleanup()
-	}
 }
 
 // customHTTPErrorHandler 自定义 HTTP 错误处理器。
@@ -89,5 +81,5 @@ func customHTTPErrorHandler(c *echo.Context, err error) {
 		_ = c.NoContent(code)
 		return
 	}
-	_ = response.Error(c, code, message)
+	_ = api.Error(c, code, message)
 }

@@ -3,7 +3,7 @@ package teltent
 import (
 	"context"
 
-	"github.com/speech/fireworks-admin/internal/pkg/response"
+	"github.com/speech/fireworks-admin/internal/pkg/api"
 )
 
 // Service 封装租户业务逻辑操作。
@@ -42,11 +42,11 @@ func (s *Service) GetByID(ctx context.Context, id string) (*Teltent, error) {
 }
 
 // FindByPage 根据查询条件分页查询租户列表。
-func (s *Service) FindByPage(ctx context.Context, query *TeltentQuery) (*response.PageResult[*Teltent], error) {
+func (s *Service) FindByPage(ctx context.Context, query *TeltentQuery) (*api.PageResult[*Teltent], error) {
 	list, total, err := s.repo.FindByPage(ctx, query)
 	if err != nil {
 		return nil, err
 	}
 
-	return response.NewPageResult(list, total, query.Page, query.PageSize), nil
+	return api.NewPageResult(list, total, query.Page, query.PageSize), nil
 }

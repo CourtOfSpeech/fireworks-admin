@@ -3,7 +3,7 @@ package teltent
 import (
 	"time"
 
-	"github.com/speech/fireworks-admin/internal/pkg/response"
+	"github.com/speech/fireworks-admin/internal/pkg/api"
 )
 
 // 租户类型
@@ -60,7 +60,7 @@ type UpdateTeltentReq struct {
 
 // TeltentQuery 租户查询条件
 type TeltentQuery struct {
-	response.PageQuery
+	api.PageQuery
 	Keyword string `query:"keyword"` // 关键字：模糊匹配证件号码（前缀）、名称
 	Status  *int8  `query:"status"`  // 状态：精确匹配
 	Email   string `query:"email"`   // 邮箱：精确匹配

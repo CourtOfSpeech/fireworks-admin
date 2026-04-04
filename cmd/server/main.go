@@ -7,7 +7,6 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/speech/fireworks-admin/internal/app"
 	"github.com/speech/fireworks-admin/internal/pkg/logger"
-	"github.com/speech/fireworks-admin/internal/pkg/server"
 )
 
 func main() {
@@ -18,7 +17,7 @@ func main() {
 	}
 	defer cleanup()
 
-	srv := server.NewServer(application, cleanup)
+	srv := app.NewServer(application, cleanup)
 	app.RegisterRoutes(srv.Echo(), application)
 
 	if err := srv.Start(); err != nil {
