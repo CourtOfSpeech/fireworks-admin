@@ -7,41 +7,45 @@
 package app
 
 import (
-	"github.com/speech/fireworks-admin/internal/features/teltent"
+	"github.com/speech/fireworks-admin/internal/features/tenant"
 	"github.com/speech/fireworks-admin/internal/pkg/config"
 	"github.com/speech/fireworks-admin/internal/pkg/db"
+	"github.com/speech/fireworks-admin/internal/pkg/lifecycle"
 	"github.com/speech/fireworks-admin/internal/pkg/logger"
 )
 
 // Injectors from wire.go:
 
 // InitializeApp 初始化应用依赖。
-func InitializeApp() (*App, func(), error) {
+func InitializeApp() (*App, error) {
 	configConfig, err := config.ProvideConfig()
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	slogLogger := logger.ProvideLogger(configConfig)
-	client, cleanup, err := db.NewEntClient(configConfig)
+	lifecycleLifecycle := lifecycle.NewLifecycle()
+	client, err := db.NewEntClient(lifecycleLifecycle, configConfig)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
-	repository := teltent.NewRepository(client)
-	service := teltent.NewService(repository)
-	handler := teltent.NewHandler(service)
+	repository := tenant.NewRepository(client)
+	service := tenant.NewService(repository)
+	handler := tenant.NewHandler(service)
 	healthRouter := NewHealthRouter(client)
 	registrarIn := RegistrarIn{
-		Teltent: handler,
-		Health:  healthRouter,
+		Tenant: handler,
+		Health: healthRouter,
 	}
 	v := ProvideRegistrars(registrarIn)
+	echo := NewEcho(slogLogger, configConfig, v)
+	server := NewServer(echo, configConfig, lifecycleLifecycle)
 	app := &App{
 		Config:     configConfig,
 		Logger:     slogLogger,
 		EntClient:  client,
 		Registrars: v,
+		Lifecycle:  lifecycleLifecycle,
+		Server:     server,
 	}
-	return app, func() {
-		cleanup()
-	}, nil
+	return app, nil
 }

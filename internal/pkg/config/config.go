@@ -19,6 +19,7 @@ type ServerConfig struct {
 	WriteTimeout    int      `mapstructure:"write_timeout"`
 	IdleTimeout     int      `mapstructure:"idle_timeout"`
 	MaxHeaderBytes  int      `mapstructure:"max_header_bytes"`
+	StartTimeout    int      `mapstructure:"start_timeout"`
 	ShutdownTimeout int      `mapstructure:"shutdown_timeout"`
 }
 

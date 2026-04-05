@@ -1,4 +1,4 @@
-package teltent
+package tenant
 
 import (
 	"fmt"
@@ -9,17 +9,17 @@ import (
 // 租户模块业务错误码定义。
 // 使用 4xxxx 范围作为租户模块的错误码段，便于错误分类和追踪。
 const (
-	ErrCodeTeltentNotFound   = 40401 // 租户不存在
-	ErrCodeDuplicateCertNo   = 40901 // 证件号重复
-	ErrCodeDuplicateEmail    = 40902 // 邮箱重复
-	ErrCodeDuplicatePhone    = 40903 // 电话重复
-	ErrCodeInvalidStatus     = 40001 // 状态无效
-	ErrCodeTeltentExpired    = 40002 // 租户已过期
+	ErrCodeTenantNotFound   = 40401 // 租户不存在
+	ErrCodeDuplicateCertNo  = 40901 // 证件号重复
+	ErrCodeDuplicateEmail   = 40902 // 邮箱重复
+	ErrCodeDuplicatePhone   = 40903 // 电话重复
+	ErrCodeInvalidStatus    = 40001 // 状态无效
+	ErrCodeTenantExpired    = 40002 // 租户已过期
 )
 
-// ErrTeltentNotFound 表示租户记录不存在。
+// ErrTenantNotFound 表示租户记录不存在。
 // 在 GetByID、Update、Delete 操作中当目标租户未找到时返回此错误。
-var ErrTeltentNotFound = bizerr.NewNotFoundError("租户", "ID")
+var ErrTenantNotFound = bizerr.NewNotFoundError("租户", "ID")
 
 // ErrDuplicateCertNo 表示证件号已存在。
 // 创建或更新租户时，若证件号与已有记录冲突则返回此错误。
@@ -35,9 +35,9 @@ var ErrDuplicatePhone = bizerr.NewConflictError("电话号码已被使用")
 // 当传入的状态值不在允许范围内（非禁用/正常）时返回此错误。
 var ErrInvalidStatus = bizerr.NewInvalidArgumentError("无效的租户状态值")
 
-// NewTeltentNotFound 根据给定 ID 创建具体的"租户不存在"错误实例。
+// NewTenantNotFound 根据给定 ID 创建具体的"租户不存在"错误实例。
 // 用于在 Service 层返回带有具体查询条件的 NotFoundError。
-func NewTeltentNotFound(id string) error {
+func NewTenantNotFound(id string) error {
 	return bizerr.NewNotFoundError("租户", fmt.Sprintf("id=%s", id))
 }
 

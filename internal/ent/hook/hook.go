@@ -9,16 +9,16 @@ import (
 	"github.com/speech/fireworks-admin/internal/ent"
 )
 
-// The TeltentFunc type is an adapter to allow the use of ordinary
-// function as Teltent mutator.
-type TeltentFunc func(context.Context, *ent.TeltentMutation) (ent.Value, error)
+// The TenantFunc type is an adapter to allow the use of ordinary
+// function as Tenant mutator.
+type TenantFunc func(context.Context, *ent.TenantMutation) (ent.Value, error)
 
 // Mutate calls f(ctx, m).
-func (f TeltentFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.TeltentMutation); ok {
+func (f TenantFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.TenantMutation); ok {
 		return f(ctx, mv)
 	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TeltentMutation", m)
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TenantMutation", m)
 }
 
 // Condition is a hook condition function.

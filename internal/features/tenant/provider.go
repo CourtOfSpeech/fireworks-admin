@@ -1,4 +1,4 @@
-package teltent
+package tenant
 
 import "github.com/google/wire"
 

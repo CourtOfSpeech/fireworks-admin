@@ -12,7 +12,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"github.com/speech/fireworks-admin/internal/ent/teltent"
+	"github.com/speech/fireworks-admin/internal/ent/tenant"
 )
 
 // ent aliases to avoid import conflicts in user's code.
@@ -73,7 +73,7 @@ var (
 func checkColumn(t, c string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			teltent.Table: teltent.ValidColumn,
+			tenant.Table: tenant.ValidColumn,
 		})
 	})
 	return columnCheck(t, c)

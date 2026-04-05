@@ -13,67 +13,67 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"github.com/speech/fireworks-admin/internal/ent/predicate"
-	"github.com/speech/fireworks-admin/internal/ent/teltent"
+	"github.com/speech/fireworks-admin/internal/ent/tenant"
 )
 
-// TeltentQuery is the builder for querying Teltent entities.
-type TeltentQuery struct {
+// TenantQuery is the builder for querying Tenant entities.
+type TenantQuery struct {
 	config
 	ctx        *QueryContext
-	order      []teltent.OrderOption
+	order      []tenant.OrderOption
 	inters     []Interceptor
-	predicates []predicate.Teltent
+	predicates []predicate.Tenant
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
 }
 
-// Where adds a new predicate for the TeltentQuery builder.
-func (_q *TeltentQuery) Where(ps ...predicate.Teltent) *TeltentQuery {
+// Where adds a new predicate for the TenantQuery builder.
+func (_q *TenantQuery) Where(ps ...predicate.Tenant) *TenantQuery {
 	_q.predicates = append(_q.predicates, ps...)
 	return _q
 }
 
 // Limit the number of records to be returned by this query.
-func (_q *TeltentQuery) Limit(limit int) *TeltentQuery {
+func (_q *TenantQuery) Limit(limit int) *TenantQuery {
 	_q.ctx.Limit = &limit
 	return _q
 }
 
 // Offset to start from.
-func (_q *TeltentQuery) Offset(offset int) *TeltentQuery {
+func (_q *TenantQuery) Offset(offset int) *TenantQuery {
 	_q.ctx.Offset = &offset
 	return _q
 }
 
 // Unique configures the query builder to filter duplicate records on query.
 // By default, unique is set to true, and can be disabled using this method.
-func (_q *TeltentQuery) Unique(unique bool) *TeltentQuery {
+func (_q *TenantQuery) Unique(unique bool) *TenantQuery {
 	_q.ctx.Unique = &unique
 	return _q
 }
 
 // Order specifies how the records should be ordered.
-func (_q *TeltentQuery) Order(o ...teltent.OrderOption) *TeltentQuery {
+func (_q *TenantQuery) Order(o ...tenant.OrderOption) *TenantQuery {
 	_q.order = append(_q.order, o...)
 	return _q
 }
 
-// First returns the first Teltent entity from the query.
-// Returns a *NotFoundError when no Teltent was found.
-func (_q *TeltentQuery) First(ctx context.Context) (*Teltent, error) {
+// First returns the first Tenant entity from the query.
+// Returns a *NotFoundError when no Tenant was found.
+func (_q *TenantQuery) First(ctx context.Context) (*Tenant, error) {
 	nodes, err := _q.Limit(1).All(setContextOp(ctx, _q.ctx, ent.OpQueryFirst))
 	if err != nil {
 		return nil, err
 	}
 	if len(nodes) == 0 {
-		return nil, &NotFoundError{teltent.Label}
+		return nil, &NotFoundError{tenant.Label}
 	}
 	return nodes[0], nil
 }
 
 // FirstX is like First, but panics if an error occurs.
-func (_q *TeltentQuery) FirstX(ctx context.Context) *Teltent {
+func (_q *TenantQuery) FirstX(ctx context.Context) *Tenant {
 	node, err := _q.First(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -81,22 +81,22 @@ func (_q *TeltentQuery) FirstX(ctx context.Context) *Teltent {
 	return node
 }
 
-// FirstID returns the first Teltent ID from the query.
-// Returns a *NotFoundError when no Teltent ID was found.
-func (_q *TeltentQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+// FirstID returns the first Tenant ID from the query.
+// Returns a *NotFoundError when no Tenant ID was found.
+func (_q *TenantQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
 	var ids []uuid.UUID
 	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
 	if len(ids) == 0 {
-		err = &NotFoundError{teltent.Label}
+		err = &NotFoundError{tenant.Label}
 		return
 	}
 	return ids[0], nil
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (_q *TeltentQuery) FirstIDX(ctx context.Context) uuid.UUID {
+func (_q *TenantQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -104,10 +104,10 @@ func (_q *TeltentQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	return id
 }
 
-// Only returns a single Teltent entity found by the query, ensuring it only returns one.
-// Returns a *NotSingularError when more than one Teltent entity is found.
-// Returns a *NotFoundError when no Teltent entities are found.
-func (_q *TeltentQuery) Only(ctx context.Context) (*Teltent, error) {
+// Only returns a single Tenant entity found by the query, ensuring it only returns one.
+// Returns a *NotSingularError when more than one Tenant entity is found.
+// Returns a *NotFoundError when no Tenant entities are found.
+func (_q *TenantQuery) Only(ctx context.Context) (*Tenant, error) {
 	nodes, err := _q.Limit(2).All(setContextOp(ctx, _q.ctx, ent.OpQueryOnly))
 	if err != nil {
 		return nil, err
@@ -116,14 +116,14 @@ func (_q *TeltentQuery) Only(ctx context.Context) (*Teltent, error) {
 	case 1:
 		return nodes[0], nil
 	case 0:
-		return nil, &NotFoundError{teltent.Label}
+		return nil, &NotFoundError{tenant.Label}
 	default:
-		return nil, &NotSingularError{teltent.Label}
+		return nil, &NotSingularError{tenant.Label}
 	}
 }
 
 // OnlyX is like Only, but panics if an error occurs.
-func (_q *TeltentQuery) OnlyX(ctx context.Context) *Teltent {
+func (_q *TenantQuery) OnlyX(ctx context.Context) *Tenant {
 	node, err := _q.Only(ctx)
 	if err != nil {
 		panic(err)
@@ -131,10 +131,10 @@ func (_q *TeltentQuery) OnlyX(ctx context.Context) *Teltent {
 	return node
 }
 
-// OnlyID is like Only, but returns the only Teltent ID in the query.
-// Returns a *NotSingularError when more than one Teltent ID is found.
+// OnlyID is like Only, but returns the only Tenant ID in the query.
+// Returns a *NotSingularError when more than one Tenant ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *TeltentQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+func (_q *TenantQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
 	var ids []uuid.UUID
 	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
@@ -143,15 +143,15 @@ func (_q *TeltentQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
 	case 1:
 		id = ids[0]
 	case 0:
-		err = &NotFoundError{teltent.Label}
+		err = &NotFoundError{tenant.Label}
 	default:
-		err = &NotSingularError{teltent.Label}
+		err = &NotSingularError{tenant.Label}
 	}
 	return
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (_q *TeltentQuery) OnlyIDX(ctx context.Context) uuid.UUID {
+func (_q *TenantQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -159,18 +159,18 @@ func (_q *TeltentQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	return id
 }
 
-// All executes the query and returns a list of Teltents.
-func (_q *TeltentQuery) All(ctx context.Context) ([]*Teltent, error) {
+// All executes the query and returns a list of Tenants.
+func (_q *TenantQuery) All(ctx context.Context) ([]*Tenant, error) {
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryAll)
 	if err := _q.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
-	qr := querierAll[[]*Teltent, *TeltentQuery]()
-	return withInterceptors[[]*Teltent](ctx, _q, qr, _q.inters)
+	qr := querierAll[[]*Tenant, *TenantQuery]()
+	return withInterceptors[[]*Tenant](ctx, _q, qr, _q.inters)
 }
 
 // AllX is like All, but panics if an error occurs.
-func (_q *TeltentQuery) AllX(ctx context.Context) []*Teltent {
+func (_q *TenantQuery) AllX(ctx context.Context) []*Tenant {
 	nodes, err := _q.All(ctx)
 	if err != nil {
 		panic(err)
@@ -178,20 +178,20 @@ func (_q *TeltentQuery) AllX(ctx context.Context) []*Teltent {
 	return nodes
 }
 
-// IDs executes the query and returns a list of Teltent IDs.
-func (_q *TeltentQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
+// IDs executes the query and returns a list of Tenant IDs.
+func (_q *TenantQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryIDs)
-	if err = _q.Select(teltent.FieldID).Scan(ctx, &ids); err != nil {
+	if err = _q.Select(tenant.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
 	return ids, nil
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (_q *TeltentQuery) IDsX(ctx context.Context) []uuid.UUID {
+func (_q *TenantQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -200,16 +200,16 @@ func (_q *TeltentQuery) IDsX(ctx context.Context) []uuid.UUID {
 }
 
 // Count returns the count of the given query.
-func (_q *TeltentQuery) Count(ctx context.Context) (int, error) {
+func (_q *TenantQuery) Count(ctx context.Context) (int, error) {
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryCount)
 	if err := _q.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
-	return withInterceptors[int](ctx, _q, querierCount[*TeltentQuery](), _q.inters)
+	return withInterceptors[int](ctx, _q, querierCount[*TenantQuery](), _q.inters)
 }
 
 // CountX is like Count, but panics if an error occurs.
-func (_q *TeltentQuery) CountX(ctx context.Context) int {
+func (_q *TenantQuery) CountX(ctx context.Context) int {
 	count, err := _q.Count(ctx)
 	if err != nil {
 		panic(err)
@@ -218,7 +218,7 @@ func (_q *TeltentQuery) CountX(ctx context.Context) int {
 }
 
 // Exist returns true if the query has elements in the graph.
-func (_q *TeltentQuery) Exist(ctx context.Context) (bool, error) {
+func (_q *TenantQuery) Exist(ctx context.Context) (bool, error) {
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryExist)
 	switch _, err := _q.FirstID(ctx); {
 	case IsNotFound(err):
@@ -231,7 +231,7 @@ func (_q *TeltentQuery) Exist(ctx context.Context) (bool, error) {
 }
 
 // ExistX is like Exist, but panics if an error occurs.
-func (_q *TeltentQuery) ExistX(ctx context.Context) bool {
+func (_q *TenantQuery) ExistX(ctx context.Context) bool {
 	exist, err := _q.Exist(ctx)
 	if err != nil {
 		panic(err)
@@ -239,18 +239,18 @@ func (_q *TeltentQuery) ExistX(ctx context.Context) bool {
 	return exist
 }
 
-// Clone returns a duplicate of the TeltentQuery builder, including all associated steps. It can be
+// Clone returns a duplicate of the TenantQuery builder, including all associated steps. It can be
 // used to prepare common query builders and use them differently after the clone is made.
-func (_q *TeltentQuery) Clone() *TeltentQuery {
+func (_q *TenantQuery) Clone() *TenantQuery {
 	if _q == nil {
 		return nil
 	}
-	return &TeltentQuery{
+	return &TenantQuery{
 		config:     _q.config,
 		ctx:        _q.ctx.Clone(),
-		order:      append([]teltent.OrderOption{}, _q.order...),
+		order:      append([]tenant.OrderOption{}, _q.order...),
 		inters:     append([]Interceptor{}, _q.inters...),
-		predicates: append([]predicate.Teltent{}, _q.predicates...),
+		predicates: append([]predicate.Tenant{}, _q.predicates...),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
@@ -267,15 +267,15 @@ func (_q *TeltentQuery) Clone() *TeltentQuery {
 //		Count int `json:"count,omitempty"`
 //	}
 //
-//	client.Teltent.Query().
-//		GroupBy(teltent.FieldStatus).
+//	client.Tenant.Query().
+//		GroupBy(tenant.FieldStatus).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
-func (_q *TeltentQuery) GroupBy(field string, fields ...string) *TeltentGroupBy {
+func (_q *TenantQuery) GroupBy(field string, fields ...string) *TenantGroupBy {
 	_q.ctx.Fields = append([]string{field}, fields...)
-	grbuild := &TeltentGroupBy{build: _q}
+	grbuild := &TenantGroupBy{build: _q}
 	grbuild.flds = &_q.ctx.Fields
-	grbuild.label = teltent.Label
+	grbuild.label = tenant.Label
 	grbuild.scan = grbuild.Scan
 	return grbuild
 }
@@ -289,23 +289,23 @@ func (_q *TeltentQuery) GroupBy(field string, fields ...string) *TeltentGroupBy 
 //		Status int8 `json:"status,omitempty"`
 //	}
 //
-//	client.Teltent.Query().
-//		Select(teltent.FieldStatus).
+//	client.Tenant.Query().
+//		Select(tenant.FieldStatus).
 //		Scan(ctx, &v)
-func (_q *TeltentQuery) Select(fields ...string) *TeltentSelect {
+func (_q *TenantQuery) Select(fields ...string) *TenantSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
-	sbuild := &TeltentSelect{TeltentQuery: _q}
-	sbuild.label = teltent.Label
+	sbuild := &TenantSelect{TenantQuery: _q}
+	sbuild.label = tenant.Label
 	sbuild.flds, sbuild.scan = &_q.ctx.Fields, sbuild.Scan
 	return sbuild
 }
 
-// Aggregate returns a TeltentSelect configured with the given aggregations.
-func (_q *TeltentQuery) Aggregate(fns ...AggregateFunc) *TeltentSelect {
+// Aggregate returns a TenantSelect configured with the given aggregations.
+func (_q *TenantQuery) Aggregate(fns ...AggregateFunc) *TenantSelect {
 	return _q.Select().Aggregate(fns...)
 }
 
-func (_q *TeltentQuery) prepareQuery(ctx context.Context) error {
+func (_q *TenantQuery) prepareQuery(ctx context.Context) error {
 	for _, inter := range _q.inters {
 		if inter == nil {
 			return fmt.Errorf("ent: uninitialized interceptor (forgotten import ent/runtime?)")
@@ -317,7 +317,7 @@ func (_q *TeltentQuery) prepareQuery(ctx context.Context) error {
 		}
 	}
 	for _, f := range _q.ctx.Fields {
-		if !teltent.ValidColumn(f) {
+		if !tenant.ValidColumn(f) {
 			return &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
 		}
 	}
@@ -331,16 +331,16 @@ func (_q *TeltentQuery) prepareQuery(ctx context.Context) error {
 	return nil
 }
 
-func (_q *TeltentQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Teltent, error) {
+func (_q *TenantQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Tenant, error) {
 	var (
-		nodes = []*Teltent{}
+		nodes = []*Tenant{}
 		_spec = _q.querySpec()
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
-		return (*Teltent).scanValues(nil, columns)
+		return (*Tenant).scanValues(nil, columns)
 	}
 	_spec.Assign = func(columns []string, values []any) error {
-		node := &Teltent{config: _q.config}
+		node := &Tenant{config: _q.config}
 		nodes = append(nodes, node)
 		return node.assignValues(columns, values)
 	}
@@ -356,7 +356,7 @@ func (_q *TeltentQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Telt
 	return nodes, nil
 }
 
-func (_q *TeltentQuery) sqlCount(ctx context.Context) (int, error) {
+func (_q *TenantQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
 	_spec.Node.Columns = _q.ctx.Fields
 	if len(_q.ctx.Fields) > 0 {
@@ -365,8 +365,8 @@ func (_q *TeltentQuery) sqlCount(ctx context.Context) (int, error) {
 	return sqlgraph.CountNodes(ctx, _q.driver, _spec)
 }
 
-func (_q *TeltentQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(teltent.Table, teltent.Columns, sqlgraph.NewFieldSpec(teltent.FieldID, field.TypeUUID))
+func (_q *TenantQuery) querySpec() *sqlgraph.QuerySpec {
+	_spec := sqlgraph.NewQuerySpec(tenant.Table, tenant.Columns, sqlgraph.NewFieldSpec(tenant.FieldID, field.TypeUUID))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
@@ -375,9 +375,9 @@ func (_q *TeltentQuery) querySpec() *sqlgraph.QuerySpec {
 	}
 	if fields := _q.ctx.Fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
-		_spec.Node.Columns = append(_spec.Node.Columns, teltent.FieldID)
+		_spec.Node.Columns = append(_spec.Node.Columns, tenant.FieldID)
 		for i := range fields {
-			if fields[i] != teltent.FieldID {
+			if fields[i] != tenant.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
 		}
@@ -405,12 +405,12 @@ func (_q *TeltentQuery) querySpec() *sqlgraph.QuerySpec {
 	return _spec
 }
 
-func (_q *TeltentQuery) sqlQuery(ctx context.Context) *sql.Selector {
+func (_q *TenantQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	builder := sql.Dialect(_q.driver.Dialect())
-	t1 := builder.Table(teltent.Table)
+	t1 := builder.Table(tenant.Table)
 	columns := _q.ctx.Fields
 	if len(columns) == 0 {
-		columns = teltent.Columns
+		columns = tenant.Columns
 	}
 	selector := builder.Select(t1.Columns(columns...)...).From(t1)
 	if _q.sql != nil {
@@ -437,28 +437,28 @@ func (_q *TeltentQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	return selector
 }
 
-// TeltentGroupBy is the group-by builder for Teltent entities.
-type TeltentGroupBy struct {
+// TenantGroupBy is the group-by builder for Tenant entities.
+type TenantGroupBy struct {
 	selector
-	build *TeltentQuery
+	build *TenantQuery
 }
 
 // Aggregate adds the given aggregation functions to the group-by query.
-func (_g *TeltentGroupBy) Aggregate(fns ...AggregateFunc) *TeltentGroupBy {
+func (_g *TenantGroupBy) Aggregate(fns ...AggregateFunc) *TenantGroupBy {
 	_g.fns = append(_g.fns, fns...)
 	return _g
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (_g *TeltentGroupBy) Scan(ctx context.Context, v any) error {
+func (_g *TenantGroupBy) Scan(ctx context.Context, v any) error {
 	ctx = setContextOp(ctx, _g.build.ctx, ent.OpQueryGroupBy)
 	if err := _g.build.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*TeltentQuery, *TeltentGroupBy](ctx, _g.build, _g, _g.build.inters, v)
+	return scanWithInterceptors[*TenantQuery, *TenantGroupBy](ctx, _g.build, _g, _g.build.inters, v)
 }
 
-func (_g *TeltentGroupBy) sqlScan(ctx context.Context, root *TeltentQuery, v any) error {
+func (_g *TenantGroupBy) sqlScan(ctx context.Context, root *TenantQuery, v any) error {
 	selector := root.sqlQuery(ctx).Select()
 	aggregation := make([]string, 0, len(_g.fns))
 	for _, fn := range _g.fns {
@@ -485,28 +485,28 @@ func (_g *TeltentGroupBy) sqlScan(ctx context.Context, root *TeltentQuery, v any
 	return sql.ScanSlice(rows, v)
 }
 
-// TeltentSelect is the builder for selecting fields of Teltent entities.
-type TeltentSelect struct {
-	*TeltentQuery
+// TenantSelect is the builder for selecting fields of Tenant entities.
+type TenantSelect struct {
+	*TenantQuery
 	selector
 }
 
 // Aggregate adds the given aggregation functions to the selector query.
-func (_s *TeltentSelect) Aggregate(fns ...AggregateFunc) *TeltentSelect {
+func (_s *TenantSelect) Aggregate(fns ...AggregateFunc) *TenantSelect {
 	_s.fns = append(_s.fns, fns...)
 	return _s
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (_s *TeltentSelect) Scan(ctx context.Context, v any) error {
+func (_s *TenantSelect) Scan(ctx context.Context, v any) error {
 	ctx = setContextOp(ctx, _s.ctx, ent.OpQuerySelect)
 	if err := _s.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*TeltentQuery, *TeltentSelect](ctx, _s.TeltentQuery, _s, _s.inters, v)
+	return scanWithInterceptors[*TenantQuery, *TenantSelect](ctx, _s.TenantQuery, _s, _s.inters, v)
 }
 
-func (_s *TeltentSelect) sqlScan(ctx context.Context, root *TeltentQuery, v any) error {
+func (_s *TenantSelect) sqlScan(ctx context.Context, root *TenantQuery, v any) error {
 	selector := root.sqlQuery(ctx)
 	aggregation := make([]string, 0, len(_s.fns))
 	for _, fn := range _s.fns {

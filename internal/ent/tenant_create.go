@@ -11,30 +11,30 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
-	"github.com/speech/fireworks-admin/internal/ent/teltent"
+	"github.com/speech/fireworks-admin/internal/ent/tenant"
 )
 
-// TeltentCreate is the builder for creating a Teltent entity.
-type TeltentCreate struct {
+// TenantCreate is the builder for creating a Tenant entity.
+type TenantCreate struct {
 	config
-	mutation *TeltentMutation
+	mutation *TenantMutation
 	hooks    []Hook
 }
 
 // SetStatus sets the "status" field.
-func (_c *TeltentCreate) SetStatus(v int8) *TeltentCreate {
+func (_c *TenantCreate) SetStatus(v int8) *TenantCreate {
 	_c.mutation.SetStatus(v)
 	return _c
 }
 
 // SetCreatedAt sets the "created_at" field.
-func (_c *TeltentCreate) SetCreatedAt(v time.Time) *TeltentCreate {
+func (_c *TenantCreate) SetCreatedAt(v time.Time) *TenantCreate {
 	_c.mutation.SetCreatedAt(v)
 	return _c
 }
 
 // SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
-func (_c *TeltentCreate) SetNillableCreatedAt(v *time.Time) *TeltentCreate {
+func (_c *TenantCreate) SetNillableCreatedAt(v *time.Time) *TenantCreate {
 	if v != nil {
 		_c.SetCreatedAt(*v)
 	}
@@ -42,13 +42,13 @@ func (_c *TeltentCreate) SetNillableCreatedAt(v *time.Time) *TeltentCreate {
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (_c *TeltentCreate) SetUpdatedAt(v time.Time) *TeltentCreate {
+func (_c *TenantCreate) SetUpdatedAt(v time.Time) *TenantCreate {
 	_c.mutation.SetUpdatedAt(v)
 	return _c
 }
 
 // SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
-func (_c *TeltentCreate) SetNillableUpdatedAt(v *time.Time) *TeltentCreate {
+func (_c *TenantCreate) SetNillableUpdatedAt(v *time.Time) *TenantCreate {
 	if v != nil {
 		_c.SetUpdatedAt(*v)
 	}
@@ -56,13 +56,13 @@ func (_c *TeltentCreate) SetNillableUpdatedAt(v *time.Time) *TeltentCreate {
 }
 
 // SetDeletedAt sets the "deleted_at" field.
-func (_c *TeltentCreate) SetDeletedAt(v time.Time) *TeltentCreate {
+func (_c *TenantCreate) SetDeletedAt(v time.Time) *TenantCreate {
 	_c.mutation.SetDeletedAt(v)
 	return _c
 }
 
 // SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (_c *TeltentCreate) SetNillableDeletedAt(v *time.Time) *TeltentCreate {
+func (_c *TenantCreate) SetNillableDeletedAt(v *time.Time) *TenantCreate {
 	if v != nil {
 		_c.SetDeletedAt(*v)
 	}
@@ -70,25 +70,25 @@ func (_c *TeltentCreate) SetNillableDeletedAt(v *time.Time) *TeltentCreate {
 }
 
 // SetCertificateNo sets the "certificate_no" field.
-func (_c *TeltentCreate) SetCertificateNo(v string) *TeltentCreate {
+func (_c *TenantCreate) SetCertificateNo(v string) *TenantCreate {
 	_c.mutation.SetCertificateNo(v)
 	return _c
 }
 
 // SetName sets the "name" field.
-func (_c *TeltentCreate) SetName(v string) *TeltentCreate {
+func (_c *TenantCreate) SetName(v string) *TenantCreate {
 	_c.mutation.SetName(v)
 	return _c
 }
 
 // SetType sets the "type" field.
-func (_c *TeltentCreate) SetType(v int8) *TeltentCreate {
+func (_c *TenantCreate) SetType(v int8) *TenantCreate {
 	_c.mutation.SetType(v)
 	return _c
 }
 
 // SetNillableType sets the "type" field if the given value is not nil.
-func (_c *TeltentCreate) SetNillableType(v *int8) *TeltentCreate {
+func (_c *TenantCreate) SetNillableType(v *int8) *TenantCreate {
 	if v != nil {
 		_c.SetType(*v)
 	}
@@ -96,31 +96,31 @@ func (_c *TeltentCreate) SetNillableType(v *int8) *TeltentCreate {
 }
 
 // SetContactName sets the "contact_name" field.
-func (_c *TeltentCreate) SetContactName(v string) *TeltentCreate {
+func (_c *TenantCreate) SetContactName(v string) *TenantCreate {
 	_c.mutation.SetContactName(v)
 	return _c
 }
 
 // SetEmail sets the "email" field.
-func (_c *TeltentCreate) SetEmail(v string) *TeltentCreate {
+func (_c *TenantCreate) SetEmail(v string) *TenantCreate {
 	_c.mutation.SetEmail(v)
 	return _c
 }
 
 // SetPhone sets the "phone" field.
-func (_c *TeltentCreate) SetPhone(v string) *TeltentCreate {
+func (_c *TenantCreate) SetPhone(v string) *TenantCreate {
 	_c.mutation.SetPhone(v)
 	return _c
 }
 
 // SetExpiredAt sets the "expired_at" field.
-func (_c *TeltentCreate) SetExpiredAt(v time.Time) *TeltentCreate {
+func (_c *TenantCreate) SetExpiredAt(v time.Time) *TenantCreate {
 	_c.mutation.SetExpiredAt(v)
 	return _c
 }
 
 // SetNillableExpiredAt sets the "expired_at" field if the given value is not nil.
-func (_c *TeltentCreate) SetNillableExpiredAt(v *time.Time) *TeltentCreate {
+func (_c *TenantCreate) SetNillableExpiredAt(v *time.Time) *TenantCreate {
 	if v != nil {
 		_c.SetExpiredAt(*v)
 	}
@@ -128,32 +128,32 @@ func (_c *TeltentCreate) SetNillableExpiredAt(v *time.Time) *TeltentCreate {
 }
 
 // SetID sets the "id" field.
-func (_c *TeltentCreate) SetID(v uuid.UUID) *TeltentCreate {
+func (_c *TenantCreate) SetID(v uuid.UUID) *TenantCreate {
 	_c.mutation.SetID(v)
 	return _c
 }
 
 // SetNillableID sets the "id" field if the given value is not nil.
-func (_c *TeltentCreate) SetNillableID(v *uuid.UUID) *TeltentCreate {
+func (_c *TenantCreate) SetNillableID(v *uuid.UUID) *TenantCreate {
 	if v != nil {
 		_c.SetID(*v)
 	}
 	return _c
 }
 
-// Mutation returns the TeltentMutation object of the builder.
-func (_c *TeltentCreate) Mutation() *TeltentMutation {
+// Mutation returns the TenantMutation object of the builder.
+func (_c *TenantCreate) Mutation() *TenantMutation {
 	return _c.mutation
 }
 
-// Save creates the Teltent in the database.
-func (_c *TeltentCreate) Save(ctx context.Context) (*Teltent, error) {
+// Save creates the Tenant in the database.
+func (_c *TenantCreate) Save(ctx context.Context) (*Tenant, error) {
 	_c.defaults()
 	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (_c *TeltentCreate) SaveX(ctx context.Context) *Teltent {
+func (_c *TenantCreate) SaveX(ctx context.Context) *Tenant {
 	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
@@ -162,101 +162,101 @@ func (_c *TeltentCreate) SaveX(ctx context.Context) *Teltent {
 }
 
 // Exec executes the query.
-func (_c *TeltentCreate) Exec(ctx context.Context) error {
+func (_c *TenantCreate) Exec(ctx context.Context) error {
 	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (_c *TeltentCreate) ExecX(ctx context.Context) {
+func (_c *TenantCreate) ExecX(ctx context.Context) {
 	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (_c *TeltentCreate) defaults() {
+func (_c *TenantCreate) defaults() {
 	if _, ok := _c.mutation.CreatedAt(); !ok {
-		v := teltent.DefaultCreatedAt()
+		v := tenant.DefaultCreatedAt()
 		_c.mutation.SetCreatedAt(v)
 	}
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
-		v := teltent.DefaultUpdatedAt()
+		v := tenant.DefaultUpdatedAt()
 		_c.mutation.SetUpdatedAt(v)
 	}
 	if _, ok := _c.mutation.GetType(); !ok {
-		v := teltent.DefaultType
+		v := tenant.DefaultType
 		_c.mutation.SetType(v)
 	}
 	if _, ok := _c.mutation.ID(); !ok {
-		v := teltent.DefaultID()
+		v := tenant.DefaultID()
 		_c.mutation.SetID(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (_c *TeltentCreate) check() error {
+func (_c *TenantCreate) check() error {
 	if _, ok := _c.mutation.Status(); !ok {
-		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "Teltent.status"`)}
+		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "Tenant.status"`)}
 	}
 	if _, ok := _c.mutation.CreatedAt(); !ok {
-		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Teltent.created_at"`)}
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Tenant.created_at"`)}
 	}
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
-		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Teltent.updated_at"`)}
+		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Tenant.updated_at"`)}
 	}
 	if _, ok := _c.mutation.CertificateNo(); !ok {
-		return &ValidationError{Name: "certificate_no", err: errors.New(`ent: missing required field "Teltent.certificate_no"`)}
+		return &ValidationError{Name: "certificate_no", err: errors.New(`ent: missing required field "Tenant.certificate_no"`)}
 	}
 	if v, ok := _c.mutation.CertificateNo(); ok {
-		if err := teltent.CertificateNoValidator(v); err != nil {
-			return &ValidationError{Name: "certificate_no", err: fmt.Errorf(`ent: validator failed for field "Teltent.certificate_no": %w`, err)}
+		if err := tenant.CertificateNoValidator(v); err != nil {
+			return &ValidationError{Name: "certificate_no", err: fmt.Errorf(`ent: validator failed for field "Tenant.certificate_no": %w`, err)}
 		}
 	}
 	if _, ok := _c.mutation.Name(); !ok {
-		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "Teltent.name"`)}
+		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "Tenant.name"`)}
 	}
 	if v, ok := _c.mutation.Name(); ok {
-		if err := teltent.NameValidator(v); err != nil {
-			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Teltent.name": %w`, err)}
+		if err := tenant.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Tenant.name": %w`, err)}
 		}
 	}
 	if _, ok := _c.mutation.GetType(); !ok {
-		return &ValidationError{Name: "type", err: errors.New(`ent: missing required field "Teltent.type"`)}
+		return &ValidationError{Name: "type", err: errors.New(`ent: missing required field "Tenant.type"`)}
 	}
 	if v, ok := _c.mutation.GetType(); ok {
-		if err := teltent.TypeValidator(v); err != nil {
-			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "Teltent.type": %w`, err)}
+		if err := tenant.TypeValidator(v); err != nil {
+			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "Tenant.type": %w`, err)}
 		}
 	}
 	if _, ok := _c.mutation.ContactName(); !ok {
-		return &ValidationError{Name: "contact_name", err: errors.New(`ent: missing required field "Teltent.contact_name"`)}
+		return &ValidationError{Name: "contact_name", err: errors.New(`ent: missing required field "Tenant.contact_name"`)}
 	}
 	if v, ok := _c.mutation.ContactName(); ok {
-		if err := teltent.ContactNameValidator(v); err != nil {
-			return &ValidationError{Name: "contact_name", err: fmt.Errorf(`ent: validator failed for field "Teltent.contact_name": %w`, err)}
+		if err := tenant.ContactNameValidator(v); err != nil {
+			return &ValidationError{Name: "contact_name", err: fmt.Errorf(`ent: validator failed for field "Tenant.contact_name": %w`, err)}
 		}
 	}
 	if _, ok := _c.mutation.Email(); !ok {
-		return &ValidationError{Name: "email", err: errors.New(`ent: missing required field "Teltent.email"`)}
+		return &ValidationError{Name: "email", err: errors.New(`ent: missing required field "Tenant.email"`)}
 	}
 	if v, ok := _c.mutation.Email(); ok {
-		if err := teltent.EmailValidator(v); err != nil {
-			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "Teltent.email": %w`, err)}
+		if err := tenant.EmailValidator(v); err != nil {
+			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "Tenant.email": %w`, err)}
 		}
 	}
 	if _, ok := _c.mutation.Phone(); !ok {
-		return &ValidationError{Name: "phone", err: errors.New(`ent: missing required field "Teltent.phone"`)}
+		return &ValidationError{Name: "phone", err: errors.New(`ent: missing required field "Tenant.phone"`)}
 	}
 	if v, ok := _c.mutation.Phone(); ok {
-		if err := teltent.PhoneValidator(v); err != nil {
-			return &ValidationError{Name: "phone", err: fmt.Errorf(`ent: validator failed for field "Teltent.phone": %w`, err)}
+		if err := tenant.PhoneValidator(v); err != nil {
+			return &ValidationError{Name: "phone", err: fmt.Errorf(`ent: validator failed for field "Tenant.phone": %w`, err)}
 		}
 	}
 	return nil
 }
 
-func (_c *TeltentCreate) sqlSave(ctx context.Context) (*Teltent, error) {
+func (_c *TenantCreate) sqlSave(ctx context.Context) (*Tenant, error) {
 	if err := _c.check(); err != nil {
 		return nil, err
 	}
@@ -279,83 +279,83 @@ func (_c *TeltentCreate) sqlSave(ctx context.Context) (*Teltent, error) {
 	return _node, nil
 }
 
-func (_c *TeltentCreate) createSpec() (*Teltent, *sqlgraph.CreateSpec) {
+func (_c *TenantCreate) createSpec() (*Tenant, *sqlgraph.CreateSpec) {
 	var (
-		_node = &Teltent{config: _c.config}
-		_spec = sqlgraph.NewCreateSpec(teltent.Table, sqlgraph.NewFieldSpec(teltent.FieldID, field.TypeUUID))
+		_node = &Tenant{config: _c.config}
+		_spec = sqlgraph.NewCreateSpec(tenant.Table, sqlgraph.NewFieldSpec(tenant.FieldID, field.TypeUUID))
 	)
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
 	if value, ok := _c.mutation.Status(); ok {
-		_spec.SetField(teltent.FieldStatus, field.TypeInt8, value)
+		_spec.SetField(tenant.FieldStatus, field.TypeInt8, value)
 		_node.Status = value
 	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
-		_spec.SetField(teltent.FieldCreatedAt, field.TypeTime, value)
+		_spec.SetField(tenant.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
 	}
 	if value, ok := _c.mutation.UpdatedAt(); ok {
-		_spec.SetField(teltent.FieldUpdatedAt, field.TypeTime, value)
+		_spec.SetField(tenant.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
 	}
 	if value, ok := _c.mutation.DeletedAt(); ok {
-		_spec.SetField(teltent.FieldDeletedAt, field.TypeTime, value)
+		_spec.SetField(tenant.FieldDeletedAt, field.TypeTime, value)
 		_node.DeletedAt = value
 	}
 	if value, ok := _c.mutation.CertificateNo(); ok {
-		_spec.SetField(teltent.FieldCertificateNo, field.TypeString, value)
+		_spec.SetField(tenant.FieldCertificateNo, field.TypeString, value)
 		_node.CertificateNo = value
 	}
 	if value, ok := _c.mutation.Name(); ok {
-		_spec.SetField(teltent.FieldName, field.TypeString, value)
+		_spec.SetField(tenant.FieldName, field.TypeString, value)
 		_node.Name = value
 	}
 	if value, ok := _c.mutation.GetType(); ok {
-		_spec.SetField(teltent.FieldType, field.TypeInt8, value)
+		_spec.SetField(tenant.FieldType, field.TypeInt8, value)
 		_node.Type = value
 	}
 	if value, ok := _c.mutation.ContactName(); ok {
-		_spec.SetField(teltent.FieldContactName, field.TypeString, value)
+		_spec.SetField(tenant.FieldContactName, field.TypeString, value)
 		_node.ContactName = value
 	}
 	if value, ok := _c.mutation.Email(); ok {
-		_spec.SetField(teltent.FieldEmail, field.TypeString, value)
+		_spec.SetField(tenant.FieldEmail, field.TypeString, value)
 		_node.Email = value
 	}
 	if value, ok := _c.mutation.Phone(); ok {
-		_spec.SetField(teltent.FieldPhone, field.TypeString, value)
+		_spec.SetField(tenant.FieldPhone, field.TypeString, value)
 		_node.Phone = value
 	}
 	if value, ok := _c.mutation.ExpiredAt(); ok {
-		_spec.SetField(teltent.FieldExpiredAt, field.TypeTime, value)
+		_spec.SetField(tenant.FieldExpiredAt, field.TypeTime, value)
 		_node.ExpiredAt = value
 	}
 	return _node, _spec
 }
 
-// TeltentCreateBulk is the builder for creating many Teltent entities in bulk.
-type TeltentCreateBulk struct {
+// TenantCreateBulk is the builder for creating many Tenant entities in bulk.
+type TenantCreateBulk struct {
 	config
 	err      error
-	builders []*TeltentCreate
+	builders []*TenantCreate
 }
 
-// Save creates the Teltent entities in the database.
-func (_c *TeltentCreateBulk) Save(ctx context.Context) ([]*Teltent, error) {
+// Save creates the Tenant entities in the database.
+func (_c *TenantCreateBulk) Save(ctx context.Context) ([]*Tenant, error) {
 	if _c.err != nil {
 		return nil, _c.err
 	}
 	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
-	nodes := make([]*Teltent, len(_c.builders))
+	nodes := make([]*Tenant, len(_c.builders))
 	mutators := make([]Mutator, len(_c.builders))
 	for i := range _c.builders {
 		func(i int, root context.Context) {
 			builder := _c.builders[i]
 			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
-				mutation, ok := m.(*TeltentMutation)
+				mutation, ok := m.(*TenantMutation)
 				if !ok {
 					return nil, fmt.Errorf("unexpected mutation type %T", m)
 				}
@@ -398,7 +398,7 @@ func (_c *TeltentCreateBulk) Save(ctx context.Context) ([]*Teltent, error) {
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (_c *TeltentCreateBulk) SaveX(ctx context.Context) []*Teltent {
+func (_c *TenantCreateBulk) SaveX(ctx context.Context) []*Tenant {
 	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
@@ -407,13 +407,13 @@ func (_c *TeltentCreateBulk) SaveX(ctx context.Context) []*Teltent {
 }
 
 // Exec executes the query.
-func (_c *TeltentCreateBulk) Exec(ctx context.Context) error {
+func (_c *TenantCreateBulk) Exec(ctx context.Context) error {
 	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (_c *TeltentCreateBulk) ExecX(ctx context.Context) {
+func (_c *TenantCreateBulk) ExecX(ctx context.Context) {
 	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}

@@ -7,37 +7,37 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/speech/fireworks-admin/internal/ent/schema"
-	"github.com/speech/fireworks-admin/internal/ent/teltent"
+	"github.com/speech/fireworks-admin/internal/ent/tenant"
 )
 
 // The init function reads all schema descriptors with runtime code
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
-	teltentMixin := schema.Teltent{}.Mixin()
-	teltentMixinFields0 := teltentMixin[0].Fields()
-	_ = teltentMixinFields0
-	teltentMixinFields2 := teltentMixin[2].Fields()
-	_ = teltentMixinFields2
-	teltentMixinFields3 := teltentMixin[3].Fields()
-	_ = teltentMixinFields3
-	teltentFields := schema.Teltent{}.Fields()
-	_ = teltentFields
-	// teltentDescCreatedAt is the schema descriptor for created_at field.
-	teltentDescCreatedAt := teltentMixinFields2[0].Descriptor()
-	// teltent.DefaultCreatedAt holds the default value on creation for the created_at field.
-	teltent.DefaultCreatedAt = teltentDescCreatedAt.Default.(func() time.Time)
-	// teltentDescUpdatedAt is the schema descriptor for updated_at field.
-	teltentDescUpdatedAt := teltentMixinFields3[0].Descriptor()
-	// teltent.DefaultUpdatedAt holds the default value on creation for the updated_at field.
-	teltent.DefaultUpdatedAt = teltentDescUpdatedAt.Default.(func() time.Time)
-	// teltent.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
-	teltent.UpdateDefaultUpdatedAt = teltentDescUpdatedAt.UpdateDefault.(func() time.Time)
-	// teltentDescCertificateNo is the schema descriptor for certificate_no field.
-	teltentDescCertificateNo := teltentFields[0].Descriptor()
-	// teltent.CertificateNoValidator is a validator for the "certificate_no" field. It is called by the builders before save.
-	teltent.CertificateNoValidator = func() func(string) error {
-		validators := teltentDescCertificateNo.Validators
+	tenantMixin := schema.Tenant{}.Mixin()
+	tenantMixinFields0 := tenantMixin[0].Fields()
+	_ = tenantMixinFields0
+	tenantMixinFields2 := tenantMixin[2].Fields()
+	_ = tenantMixinFields2
+	tenantMixinFields3 := tenantMixin[3].Fields()
+	_ = tenantMixinFields3
+	tenantFields := schema.Tenant{}.Fields()
+	_ = tenantFields
+	// tenantDescCreatedAt is the schema descriptor for created_at field.
+	tenantDescCreatedAt := tenantMixinFields2[0].Descriptor()
+	// tenant.DefaultCreatedAt holds the default value on creation for the created_at field.
+	tenant.DefaultCreatedAt = tenantDescCreatedAt.Default.(func() time.Time)
+	// tenantDescUpdatedAt is the schema descriptor for updated_at field.
+	tenantDescUpdatedAt := tenantMixinFields3[0].Descriptor()
+	// tenant.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	tenant.DefaultUpdatedAt = tenantDescUpdatedAt.Default.(func() time.Time)
+	// tenant.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	tenant.UpdateDefaultUpdatedAt = tenantDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// tenantDescCertificateNo is the schema descriptor for certificate_no field.
+	tenantDescCertificateNo := tenantFields[0].Descriptor()
+	// tenant.CertificateNoValidator is a validator for the "certificate_no" field. It is called by the builders before save.
+	tenant.CertificateNoValidator = func() func(string) error {
+		validators := tenantDescCertificateNo.Validators
 		fns := [...]func(string) error{
 			validators[0].(func(string) error),
 			validators[1].(func(string) error),
@@ -51,11 +51,11 @@ func init() {
 			return nil
 		}
 	}()
-	// teltentDescName is the schema descriptor for name field.
-	teltentDescName := teltentFields[1].Descriptor()
-	// teltent.NameValidator is a validator for the "name" field. It is called by the builders before save.
-	teltent.NameValidator = func() func(string) error {
-		validators := teltentDescName.Validators
+	// tenantDescName is the schema descriptor for name field.
+	tenantDescName := tenantFields[1].Descriptor()
+	// tenant.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	tenant.NameValidator = func() func(string) error {
+		validators := tenantDescName.Validators
 		fns := [...]func(string) error{
 			validators[0].(func(string) error),
 			validators[1].(func(string) error),
@@ -69,13 +69,13 @@ func init() {
 			return nil
 		}
 	}()
-	// teltentDescType is the schema descriptor for type field.
-	teltentDescType := teltentFields[2].Descriptor()
-	// teltent.DefaultType holds the default value on creation for the type field.
-	teltent.DefaultType = teltentDescType.Default.(int8)
-	// teltent.TypeValidator is a validator for the "type" field. It is called by the builders before save.
-	teltent.TypeValidator = func() func(int8) error {
-		validators := teltentDescType.Validators
+	// tenantDescType is the schema descriptor for type field.
+	tenantDescType := tenantFields[2].Descriptor()
+	// tenant.DefaultType holds the default value on creation for the type field.
+	tenant.DefaultType = tenantDescType.Default.(int8)
+	// tenant.TypeValidator is a validator for the "type" field. It is called by the builders before save.
+	tenant.TypeValidator = func() func(int8) error {
+		validators := tenantDescType.Validators
 		fns := [...]func(int8) error{
 			validators[0].(func(int8) error),
 			validators[1].(func(int8) error),
@@ -89,11 +89,11 @@ func init() {
 			return nil
 		}
 	}()
-	// teltentDescContactName is the schema descriptor for contact_name field.
-	teltentDescContactName := teltentFields[3].Descriptor()
-	// teltent.ContactNameValidator is a validator for the "contact_name" field. It is called by the builders before save.
-	teltent.ContactNameValidator = func() func(string) error {
-		validators := teltentDescContactName.Validators
+	// tenantDescContactName is the schema descriptor for contact_name field.
+	tenantDescContactName := tenantFields[3].Descriptor()
+	// tenant.ContactNameValidator is a validator for the "contact_name" field. It is called by the builders before save.
+	tenant.ContactNameValidator = func() func(string) error {
+		validators := tenantDescContactName.Validators
 		fns := [...]func(string) error{
 			validators[0].(func(string) error),
 			validators[1].(func(string) error),
@@ -107,11 +107,11 @@ func init() {
 			return nil
 		}
 	}()
-	// teltentDescEmail is the schema descriptor for email field.
-	teltentDescEmail := teltentFields[4].Descriptor()
-	// teltent.EmailValidator is a validator for the "email" field. It is called by the builders before save.
-	teltent.EmailValidator = func() func(string) error {
-		validators := teltentDescEmail.Validators
+	// tenantDescEmail is the schema descriptor for email field.
+	tenantDescEmail := tenantFields[4].Descriptor()
+	// tenant.EmailValidator is a validator for the "email" field. It is called by the builders before save.
+	tenant.EmailValidator = func() func(string) error {
+		validators := tenantDescEmail.Validators
 		fns := [...]func(string) error{
 			validators[0].(func(string) error),
 			validators[1].(func(string) error),
@@ -125,11 +125,11 @@ func init() {
 			return nil
 		}
 	}()
-	// teltentDescPhone is the schema descriptor for phone field.
-	teltentDescPhone := teltentFields[5].Descriptor()
-	// teltent.PhoneValidator is a validator for the "phone" field. It is called by the builders before save.
-	teltent.PhoneValidator = func() func(string) error {
-		validators := teltentDescPhone.Validators
+	// tenantDescPhone is the schema descriptor for phone field.
+	tenantDescPhone := tenantFields[5].Descriptor()
+	// tenant.PhoneValidator is a validator for the "phone" field. It is called by the builders before save.
+	tenant.PhoneValidator = func() func(string) error {
+		validators := tenantDescPhone.Validators
 		fns := [...]func(string) error{
 			validators[0].(func(string) error),
 			validators[1].(func(string) error),
@@ -143,8 +143,8 @@ func init() {
 			return nil
 		}
 	}()
-	// teltentDescID is the schema descriptor for id field.
-	teltentDescID := teltentMixinFields0[0].Descriptor()
-	// teltent.DefaultID holds the default value on creation for the id field.
-	teltent.DefaultID = teltentDescID.Default.(func() uuid.UUID)
+	// tenantDescID is the schema descriptor for id field.
+	tenantDescID := tenantMixinFields0[0].Descriptor()
+	// tenant.DefaultID holds the default value on creation for the id field.
+	tenant.DefaultID = tenantDescID.Default.(func() uuid.UUID)
 }

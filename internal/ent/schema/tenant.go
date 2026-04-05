@@ -8,13 +8,13 @@ import (
 	"github.com/speech/fireworks-admin/internal/ent/schema/mixin"
 )
 
-// Teltent 租户实体
-type Teltent struct {
+// Tenant 租户实体
+type Tenant struct {
 	ent.Schema
 }
 
 // 使用公共字段 Mixin
-func (Teltent) Mixin() []ent.Mixin {
+func (Tenant) Mixin() []ent.Mixin {
 	return []ent.Mixin{
 		mixin.Id{},
 		mixin.Status{},
@@ -25,7 +25,7 @@ func (Teltent) Mixin() []ent.Mixin {
 }
 
 // Fields 字段
-func (Teltent) Fields() []ent.Field {
+func (Tenant) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("certificate_no").
 			NotEmpty().
@@ -60,7 +60,7 @@ func (Teltent) Fields() []ent.Field {
 
 // Indexes 定义表的索引。
 // 使用部分索引（Partial Index）确保唯一约束只对未删除的记录生效。
-func (Teltent) Indexes() []ent.Index {
+func (Tenant) Indexes() []ent.Index {
 	return []ent.Index{
 		// 邮箱唯一索引（仅对未删除记录）
 		index.Fields("email").

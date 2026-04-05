@@ -9,29 +9,29 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/speech/fireworks-admin/internal/ent/predicate"
-	"github.com/speech/fireworks-admin/internal/ent/teltent"
+	"github.com/speech/fireworks-admin/internal/ent/tenant"
 )
 
-// TeltentDelete is the builder for deleting a Teltent entity.
-type TeltentDelete struct {
+// TenantDelete is the builder for deleting a Tenant entity.
+type TenantDelete struct {
 	config
 	hooks    []Hook
-	mutation *TeltentMutation
+	mutation *TenantMutation
 }
 
-// Where appends a list predicates to the TeltentDelete builder.
-func (_d *TeltentDelete) Where(ps ...predicate.Teltent) *TeltentDelete {
+// Where appends a list predicates to the TenantDelete builder.
+func (_d *TenantDelete) Where(ps ...predicate.Tenant) *TenantDelete {
 	_d.mutation.Where(ps...)
 	return _d
 }
 
 // Exec executes the deletion query and returns how many vertices were deleted.
-func (_d *TeltentDelete) Exec(ctx context.Context) (int, error) {
+func (_d *TenantDelete) Exec(ctx context.Context) (int, error) {
 	return withHooks(ctx, _d.sqlExec, _d.mutation, _d.hooks)
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (_d *TeltentDelete) ExecX(ctx context.Context) int {
+func (_d *TenantDelete) ExecX(ctx context.Context) int {
 	n, err := _d.Exec(ctx)
 	if err != nil {
 		panic(err)
@@ -39,8 +39,8 @@ func (_d *TeltentDelete) ExecX(ctx context.Context) int {
 	return n
 }
 
-func (_d *TeltentDelete) sqlExec(ctx context.Context) (int, error) {
-	_spec := sqlgraph.NewDeleteSpec(teltent.Table, sqlgraph.NewFieldSpec(teltent.FieldID, field.TypeUUID))
+func (_d *TenantDelete) sqlExec(ctx context.Context) (int, error) {
+	_spec := sqlgraph.NewDeleteSpec(tenant.Table, sqlgraph.NewFieldSpec(tenant.FieldID, field.TypeUUID))
 	if ps := _d.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -56,32 +56,32 @@ func (_d *TeltentDelete) sqlExec(ctx context.Context) (int, error) {
 	return affected, err
 }
 
-// TeltentDeleteOne is the builder for deleting a single Teltent entity.
-type TeltentDeleteOne struct {
-	_d *TeltentDelete
+// TenantDeleteOne is the builder for deleting a single Tenant entity.
+type TenantDeleteOne struct {
+	_d *TenantDelete
 }
 
-// Where appends a list predicates to the TeltentDelete builder.
-func (_d *TeltentDeleteOne) Where(ps ...predicate.Teltent) *TeltentDeleteOne {
+// Where appends a list predicates to the TenantDelete builder.
+func (_d *TenantDeleteOne) Where(ps ...predicate.Tenant) *TenantDeleteOne {
 	_d._d.mutation.Where(ps...)
 	return _d
 }
 
 // Exec executes the deletion query.
-func (_d *TeltentDeleteOne) Exec(ctx context.Context) error {
+func (_d *TenantDeleteOne) Exec(ctx context.Context) error {
 	n, err := _d._d.Exec(ctx)
 	switch {
 	case err != nil:
 		return err
 	case n == 0:
-		return &NotFoundError{teltent.Label}
+		return &NotFoundError{tenant.Label}
 	default:
 		return nil
 	}
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (_d *TeltentDeleteOne) ExecX(ctx context.Context) {
+func (_d *TenantDeleteOne) ExecX(ctx context.Context) {
 	if err := _d.Exec(ctx); err != nil {
 		panic(err)
 	}

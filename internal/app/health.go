@@ -40,7 +40,7 @@ func (h *HealthRouter) livenessHandler(c *echo.Context) error {
 func (h *HealthRouter) readinessHandler(c *echo.Context) error {
 	ctx := c.Request().Context()
 
-	if _, err := h.client.Teltent.Query().Count(ctx); err != nil {
+	if _, err := h.client.Tenant.Query().Count(ctx); err != nil {
 		return api.Error(c, http.StatusServiceUnavailable, "数据库连接不可用: "+err.Error())
 	}
 

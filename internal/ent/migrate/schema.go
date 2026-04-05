@@ -9,8 +9,8 @@ import (
 )
 
 var (
-	// TeltentsColumns holds the columns for the "teltents" table.
-	TeltentsColumns = []*schema.Column{
+	// TenantsColumns holds the columns for the "tenants" table.
+	TenantsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "status", Type: field.TypeInt8},
 		{Name: "created_at", Type: field.TypeTime},
@@ -24,16 +24,16 @@ var (
 		{Name: "phone", Type: field.TypeString, Size: 20},
 		{Name: "expired_at", Type: field.TypeTime, Nullable: true},
 	}
-	// TeltentsTable holds the schema information for the "teltents" table.
-	TeltentsTable = &schema.Table{
-		Name:       "teltents",
-		Columns:    TeltentsColumns,
-		PrimaryKey: []*schema.Column{TeltentsColumns[0]},
+	// TenantsTable holds the schema information for the "tenants" table.
+	TenantsTable = &schema.Table{
+		Name:       "tenants",
+		Columns:    TenantsColumns,
+		PrimaryKey: []*schema.Column{TenantsColumns[0]},
 		Indexes: []*schema.Index{
 			{
 				Name:    "uk_email",
 				Unique:  true,
-				Columns: []*schema.Column{TeltentsColumns[9]},
+				Columns: []*schema.Column{TenantsColumns[9]},
 				Annotation: &entsql.IndexAnnotation{
 					Where: "deleted_at IS NULL",
 				},
@@ -41,7 +41,7 @@ var (
 			{
 				Name:    "uk_phone",
 				Unique:  true,
-				Columns: []*schema.Column{TeltentsColumns[10]},
+				Columns: []*schema.Column{TenantsColumns[10]},
 				Annotation: &entsql.IndexAnnotation{
 					Where: "deleted_at IS NULL",
 				},
@@ -49,7 +49,7 @@ var (
 			{
 				Name:    "uk_certificate_no",
 				Unique:  true,
-				Columns: []*schema.Column{TeltentsColumns[5]},
+				Columns: []*schema.Column{TenantsColumns[5]},
 				Annotation: &entsql.IndexAnnotation{
 					Where: "deleted_at IS NULL",
 				},
@@ -58,7 +58,7 @@ var (
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
-		TeltentsTable,
+		TenantsTable,
 	}
 )
 

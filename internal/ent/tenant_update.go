@@ -12,31 +12,31 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/speech/fireworks-admin/internal/ent/predicate"
-	"github.com/speech/fireworks-admin/internal/ent/teltent"
+	"github.com/speech/fireworks-admin/internal/ent/tenant"
 )
 
-// TeltentUpdate is the builder for updating Teltent entities.
-type TeltentUpdate struct {
+// TenantUpdate is the builder for updating Tenant entities.
+type TenantUpdate struct {
 	config
 	hooks    []Hook
-	mutation *TeltentMutation
+	mutation *TenantMutation
 }
 
-// Where appends a list predicates to the TeltentUpdate builder.
-func (_u *TeltentUpdate) Where(ps ...predicate.Teltent) *TeltentUpdate {
+// Where appends a list predicates to the TenantUpdate builder.
+func (_u *TenantUpdate) Where(ps ...predicate.Tenant) *TenantUpdate {
 	_u.mutation.Where(ps...)
 	return _u
 }
 
 // SetStatus sets the "status" field.
-func (_u *TeltentUpdate) SetStatus(v int8) *TeltentUpdate {
+func (_u *TenantUpdate) SetStatus(v int8) *TenantUpdate {
 	_u.mutation.ResetStatus()
 	_u.mutation.SetStatus(v)
 	return _u
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (_u *TeltentUpdate) SetNillableStatus(v *int8) *TeltentUpdate {
+func (_u *TenantUpdate) SetNillableStatus(v *int8) *TenantUpdate {
 	if v != nil {
 		_u.SetStatus(*v)
 	}
@@ -44,25 +44,25 @@ func (_u *TeltentUpdate) SetNillableStatus(v *int8) *TeltentUpdate {
 }
 
 // AddStatus adds value to the "status" field.
-func (_u *TeltentUpdate) AddStatus(v int8) *TeltentUpdate {
+func (_u *TenantUpdate) AddStatus(v int8) *TenantUpdate {
 	_u.mutation.AddStatus(v)
 	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (_u *TeltentUpdate) SetUpdatedAt(v time.Time) *TeltentUpdate {
+func (_u *TenantUpdate) SetUpdatedAt(v time.Time) *TenantUpdate {
 	_u.mutation.SetUpdatedAt(v)
 	return _u
 }
 
 // SetDeletedAt sets the "deleted_at" field.
-func (_u *TeltentUpdate) SetDeletedAt(v time.Time) *TeltentUpdate {
+func (_u *TenantUpdate) SetDeletedAt(v time.Time) *TenantUpdate {
 	_u.mutation.SetDeletedAt(v)
 	return _u
 }
 
 // SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (_u *TeltentUpdate) SetNillableDeletedAt(v *time.Time) *TeltentUpdate {
+func (_u *TenantUpdate) SetNillableDeletedAt(v *time.Time) *TenantUpdate {
 	if v != nil {
 		_u.SetDeletedAt(*v)
 	}
@@ -70,19 +70,19 @@ func (_u *TeltentUpdate) SetNillableDeletedAt(v *time.Time) *TeltentUpdate {
 }
 
 // ClearDeletedAt clears the value of the "deleted_at" field.
-func (_u *TeltentUpdate) ClearDeletedAt() *TeltentUpdate {
+func (_u *TenantUpdate) ClearDeletedAt() *TenantUpdate {
 	_u.mutation.ClearDeletedAt()
 	return _u
 }
 
 // SetCertificateNo sets the "certificate_no" field.
-func (_u *TeltentUpdate) SetCertificateNo(v string) *TeltentUpdate {
+func (_u *TenantUpdate) SetCertificateNo(v string) *TenantUpdate {
 	_u.mutation.SetCertificateNo(v)
 	return _u
 }
 
 // SetNillableCertificateNo sets the "certificate_no" field if the given value is not nil.
-func (_u *TeltentUpdate) SetNillableCertificateNo(v *string) *TeltentUpdate {
+func (_u *TenantUpdate) SetNillableCertificateNo(v *string) *TenantUpdate {
 	if v != nil {
 		_u.SetCertificateNo(*v)
 	}
@@ -90,13 +90,13 @@ func (_u *TeltentUpdate) SetNillableCertificateNo(v *string) *TeltentUpdate {
 }
 
 // SetName sets the "name" field.
-func (_u *TeltentUpdate) SetName(v string) *TeltentUpdate {
+func (_u *TenantUpdate) SetName(v string) *TenantUpdate {
 	_u.mutation.SetName(v)
 	return _u
 }
 
 // SetNillableName sets the "name" field if the given value is not nil.
-func (_u *TeltentUpdate) SetNillableName(v *string) *TeltentUpdate {
+func (_u *TenantUpdate) SetNillableName(v *string) *TenantUpdate {
 	if v != nil {
 		_u.SetName(*v)
 	}
@@ -104,14 +104,14 @@ func (_u *TeltentUpdate) SetNillableName(v *string) *TeltentUpdate {
 }
 
 // SetType sets the "type" field.
-func (_u *TeltentUpdate) SetType(v int8) *TeltentUpdate {
+func (_u *TenantUpdate) SetType(v int8) *TenantUpdate {
 	_u.mutation.ResetType()
 	_u.mutation.SetType(v)
 	return _u
 }
 
 // SetNillableType sets the "type" field if the given value is not nil.
-func (_u *TeltentUpdate) SetNillableType(v *int8) *TeltentUpdate {
+func (_u *TenantUpdate) SetNillableType(v *int8) *TenantUpdate {
 	if v != nil {
 		_u.SetType(*v)
 	}
@@ -119,19 +119,19 @@ func (_u *TeltentUpdate) SetNillableType(v *int8) *TeltentUpdate {
 }
 
 // AddType adds value to the "type" field.
-func (_u *TeltentUpdate) AddType(v int8) *TeltentUpdate {
+func (_u *TenantUpdate) AddType(v int8) *TenantUpdate {
 	_u.mutation.AddType(v)
 	return _u
 }
 
 // SetContactName sets the "contact_name" field.
-func (_u *TeltentUpdate) SetContactName(v string) *TeltentUpdate {
+func (_u *TenantUpdate) SetContactName(v string) *TenantUpdate {
 	_u.mutation.SetContactName(v)
 	return _u
 }
 
 // SetNillableContactName sets the "contact_name" field if the given value is not nil.
-func (_u *TeltentUpdate) SetNillableContactName(v *string) *TeltentUpdate {
+func (_u *TenantUpdate) SetNillableContactName(v *string) *TenantUpdate {
 	if v != nil {
 		_u.SetContactName(*v)
 	}
@@ -139,13 +139,13 @@ func (_u *TeltentUpdate) SetNillableContactName(v *string) *TeltentUpdate {
 }
 
 // SetEmail sets the "email" field.
-func (_u *TeltentUpdate) SetEmail(v string) *TeltentUpdate {
+func (_u *TenantUpdate) SetEmail(v string) *TenantUpdate {
 	_u.mutation.SetEmail(v)
 	return _u
 }
 
 // SetNillableEmail sets the "email" field if the given value is not nil.
-func (_u *TeltentUpdate) SetNillableEmail(v *string) *TeltentUpdate {
+func (_u *TenantUpdate) SetNillableEmail(v *string) *TenantUpdate {
 	if v != nil {
 		_u.SetEmail(*v)
 	}
@@ -153,13 +153,13 @@ func (_u *TeltentUpdate) SetNillableEmail(v *string) *TeltentUpdate {
 }
 
 // SetPhone sets the "phone" field.
-func (_u *TeltentUpdate) SetPhone(v string) *TeltentUpdate {
+func (_u *TenantUpdate) SetPhone(v string) *TenantUpdate {
 	_u.mutation.SetPhone(v)
 	return _u
 }
 
 // SetNillablePhone sets the "phone" field if the given value is not nil.
-func (_u *TeltentUpdate) SetNillablePhone(v *string) *TeltentUpdate {
+func (_u *TenantUpdate) SetNillablePhone(v *string) *TenantUpdate {
 	if v != nil {
 		_u.SetPhone(*v)
 	}
@@ -167,13 +167,13 @@ func (_u *TeltentUpdate) SetNillablePhone(v *string) *TeltentUpdate {
 }
 
 // SetExpiredAt sets the "expired_at" field.
-func (_u *TeltentUpdate) SetExpiredAt(v time.Time) *TeltentUpdate {
+func (_u *TenantUpdate) SetExpiredAt(v time.Time) *TenantUpdate {
 	_u.mutation.SetExpiredAt(v)
 	return _u
 }
 
 // SetNillableExpiredAt sets the "expired_at" field if the given value is not nil.
-func (_u *TeltentUpdate) SetNillableExpiredAt(v *time.Time) *TeltentUpdate {
+func (_u *TenantUpdate) SetNillableExpiredAt(v *time.Time) *TenantUpdate {
 	if v != nil {
 		_u.SetExpiredAt(*v)
 	}
@@ -181,24 +181,24 @@ func (_u *TeltentUpdate) SetNillableExpiredAt(v *time.Time) *TeltentUpdate {
 }
 
 // ClearExpiredAt clears the value of the "expired_at" field.
-func (_u *TeltentUpdate) ClearExpiredAt() *TeltentUpdate {
+func (_u *TenantUpdate) ClearExpiredAt() *TenantUpdate {
 	_u.mutation.ClearExpiredAt()
 	return _u
 }
 
-// Mutation returns the TeltentMutation object of the builder.
-func (_u *TeltentUpdate) Mutation() *TeltentMutation {
+// Mutation returns the TenantMutation object of the builder.
+func (_u *TenantUpdate) Mutation() *TenantMutation {
 	return _u.mutation
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (_u *TeltentUpdate) Save(ctx context.Context) (int, error) {
+func (_u *TenantUpdate) Save(ctx context.Context) (int, error) {
 	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (_u *TeltentUpdate) SaveX(ctx context.Context) int {
+func (_u *TenantUpdate) SaveX(ctx context.Context) int {
 	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
@@ -207,66 +207,66 @@ func (_u *TeltentUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (_u *TeltentUpdate) Exec(ctx context.Context) error {
+func (_u *TenantUpdate) Exec(ctx context.Context) error {
 	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (_u *TeltentUpdate) ExecX(ctx context.Context) {
+func (_u *TenantUpdate) ExecX(ctx context.Context) {
 	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (_u *TeltentUpdate) defaults() {
+func (_u *TenantUpdate) defaults() {
 	if _, ok := _u.mutation.UpdatedAt(); !ok {
-		v := teltent.UpdateDefaultUpdatedAt()
+		v := tenant.UpdateDefaultUpdatedAt()
 		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (_u *TeltentUpdate) check() error {
+func (_u *TenantUpdate) check() error {
 	if v, ok := _u.mutation.CertificateNo(); ok {
-		if err := teltent.CertificateNoValidator(v); err != nil {
-			return &ValidationError{Name: "certificate_no", err: fmt.Errorf(`ent: validator failed for field "Teltent.certificate_no": %w`, err)}
+		if err := tenant.CertificateNoValidator(v); err != nil {
+			return &ValidationError{Name: "certificate_no", err: fmt.Errorf(`ent: validator failed for field "Tenant.certificate_no": %w`, err)}
 		}
 	}
 	if v, ok := _u.mutation.Name(); ok {
-		if err := teltent.NameValidator(v); err != nil {
-			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Teltent.name": %w`, err)}
+		if err := tenant.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Tenant.name": %w`, err)}
 		}
 	}
 	if v, ok := _u.mutation.GetType(); ok {
-		if err := teltent.TypeValidator(v); err != nil {
-			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "Teltent.type": %w`, err)}
+		if err := tenant.TypeValidator(v); err != nil {
+			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "Tenant.type": %w`, err)}
 		}
 	}
 	if v, ok := _u.mutation.ContactName(); ok {
-		if err := teltent.ContactNameValidator(v); err != nil {
-			return &ValidationError{Name: "contact_name", err: fmt.Errorf(`ent: validator failed for field "Teltent.contact_name": %w`, err)}
+		if err := tenant.ContactNameValidator(v); err != nil {
+			return &ValidationError{Name: "contact_name", err: fmt.Errorf(`ent: validator failed for field "Tenant.contact_name": %w`, err)}
 		}
 	}
 	if v, ok := _u.mutation.Email(); ok {
-		if err := teltent.EmailValidator(v); err != nil {
-			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "Teltent.email": %w`, err)}
+		if err := tenant.EmailValidator(v); err != nil {
+			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "Tenant.email": %w`, err)}
 		}
 	}
 	if v, ok := _u.mutation.Phone(); ok {
-		if err := teltent.PhoneValidator(v); err != nil {
-			return &ValidationError{Name: "phone", err: fmt.Errorf(`ent: validator failed for field "Teltent.phone": %w`, err)}
+		if err := tenant.PhoneValidator(v); err != nil {
+			return &ValidationError{Name: "phone", err: fmt.Errorf(`ent: validator failed for field "Tenant.phone": %w`, err)}
 		}
 	}
 	return nil
 }
 
-func (_u *TeltentUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+func (_u *TenantUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(teltent.Table, teltent.Columns, sqlgraph.NewFieldSpec(teltent.FieldID, field.TypeUUID))
+	_spec := sqlgraph.NewUpdateSpec(tenant.Table, tenant.Columns, sqlgraph.NewFieldSpec(tenant.FieldID, field.TypeUUID))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -275,50 +275,50 @@ func (_u *TeltentUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		}
 	}
 	if value, ok := _u.mutation.Status(); ok {
-		_spec.SetField(teltent.FieldStatus, field.TypeInt8, value)
+		_spec.SetField(tenant.FieldStatus, field.TypeInt8, value)
 	}
 	if value, ok := _u.mutation.AddedStatus(); ok {
-		_spec.AddField(teltent.FieldStatus, field.TypeInt8, value)
+		_spec.AddField(tenant.FieldStatus, field.TypeInt8, value)
 	}
 	if value, ok := _u.mutation.UpdatedAt(); ok {
-		_spec.SetField(teltent.FieldUpdatedAt, field.TypeTime, value)
+		_spec.SetField(tenant.FieldUpdatedAt, field.TypeTime, value)
 	}
 	if value, ok := _u.mutation.DeletedAt(); ok {
-		_spec.SetField(teltent.FieldDeletedAt, field.TypeTime, value)
+		_spec.SetField(tenant.FieldDeletedAt, field.TypeTime, value)
 	}
 	if _u.mutation.DeletedAtCleared() {
-		_spec.ClearField(teltent.FieldDeletedAt, field.TypeTime)
+		_spec.ClearField(tenant.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.CertificateNo(); ok {
-		_spec.SetField(teltent.FieldCertificateNo, field.TypeString, value)
+		_spec.SetField(tenant.FieldCertificateNo, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.Name(); ok {
-		_spec.SetField(teltent.FieldName, field.TypeString, value)
+		_spec.SetField(tenant.FieldName, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.GetType(); ok {
-		_spec.SetField(teltent.FieldType, field.TypeInt8, value)
+		_spec.SetField(tenant.FieldType, field.TypeInt8, value)
 	}
 	if value, ok := _u.mutation.AddedType(); ok {
-		_spec.AddField(teltent.FieldType, field.TypeInt8, value)
+		_spec.AddField(tenant.FieldType, field.TypeInt8, value)
 	}
 	if value, ok := _u.mutation.ContactName(); ok {
-		_spec.SetField(teltent.FieldContactName, field.TypeString, value)
+		_spec.SetField(tenant.FieldContactName, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.Email(); ok {
-		_spec.SetField(teltent.FieldEmail, field.TypeString, value)
+		_spec.SetField(tenant.FieldEmail, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.Phone(); ok {
-		_spec.SetField(teltent.FieldPhone, field.TypeString, value)
+		_spec.SetField(tenant.FieldPhone, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.ExpiredAt(); ok {
-		_spec.SetField(teltent.FieldExpiredAt, field.TypeTime, value)
+		_spec.SetField(tenant.FieldExpiredAt, field.TypeTime, value)
 	}
 	if _u.mutation.ExpiredAtCleared() {
-		_spec.ClearField(teltent.FieldExpiredAt, field.TypeTime)
+		_spec.ClearField(tenant.FieldExpiredAt, field.TypeTime)
 	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
-			err = &NotFoundError{teltent.Label}
+			err = &NotFoundError{tenant.Label}
 		} else if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -328,23 +328,23 @@ func (_u *TeltentUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	return _node, nil
 }
 
-// TeltentUpdateOne is the builder for updating a single Teltent entity.
-type TeltentUpdateOne struct {
+// TenantUpdateOne is the builder for updating a single Tenant entity.
+type TenantUpdateOne struct {
 	config
 	fields   []string
 	hooks    []Hook
-	mutation *TeltentMutation
+	mutation *TenantMutation
 }
 
 // SetStatus sets the "status" field.
-func (_u *TeltentUpdateOne) SetStatus(v int8) *TeltentUpdateOne {
+func (_u *TenantUpdateOne) SetStatus(v int8) *TenantUpdateOne {
 	_u.mutation.ResetStatus()
 	_u.mutation.SetStatus(v)
 	return _u
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (_u *TeltentUpdateOne) SetNillableStatus(v *int8) *TeltentUpdateOne {
+func (_u *TenantUpdateOne) SetNillableStatus(v *int8) *TenantUpdateOne {
 	if v != nil {
 		_u.SetStatus(*v)
 	}
@@ -352,25 +352,25 @@ func (_u *TeltentUpdateOne) SetNillableStatus(v *int8) *TeltentUpdateOne {
 }
 
 // AddStatus adds value to the "status" field.
-func (_u *TeltentUpdateOne) AddStatus(v int8) *TeltentUpdateOne {
+func (_u *TenantUpdateOne) AddStatus(v int8) *TenantUpdateOne {
 	_u.mutation.AddStatus(v)
 	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (_u *TeltentUpdateOne) SetUpdatedAt(v time.Time) *TeltentUpdateOne {
+func (_u *TenantUpdateOne) SetUpdatedAt(v time.Time) *TenantUpdateOne {
 	_u.mutation.SetUpdatedAt(v)
 	return _u
 }
 
 // SetDeletedAt sets the "deleted_at" field.
-func (_u *TeltentUpdateOne) SetDeletedAt(v time.Time) *TeltentUpdateOne {
+func (_u *TenantUpdateOne) SetDeletedAt(v time.Time) *TenantUpdateOne {
 	_u.mutation.SetDeletedAt(v)
 	return _u
 }
 
 // SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (_u *TeltentUpdateOne) SetNillableDeletedAt(v *time.Time) *TeltentUpdateOne {
+func (_u *TenantUpdateOne) SetNillableDeletedAt(v *time.Time) *TenantUpdateOne {
 	if v != nil {
 		_u.SetDeletedAt(*v)
 	}
@@ -378,19 +378,19 @@ func (_u *TeltentUpdateOne) SetNillableDeletedAt(v *time.Time) *TeltentUpdateOne
 }
 
 // ClearDeletedAt clears the value of the "deleted_at" field.
-func (_u *TeltentUpdateOne) ClearDeletedAt() *TeltentUpdateOne {
+func (_u *TenantUpdateOne) ClearDeletedAt() *TenantUpdateOne {
 	_u.mutation.ClearDeletedAt()
 	return _u
 }
 
 // SetCertificateNo sets the "certificate_no" field.
-func (_u *TeltentUpdateOne) SetCertificateNo(v string) *TeltentUpdateOne {
+func (_u *TenantUpdateOne) SetCertificateNo(v string) *TenantUpdateOne {
 	_u.mutation.SetCertificateNo(v)
 	return _u
 }
 
 // SetNillableCertificateNo sets the "certificate_no" field if the given value is not nil.
-func (_u *TeltentUpdateOne) SetNillableCertificateNo(v *string) *TeltentUpdateOne {
+func (_u *TenantUpdateOne) SetNillableCertificateNo(v *string) *TenantUpdateOne {
 	if v != nil {
 		_u.SetCertificateNo(*v)
 	}
@@ -398,13 +398,13 @@ func (_u *TeltentUpdateOne) SetNillableCertificateNo(v *string) *TeltentUpdateOn
 }
 
 // SetName sets the "name" field.
-func (_u *TeltentUpdateOne) SetName(v string) *TeltentUpdateOne {
+func (_u *TenantUpdateOne) SetName(v string) *TenantUpdateOne {
 	_u.mutation.SetName(v)
 	return _u
 }
 
 // SetNillableName sets the "name" field if the given value is not nil.
-func (_u *TeltentUpdateOne) SetNillableName(v *string) *TeltentUpdateOne {
+func (_u *TenantUpdateOne) SetNillableName(v *string) *TenantUpdateOne {
 	if v != nil {
 		_u.SetName(*v)
 	}
@@ -412,14 +412,14 @@ func (_u *TeltentUpdateOne) SetNillableName(v *string) *TeltentUpdateOne {
 }
 
 // SetType sets the "type" field.
-func (_u *TeltentUpdateOne) SetType(v int8) *TeltentUpdateOne {
+func (_u *TenantUpdateOne) SetType(v int8) *TenantUpdateOne {
 	_u.mutation.ResetType()
 	_u.mutation.SetType(v)
 	return _u
 }
 
 // SetNillableType sets the "type" field if the given value is not nil.
-func (_u *TeltentUpdateOne) SetNillableType(v *int8) *TeltentUpdateOne {
+func (_u *TenantUpdateOne) SetNillableType(v *int8) *TenantUpdateOne {
 	if v != nil {
 		_u.SetType(*v)
 	}
@@ -427,19 +427,19 @@ func (_u *TeltentUpdateOne) SetNillableType(v *int8) *TeltentUpdateOne {
 }
 
 // AddType adds value to the "type" field.
-func (_u *TeltentUpdateOne) AddType(v int8) *TeltentUpdateOne {
+func (_u *TenantUpdateOne) AddType(v int8) *TenantUpdateOne {
 	_u.mutation.AddType(v)
 	return _u
 }
 
 // SetContactName sets the "contact_name" field.
-func (_u *TeltentUpdateOne) SetContactName(v string) *TeltentUpdateOne {
+func (_u *TenantUpdateOne) SetContactName(v string) *TenantUpdateOne {
 	_u.mutation.SetContactName(v)
 	return _u
 }
 
 // SetNillableContactName sets the "contact_name" field if the given value is not nil.
-func (_u *TeltentUpdateOne) SetNillableContactName(v *string) *TeltentUpdateOne {
+func (_u *TenantUpdateOne) SetNillableContactName(v *string) *TenantUpdateOne {
 	if v != nil {
 		_u.SetContactName(*v)
 	}
@@ -447,13 +447,13 @@ func (_u *TeltentUpdateOne) SetNillableContactName(v *string) *TeltentUpdateOne 
 }
 
 // SetEmail sets the "email" field.
-func (_u *TeltentUpdateOne) SetEmail(v string) *TeltentUpdateOne {
+func (_u *TenantUpdateOne) SetEmail(v string) *TenantUpdateOne {
 	_u.mutation.SetEmail(v)
 	return _u
 }
 
 // SetNillableEmail sets the "email" field if the given value is not nil.
-func (_u *TeltentUpdateOne) SetNillableEmail(v *string) *TeltentUpdateOne {
+func (_u *TenantUpdateOne) SetNillableEmail(v *string) *TenantUpdateOne {
 	if v != nil {
 		_u.SetEmail(*v)
 	}
@@ -461,13 +461,13 @@ func (_u *TeltentUpdateOne) SetNillableEmail(v *string) *TeltentUpdateOne {
 }
 
 // SetPhone sets the "phone" field.
-func (_u *TeltentUpdateOne) SetPhone(v string) *TeltentUpdateOne {
+func (_u *TenantUpdateOne) SetPhone(v string) *TenantUpdateOne {
 	_u.mutation.SetPhone(v)
 	return _u
 }
 
 // SetNillablePhone sets the "phone" field if the given value is not nil.
-func (_u *TeltentUpdateOne) SetNillablePhone(v *string) *TeltentUpdateOne {
+func (_u *TenantUpdateOne) SetNillablePhone(v *string) *TenantUpdateOne {
 	if v != nil {
 		_u.SetPhone(*v)
 	}
@@ -475,13 +475,13 @@ func (_u *TeltentUpdateOne) SetNillablePhone(v *string) *TeltentUpdateOne {
 }
 
 // SetExpiredAt sets the "expired_at" field.
-func (_u *TeltentUpdateOne) SetExpiredAt(v time.Time) *TeltentUpdateOne {
+func (_u *TenantUpdateOne) SetExpiredAt(v time.Time) *TenantUpdateOne {
 	_u.mutation.SetExpiredAt(v)
 	return _u
 }
 
 // SetNillableExpiredAt sets the "expired_at" field if the given value is not nil.
-func (_u *TeltentUpdateOne) SetNillableExpiredAt(v *time.Time) *TeltentUpdateOne {
+func (_u *TenantUpdateOne) SetNillableExpiredAt(v *time.Time) *TenantUpdateOne {
 	if v != nil {
 		_u.SetExpiredAt(*v)
 	}
@@ -489,37 +489,37 @@ func (_u *TeltentUpdateOne) SetNillableExpiredAt(v *time.Time) *TeltentUpdateOne
 }
 
 // ClearExpiredAt clears the value of the "expired_at" field.
-func (_u *TeltentUpdateOne) ClearExpiredAt() *TeltentUpdateOne {
+func (_u *TenantUpdateOne) ClearExpiredAt() *TenantUpdateOne {
 	_u.mutation.ClearExpiredAt()
 	return _u
 }
 
-// Mutation returns the TeltentMutation object of the builder.
-func (_u *TeltentUpdateOne) Mutation() *TeltentMutation {
+// Mutation returns the TenantMutation object of the builder.
+func (_u *TenantUpdateOne) Mutation() *TenantMutation {
 	return _u.mutation
 }
 
-// Where appends a list predicates to the TeltentUpdate builder.
-func (_u *TeltentUpdateOne) Where(ps ...predicate.Teltent) *TeltentUpdateOne {
+// Where appends a list predicates to the TenantUpdate builder.
+func (_u *TenantUpdateOne) Where(ps ...predicate.Tenant) *TenantUpdateOne {
 	_u.mutation.Where(ps...)
 	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (_u *TeltentUpdateOne) Select(field string, fields ...string) *TeltentUpdateOne {
+func (_u *TenantUpdateOne) Select(field string, fields ...string) *TenantUpdateOne {
 	_u.fields = append([]string{field}, fields...)
 	return _u
 }
 
-// Save executes the query and returns the updated Teltent entity.
-func (_u *TeltentUpdateOne) Save(ctx context.Context) (*Teltent, error) {
+// Save executes the query and returns the updated Tenant entity.
+func (_u *TenantUpdateOne) Save(ctx context.Context) (*Tenant, error) {
 	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (_u *TeltentUpdateOne) SaveX(ctx context.Context) *Teltent {
+func (_u *TenantUpdateOne) SaveX(ctx context.Context) *Tenant {
 	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
@@ -528,79 +528,79 @@ func (_u *TeltentUpdateOne) SaveX(ctx context.Context) *Teltent {
 }
 
 // Exec executes the query on the entity.
-func (_u *TeltentUpdateOne) Exec(ctx context.Context) error {
+func (_u *TenantUpdateOne) Exec(ctx context.Context) error {
 	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (_u *TeltentUpdateOne) ExecX(ctx context.Context) {
+func (_u *TenantUpdateOne) ExecX(ctx context.Context) {
 	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (_u *TeltentUpdateOne) defaults() {
+func (_u *TenantUpdateOne) defaults() {
 	if _, ok := _u.mutation.UpdatedAt(); !ok {
-		v := teltent.UpdateDefaultUpdatedAt()
+		v := tenant.UpdateDefaultUpdatedAt()
 		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (_u *TeltentUpdateOne) check() error {
+func (_u *TenantUpdateOne) check() error {
 	if v, ok := _u.mutation.CertificateNo(); ok {
-		if err := teltent.CertificateNoValidator(v); err != nil {
-			return &ValidationError{Name: "certificate_no", err: fmt.Errorf(`ent: validator failed for field "Teltent.certificate_no": %w`, err)}
+		if err := tenant.CertificateNoValidator(v); err != nil {
+			return &ValidationError{Name: "certificate_no", err: fmt.Errorf(`ent: validator failed for field "Tenant.certificate_no": %w`, err)}
 		}
 	}
 	if v, ok := _u.mutation.Name(); ok {
-		if err := teltent.NameValidator(v); err != nil {
-			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Teltent.name": %w`, err)}
+		if err := tenant.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Tenant.name": %w`, err)}
 		}
 	}
 	if v, ok := _u.mutation.GetType(); ok {
-		if err := teltent.TypeValidator(v); err != nil {
-			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "Teltent.type": %w`, err)}
+		if err := tenant.TypeValidator(v); err != nil {
+			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "Tenant.type": %w`, err)}
 		}
 	}
 	if v, ok := _u.mutation.ContactName(); ok {
-		if err := teltent.ContactNameValidator(v); err != nil {
-			return &ValidationError{Name: "contact_name", err: fmt.Errorf(`ent: validator failed for field "Teltent.contact_name": %w`, err)}
+		if err := tenant.ContactNameValidator(v); err != nil {
+			return &ValidationError{Name: "contact_name", err: fmt.Errorf(`ent: validator failed for field "Tenant.contact_name": %w`, err)}
 		}
 	}
 	if v, ok := _u.mutation.Email(); ok {
-		if err := teltent.EmailValidator(v); err != nil {
-			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "Teltent.email": %w`, err)}
+		if err := tenant.EmailValidator(v); err != nil {
+			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "Tenant.email": %w`, err)}
 		}
 	}
 	if v, ok := _u.mutation.Phone(); ok {
-		if err := teltent.PhoneValidator(v); err != nil {
-			return &ValidationError{Name: "phone", err: fmt.Errorf(`ent: validator failed for field "Teltent.phone": %w`, err)}
+		if err := tenant.PhoneValidator(v); err != nil {
+			return &ValidationError{Name: "phone", err: fmt.Errorf(`ent: validator failed for field "Tenant.phone": %w`, err)}
 		}
 	}
 	return nil
 }
 
-func (_u *TeltentUpdateOne) sqlSave(ctx context.Context) (_node *Teltent, err error) {
+func (_u *TenantUpdateOne) sqlSave(ctx context.Context) (_node *Tenant, err error) {
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(teltent.Table, teltent.Columns, sqlgraph.NewFieldSpec(teltent.FieldID, field.TypeUUID))
+	_spec := sqlgraph.NewUpdateSpec(tenant.Table, tenant.Columns, sqlgraph.NewFieldSpec(tenant.FieldID, field.TypeUUID))
 	id, ok := _u.mutation.ID()
 	if !ok {
-		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Teltent.id" for update`)}
+		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Tenant.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
 	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
-		_spec.Node.Columns = append(_spec.Node.Columns, teltent.FieldID)
+		_spec.Node.Columns = append(_spec.Node.Columns, tenant.FieldID)
 		for _, f := range fields {
-			if !teltent.ValidColumn(f) {
+			if !tenant.ValidColumn(f) {
 				return nil, &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
 			}
-			if f != teltent.FieldID {
+			if f != tenant.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, f)
 			}
 		}
@@ -613,53 +613,53 @@ func (_u *TeltentUpdateOne) sqlSave(ctx context.Context) (_node *Teltent, err er
 		}
 	}
 	if value, ok := _u.mutation.Status(); ok {
-		_spec.SetField(teltent.FieldStatus, field.TypeInt8, value)
+		_spec.SetField(tenant.FieldStatus, field.TypeInt8, value)
 	}
 	if value, ok := _u.mutation.AddedStatus(); ok {
-		_spec.AddField(teltent.FieldStatus, field.TypeInt8, value)
+		_spec.AddField(tenant.FieldStatus, field.TypeInt8, value)
 	}
 	if value, ok := _u.mutation.UpdatedAt(); ok {
-		_spec.SetField(teltent.FieldUpdatedAt, field.TypeTime, value)
+		_spec.SetField(tenant.FieldUpdatedAt, field.TypeTime, value)
 	}
 	if value, ok := _u.mutation.DeletedAt(); ok {
-		_spec.SetField(teltent.FieldDeletedAt, field.TypeTime, value)
+		_spec.SetField(tenant.FieldDeletedAt, field.TypeTime, value)
 	}
 	if _u.mutation.DeletedAtCleared() {
-		_spec.ClearField(teltent.FieldDeletedAt, field.TypeTime)
+		_spec.ClearField(tenant.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.CertificateNo(); ok {
-		_spec.SetField(teltent.FieldCertificateNo, field.TypeString, value)
+		_spec.SetField(tenant.FieldCertificateNo, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.Name(); ok {
-		_spec.SetField(teltent.FieldName, field.TypeString, value)
+		_spec.SetField(tenant.FieldName, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.GetType(); ok {
-		_spec.SetField(teltent.FieldType, field.TypeInt8, value)
+		_spec.SetField(tenant.FieldType, field.TypeInt8, value)
 	}
 	if value, ok := _u.mutation.AddedType(); ok {
-		_spec.AddField(teltent.FieldType, field.TypeInt8, value)
+		_spec.AddField(tenant.FieldType, field.TypeInt8, value)
 	}
 	if value, ok := _u.mutation.ContactName(); ok {
-		_spec.SetField(teltent.FieldContactName, field.TypeString, value)
+		_spec.SetField(tenant.FieldContactName, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.Email(); ok {
-		_spec.SetField(teltent.FieldEmail, field.TypeString, value)
+		_spec.SetField(tenant.FieldEmail, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.Phone(); ok {
-		_spec.SetField(teltent.FieldPhone, field.TypeString, value)
+		_spec.SetField(tenant.FieldPhone, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.ExpiredAt(); ok {
-		_spec.SetField(teltent.FieldExpiredAt, field.TypeTime, value)
+		_spec.SetField(tenant.FieldExpiredAt, field.TypeTime, value)
 	}
 	if _u.mutation.ExpiredAtCleared() {
-		_spec.ClearField(teltent.FieldExpiredAt, field.TypeTime)
+		_spec.ClearField(tenant.FieldExpiredAt, field.TypeTime)
 	}
-	_node = &Teltent{config: _u.config}
+	_node = &Tenant{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
 	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
-			err = &NotFoundError{teltent.Label}
+			err = &NotFoundError{tenant.Label}
 		} else if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}

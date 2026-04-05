@@ -1,10 +1,10 @@
-package teltent
+package tenant
 
 import (
 	"context"
 
 	entgo "github.com/speech/fireworks-admin/internal/ent"
-	"github.com/speech/fireworks-admin/internal/ent/teltent"
+	"github.com/speech/fireworks-admin/internal/ent/tenant"
 	"github.com/speech/fireworks-admin/internal/pkg/idgen"
 )
 
@@ -20,9 +20,9 @@ func NewRepository(client *entgo.Client) *Repository {
 	}
 }
 
-// toEntity 将 Ent Teltent 模型转换为领域 Teltent 实体。
-func toEntity(t *entgo.Teltent) *Teltent {
-	return &Teltent{
+// toEntity 将 Ent Tenant 模型转换为领域 Tenant 实体。
+func toEntity(t *entgo.Tenant) *Tenant {
+	return &Tenant{
 		ID:            idgen.ToString(t.ID),
 		CertificateNo: t.CertificateNo,
 		Name:          t.Name,
@@ -38,13 +38,13 @@ func toEntity(t *entgo.Teltent) *Teltent {
 }
 
 // Create 在数据库中创建新租户。
-func (r *Repository) Create(ctx context.Context, req *CreateTeltentReq) (*Teltent, error) {
+func (r *Repository) Create(ctx context.Context, req *CreateTenantReq) (*Tenant, error) {
 	id, err := idgen.NewV7()
 	if err != nil {
 		return nil, err
 	}
 
-	builder := r.client.Teltent.Create().
+	builder := r.client.Tenant.Create().
 		SetID(id).
 		SetCertificateNo(req.CertificateNo).
 		SetName(req.Name).
@@ -68,36 +68,36 @@ func (r *Repository) Create(ctx context.Context, req *CreateTeltentReq) (*Telten
 
 // Delete 根据ID从数据库中删除租户。
 func (r *Repository) Delete(ctx context.Context, id string) error {
-	telentId, err := idgen.Parse(id)
+	tenantId, err := idgen.Parse(id)
 	if err != nil {
 		return err
 	}
-	return r.client.Teltent.DeleteOneID(telentId).Exec(ctx)
+	return r.client.Tenant.DeleteOneID(tenantId).Exec(ctx)
 }
 
 // FindByPage 根据查询条件分页查询租户列表。
-func (r *Repository) FindByPage(ctx context.Context, query *TeltentQuery) ([]*Teltent, int64, error) {
-	builder := r.client.Teltent.Query()
+func (r *Repository) FindByPage(ctx context.Context, query *TenantQuery) ([]*Tenant, int64, error) {
+	builder := r.client.Tenant.Query()
 
 	if query.HasKeyword() {
 		builder.Where(
-			teltent.Or(
-				teltent.CertificateNoHasPrefix(query.Keyword),
-				teltent.NameContains(query.Keyword),
+			tenant.Or(
+				tenant.CertificateNoHasPrefix(query.Keyword),
+				tenant.NameContains(query.Keyword),
 			),
 		)
 	}
 
 	if query.HasStatus() {
-		builder.Where(teltent.StatusEQ(*query.Status))
+		builder.Where(tenant.StatusEQ(*query.Status))
 	}
 
 	if query.HasEmail() {
-		builder.Where(teltent.EmailEQ(query.Email))
+		builder.Where(tenant.EmailEQ(query.Email))
 	}
 
 	if query.HasPhone() {
-		builder.Where(teltent.PhoneEQ(query.Phone))
+		builder.Where(tenant.PhoneEQ(query.Phone))
 	}
 
 	total, err := builder.Clone().Count(ctx)
@@ -105,17 +105,17 @@ func (r *Repository) FindByPage(ctx context.Context, query *TeltentQuery) ([]*Te
 		return nil, 0, err
 	}
 
-	teltents, err := builder.
+	tenants, err := builder.
 		Offset(query.GetOffset()).
 		Limit(query.GetLimit()).
-		Order(entgo.Desc(teltent.FieldCreatedAt)).
+		Order(entgo.Desc(tenant.FieldCreatedAt)).
 		All(ctx)
 	if err != nil {
 		return nil, 0, err
 	}
 
-	result := make([]*Teltent, 0, len(teltents))
-	for _, t := range teltents {
+	result := make([]*Tenant, 0, len(tenants))
+	for _, t := range tenants {
 		result = append(result, toEntity(t))
 	}
 
@@ -123,12 +123,12 @@ func (r *Repository) FindByPage(ctx context.Context, query *TeltentQuery) ([]*Te
 }
 
 // GetByID 根据ID从数据库查询租户。
-func (r *Repository) GetByID(ctx context.Context, id string) (*Teltent, error) {
-	telentId, err := idgen.Parse(id)
+func (r *Repository) GetByID(ctx context.Context, id string) (*Tenant, error) {
+	tenantId, err := idgen.Parse(id)
 	if err != nil {
 		return nil, err
 	}
-	t, err := r.client.Teltent.Get(ctx, telentId)
+	t, err := r.client.Tenant.Get(ctx, tenantId)
 	if err != nil {
 		return nil, err
 	}
@@ -138,8 +138,8 @@ func (r *Repository) GetByID(ctx context.Context, id string) (*Teltent, error) {
 // ExistsByCertificateNo 根据证件号检查租户是否已存在。
 // 返回 true 表示该证件号已被使用，false 表示未使用。
 func (r *Repository) ExistsByCertificateNo(ctx context.Context, certNo string) (bool, error) {
-	count, err := r.client.Teltent.Query().
-		Where(teltent.CertificateNoEQ(certNo)).
+	count, err := r.client.Tenant.Query().
+		Where(tenant.CertificateNoEQ(certNo)).
 		Count(ctx)
 	if err != nil {
 		return false, err
@@ -150,14 +150,14 @@ func (r *Repository) ExistsByCertificateNo(ctx context.Context, certNo string) (
 // ExistsByCertificateNoExcludingID 根据证件号检查除指定ID外的租户是否已存在。
 // 用于更新操作时排除自身记录的唯一性校验。
 func (r *Repository) ExistsByCertificateNoExcludingID(ctx context.Context, certNo string, excludeID string) (bool, error) {
-	telentId, err := idgen.Parse(excludeID)
+	tenantId, err := idgen.Parse(excludeID)
 	if err != nil {
 		return false, err
 	}
-	count, err := r.client.Teltent.Query().
+	count, err := r.client.Tenant.Query().
 		Where(
-			teltent.CertificateNoEQ(certNo),
-			teltent.IDNEQ(telentId),
+			tenant.CertificateNoEQ(certNo),
+			tenant.IDNEQ(tenantId),
 		).
 		Count(ctx)
 	if err != nil {
@@ -167,12 +167,12 @@ func (r *Repository) ExistsByCertificateNoExcludingID(ctx context.Context, certN
 }
 
 // Update 根据ID更新数据库中的租户信息。
-func (r *Repository) Update(ctx context.Context, id string, req *UpdateTeltentReq) (*Teltent, error) {
-	telentId, err := idgen.Parse(id)
+func (r *Repository) Update(ctx context.Context, id string, req *UpdateTenantReq) (*Tenant, error) {
+	tenantId, err := idgen.Parse(id)
 	if err != nil {
 		return nil, err
 	}
-	builder := r.client.Teltent.UpdateOneID(telentId)
+	builder := r.client.Tenant.UpdateOneID(tenantId)
 	if req.CertificateNo != nil {
 		builder.SetCertificateNo(*req.CertificateNo)
 	}

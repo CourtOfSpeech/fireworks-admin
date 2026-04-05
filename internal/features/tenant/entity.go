@@ -1,4 +1,4 @@
-package teltent
+package tenant
 
 import (
 	"time"
@@ -8,18 +8,18 @@ import (
 
 // 租户类型
 const (
-	TeltentTypeCompany  int8 = 1 // 企业
-	TeltentTypePersonal int8 = 2 // 个人
+	TenantTypeCompany  int8 = 1 // 企业
+	TenantTypePersonal int8 = 2 // 个人
 )
 
 // 租户状态
 const (
-	TeltentStatusDisabled int8 = 1 // 禁用
-	TeltentStatusEnabled  int8 = 2 // 正常
+	TenantStatusDisabled int8 = 1 // 禁用
+	TenantStatusEnabled  int8 = 2 // 正常
 )
 
-// Teltent 租户实体
-type Teltent struct {
+// Tenant 租户实体
+type Tenant struct {
 	ID            string    `json:"id"`
 	CertificateNo string    `json:"certificate_no"`
 	Name          string    `json:"name"`
@@ -34,8 +34,8 @@ type Teltent struct {
 	DeletedAt     time.Time `json:"deleted_at"`
 }
 
-// CreateTeltentReq 创建租户请求
-type CreateTeltentReq struct {
+// CreateTenantReq 创建租户请求
+type CreateTenantReq struct {
 	CertificateNo string    `json:"certificate_no" validate:"required"`
 	Name          string    `json:"name" validate:"required"`
 	Type          int8      `json:"type" validate:"required,min=1,max=2"`
@@ -46,8 +46,8 @@ type CreateTeltentReq struct {
 	Status        int8      `json:"status" validate:"required,min=1,max=2"`
 }
 
-// UpdateTeltentReq 更新租户请求
-type UpdateTeltentReq struct {
+// UpdateTenantReq 更新租户请求
+type UpdateTenantReq struct {
 	CertificateNo *string    `json:"certificate_no" validate:"omitempty"`
 	Name          *string    `json:"name" validate:"omitempty"`
 	Type          *int8      `json:"type" validate:"omitempty,min=1,max=2"`
@@ -58,8 +58,8 @@ type UpdateTeltentReq struct {
 	Status        *int8      `json:"status" validate:"omitempty,min=0,max=1"`
 }
 
-// TeltentQuery 租户查询条件
-type TeltentQuery struct {
+// TenantQuery 租户查询条件
+type TenantQuery struct {
 	api.PageQuery
 	Keyword string `query:"keyword"` // 关键字：模糊匹配证件号码（前缀）、名称
 	Status  *int8  `query:"status"`  // 状态：精确匹配
@@ -68,21 +68,21 @@ type TeltentQuery struct {
 }
 
 // HasKeyword 是否有关键字查询
-func (q *TeltentQuery) HasKeyword() bool {
+func (q *TenantQuery) HasKeyword() bool {
 	return q.Keyword != ""
 }
 
 // HasStatus 是否有状态查询
-func (q *TeltentQuery) HasStatus() bool {
+func (q *TenantQuery) HasStatus() bool {
 	return q.Status != nil
 }
 
 // HasEmail 是否有邮箱查询
-func (q *TeltentQuery) HasEmail() bool {
+func (q *TenantQuery) HasEmail() bool {
 	return q.Email != ""
 }
 
 // HasPhone 是否有电话查询
-func (q *TeltentQuery) HasPhone() bool {
+func (q *TenantQuery) HasPhone() bool {
 	return q.Phone != ""
 }

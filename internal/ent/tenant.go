@@ -10,11 +10,11 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
-	"github.com/speech/fireworks-admin/internal/ent/teltent"
+	"github.com/speech/fireworks-admin/internal/ent/tenant"
 )
 
-// Teltent is the model entity for the Teltent schema.
-type Teltent struct {
+// Tenant is the model entity for the Tenant schema.
+type Tenant struct {
 	config `json:"-"`
 	// ID of the ent.
 	// 主键
@@ -45,17 +45,17 @@ type Teltent struct {
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
-func (*Teltent) scanValues(columns []string) ([]any, error) {
+func (*Tenant) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case teltent.FieldStatus, teltent.FieldType:
+		case tenant.FieldStatus, tenant.FieldType:
 			values[i] = new(sql.NullInt64)
-		case teltent.FieldCertificateNo, teltent.FieldName, teltent.FieldContactName, teltent.FieldEmail, teltent.FieldPhone:
+		case tenant.FieldCertificateNo, tenant.FieldName, tenant.FieldContactName, tenant.FieldEmail, tenant.FieldPhone:
 			values[i] = new(sql.NullString)
-		case teltent.FieldCreatedAt, teltent.FieldUpdatedAt, teltent.FieldDeletedAt, teltent.FieldExpiredAt:
+		case tenant.FieldCreatedAt, tenant.FieldUpdatedAt, tenant.FieldDeletedAt, tenant.FieldExpiredAt:
 			values[i] = new(sql.NullTime)
-		case teltent.FieldID:
+		case tenant.FieldID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -65,80 +65,80 @@ func (*Teltent) scanValues(columns []string) ([]any, error) {
 }
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
-// to the Teltent fields.
-func (_m *Teltent) assignValues(columns []string, values []any) error {
+// to the Tenant fields.
+func (_m *Tenant) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
 	for i := range columns {
 		switch columns[i] {
-		case teltent.FieldID:
+		case tenant.FieldID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
 				_m.ID = *value
 			}
-		case teltent.FieldStatus:
+		case tenant.FieldStatus:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
 			} else if value.Valid {
 				_m.Status = int8(value.Int64)
 			}
-		case teltent.FieldCreatedAt:
+		case tenant.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
 				_m.CreatedAt = value.Time
 			}
-		case teltent.FieldUpdatedAt:
+		case tenant.FieldUpdatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
 				_m.UpdatedAt = value.Time
 			}
-		case teltent.FieldDeletedAt:
+		case tenant.FieldDeletedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
 			} else if value.Valid {
 				_m.DeletedAt = value.Time
 			}
-		case teltent.FieldCertificateNo:
+		case tenant.FieldCertificateNo:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field certificate_no", values[i])
 			} else if value.Valid {
 				_m.CertificateNo = value.String
 			}
-		case teltent.FieldName:
+		case tenant.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
 				_m.Name = value.String
 			}
-		case teltent.FieldType:
+		case tenant.FieldType:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field type", values[i])
 			} else if value.Valid {
 				_m.Type = int8(value.Int64)
 			}
-		case teltent.FieldContactName:
+		case tenant.FieldContactName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field contact_name", values[i])
 			} else if value.Valid {
 				_m.ContactName = value.String
 			}
-		case teltent.FieldEmail:
+		case tenant.FieldEmail:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field email", values[i])
 			} else if value.Valid {
 				_m.Email = value.String
 			}
-		case teltent.FieldPhone:
+		case tenant.FieldPhone:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field phone", values[i])
 			} else if value.Valid {
 				_m.Phone = value.String
 			}
-		case teltent.FieldExpiredAt:
+		case tenant.FieldExpiredAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field expired_at", values[i])
 			} else if value.Valid {
@@ -151,34 +151,34 @@ func (_m *Teltent) assignValues(columns []string, values []any) error {
 	return nil
 }
 
-// Value returns the ent.Value that was dynamically selected and assigned to the Teltent.
+// Value returns the ent.Value that was dynamically selected and assigned to the Tenant.
 // This includes values selected through modifiers, order, etc.
-func (_m *Teltent) Value(name string) (ent.Value, error) {
+func (_m *Tenant) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
 }
 
-// Update returns a builder for updating this Teltent.
-// Note that you need to call Teltent.Unwrap() before calling this method if this Teltent
+// Update returns a builder for updating this Tenant.
+// Note that you need to call Tenant.Unwrap() before calling this method if this Tenant
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (_m *Teltent) Update() *TeltentUpdateOne {
-	return NewTeltentClient(_m.config).UpdateOne(_m)
+func (_m *Tenant) Update() *TenantUpdateOne {
+	return NewTenantClient(_m.config).UpdateOne(_m)
 }
 
-// Unwrap unwraps the Teltent entity that was returned from a transaction after it was closed,
+// Unwrap unwraps the Tenant entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (_m *Teltent) Unwrap() *Teltent {
+func (_m *Tenant) Unwrap() *Tenant {
 	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
-		panic("ent: Teltent is not a transactional entity")
+		panic("ent: Tenant is not a transactional entity")
 	}
 	_m.config.driver = _tx.drv
 	return _m
 }
 
 // String implements the fmt.Stringer.
-func (_m *Teltent) String() string {
+func (_m *Tenant) String() string {
 	var builder strings.Builder
-	builder.WriteString("Teltent(")
+	builder.WriteString("Tenant(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("status=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Status))
@@ -216,5 +216,5 @@ func (_m *Teltent) String() string {
 	return builder.String()
 }
 
-// Teltents is a parsable slice of Teltent.
-type Teltents []*Teltent
+// Tenants is a parsable slice of Tenant.
+type Tenants []*Tenant

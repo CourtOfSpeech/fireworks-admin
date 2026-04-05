@@ -15,7 +15,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
-	"github.com/speech/fireworks-admin/internal/ent/teltent"
+	"github.com/speech/fireworks-admin/internal/ent/tenant"
 )
 
 // Client is the client that holds all ent builders.
@@ -23,8 +23,8 @@ type Client struct {
 	config
 	// Schema is the client for creating, migrating and dropping schema.
 	Schema *migrate.Schema
-	// Teltent is the client for interacting with the Teltent builders.
-	Teltent *TeltentClient
+	// Tenant is the client for interacting with the Tenant builders.
+	Tenant *TenantClient
 }
 
 // NewClient creates a new client configured with the given options.
@@ -36,7 +36,7 @@ func NewClient(opts ...Option) *Client {
 
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
-	c.Teltent = NewTeltentClient(c.config)
+	c.Tenant = NewTenantClient(c.config)
 }
 
 type (
@@ -127,9 +127,9 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:     ctx,
-		config:  cfg,
-		Teltent: NewTeltentClient(cfg),
+		ctx:    ctx,
+		config: cfg,
+		Tenant: NewTenantClient(cfg),
 	}, nil
 }
 
@@ -147,16 +147,16 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:     ctx,
-		config:  cfg,
-		Teltent: NewTeltentClient(cfg),
+		ctx:    ctx,
+		config: cfg,
+		Tenant: NewTenantClient(cfg),
 	}, nil
 }
 
 // Debug returns a new debug-client. It's used to get verbose logging on specific operations.
 //
 //	client.Debug().
-//		Teltent.
+//		Tenant.
 //		Query().
 //		Count(ctx)
 func (c *Client) Debug() *Client {
@@ -178,126 +178,126 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
-	c.Teltent.Use(hooks...)
+	c.Tenant.Use(hooks...)
 }
 
 // Intercept adds the query interceptors to all the entity clients.
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
-	c.Teltent.Intercept(interceptors...)
+	c.Tenant.Intercept(interceptors...)
 }
 
 // Mutate implements the ent.Mutator interface.
 func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
-	case *TeltentMutation:
-		return c.Teltent.mutate(ctx, m)
+	case *TenantMutation:
+		return c.Tenant.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("ent: unknown mutation type %T", m)
 	}
 }
 
-// TeltentClient is a client for the Teltent schema.
-type TeltentClient struct {
+// TenantClient is a client for the Tenant schema.
+type TenantClient struct {
 	config
 }
 
-// NewTeltentClient returns a client for the Teltent from the given config.
-func NewTeltentClient(c config) *TeltentClient {
-	return &TeltentClient{config: c}
+// NewTenantClient returns a client for the Tenant from the given config.
+func NewTenantClient(c config) *TenantClient {
+	return &TenantClient{config: c}
 }
 
 // Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `teltent.Hooks(f(g(h())))`.
-func (c *TeltentClient) Use(hooks ...Hook) {
-	c.hooks.Teltent = append(c.hooks.Teltent, hooks...)
+// A call to `Use(f, g, h)` equals to `tenant.Hooks(f(g(h())))`.
+func (c *TenantClient) Use(hooks ...Hook) {
+	c.hooks.Tenant = append(c.hooks.Tenant, hooks...)
 }
 
 // Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `teltent.Intercept(f(g(h())))`.
-func (c *TeltentClient) Intercept(interceptors ...Interceptor) {
-	c.inters.Teltent = append(c.inters.Teltent, interceptors...)
+// A call to `Intercept(f, g, h)` equals to `tenant.Intercept(f(g(h())))`.
+func (c *TenantClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Tenant = append(c.inters.Tenant, interceptors...)
 }
 
-// Create returns a builder for creating a Teltent entity.
-func (c *TeltentClient) Create() *TeltentCreate {
-	mutation := newTeltentMutation(c.config, OpCreate)
-	return &TeltentCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Create returns a builder for creating a Tenant entity.
+func (c *TenantClient) Create() *TenantCreate {
+	mutation := newTenantMutation(c.config, OpCreate)
+	return &TenantCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
-// CreateBulk returns a builder for creating a bulk of Teltent entities.
-func (c *TeltentClient) CreateBulk(builders ...*TeltentCreate) *TeltentCreateBulk {
-	return &TeltentCreateBulk{config: c.config, builders: builders}
+// CreateBulk returns a builder for creating a bulk of Tenant entities.
+func (c *TenantClient) CreateBulk(builders ...*TenantCreate) *TenantCreateBulk {
+	return &TenantCreateBulk{config: c.config, builders: builders}
 }
 
 // MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
 // a builder and applies setFunc on it.
-func (c *TeltentClient) MapCreateBulk(slice any, setFunc func(*TeltentCreate, int)) *TeltentCreateBulk {
+func (c *TenantClient) MapCreateBulk(slice any, setFunc func(*TenantCreate, int)) *TenantCreateBulk {
 	rv := reflect.ValueOf(slice)
 	if rv.Kind() != reflect.Slice {
-		return &TeltentCreateBulk{err: fmt.Errorf("calling to TeltentClient.MapCreateBulk with wrong type %T, need slice", slice)}
+		return &TenantCreateBulk{err: fmt.Errorf("calling to TenantClient.MapCreateBulk with wrong type %T, need slice", slice)}
 	}
-	builders := make([]*TeltentCreate, rv.Len())
+	builders := make([]*TenantCreate, rv.Len())
 	for i := 0; i < rv.Len(); i++ {
 		builders[i] = c.Create()
 		setFunc(builders[i], i)
 	}
-	return &TeltentCreateBulk{config: c.config, builders: builders}
+	return &TenantCreateBulk{config: c.config, builders: builders}
 }
 
-// Update returns an update builder for Teltent.
-func (c *TeltentClient) Update() *TeltentUpdate {
-	mutation := newTeltentMutation(c.config, OpUpdate)
-	return &TeltentUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Update returns an update builder for Tenant.
+func (c *TenantClient) Update() *TenantUpdate {
+	mutation := newTenantMutation(c.config, OpUpdate)
+	return &TenantUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *TeltentClient) UpdateOne(_m *Teltent) *TeltentUpdateOne {
-	mutation := newTeltentMutation(c.config, OpUpdateOne, withTeltent(_m))
-	return &TeltentUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+func (c *TenantClient) UpdateOne(_m *Tenant) *TenantUpdateOne {
+	mutation := newTenantMutation(c.config, OpUpdateOne, withTenant(_m))
+	return &TenantUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *TeltentClient) UpdateOneID(id uuid.UUID) *TeltentUpdateOne {
-	mutation := newTeltentMutation(c.config, OpUpdateOne, withTeltentID(id))
-	return &TeltentUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+func (c *TenantClient) UpdateOneID(id uuid.UUID) *TenantUpdateOne {
+	mutation := newTenantMutation(c.config, OpUpdateOne, withTenantID(id))
+	return &TenantUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
-// Delete returns a delete builder for Teltent.
-func (c *TeltentClient) Delete() *TeltentDelete {
-	mutation := newTeltentMutation(c.config, OpDelete)
-	return &TeltentDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Delete returns a delete builder for Tenant.
+func (c *TenantClient) Delete() *TenantDelete {
+	mutation := newTenantMutation(c.config, OpDelete)
+	return &TenantDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *TeltentClient) DeleteOne(_m *Teltent) *TeltentDeleteOne {
+func (c *TenantClient) DeleteOne(_m *Tenant) *TenantDeleteOne {
 	return c.DeleteOneID(_m.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *TeltentClient) DeleteOneID(id uuid.UUID) *TeltentDeleteOne {
-	builder := c.Delete().Where(teltent.ID(id))
+func (c *TenantClient) DeleteOneID(id uuid.UUID) *TenantDeleteOne {
+	builder := c.Delete().Where(tenant.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
-	return &TeltentDeleteOne{builder}
+	return &TenantDeleteOne{builder}
 }
 
-// Query returns a query builder for Teltent.
-func (c *TeltentClient) Query() *TeltentQuery {
-	return &TeltentQuery{
+// Query returns a query builder for Tenant.
+func (c *TenantClient) Query() *TenantQuery {
+	return &TenantQuery{
 		config: c.config,
-		ctx:    &QueryContext{Type: TypeTeltent},
+		ctx:    &QueryContext{Type: TypeTenant},
 		inters: c.Interceptors(),
 	}
 }
 
-// Get returns a Teltent entity by its id.
-func (c *TeltentClient) Get(ctx context.Context, id uuid.UUID) (*Teltent, error) {
-	return c.Query().Where(teltent.ID(id)).Only(ctx)
+// Get returns a Tenant entity by its id.
+func (c *TenantClient) Get(ctx context.Context, id uuid.UUID) (*Tenant, error) {
+	return c.Query().Where(tenant.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *TeltentClient) GetX(ctx context.Context, id uuid.UUID) *Teltent {
+func (c *TenantClient) GetX(ctx context.Context, id uuid.UUID) *Tenant {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -306,36 +306,36 @@ func (c *TeltentClient) GetX(ctx context.Context, id uuid.UUID) *Teltent {
 }
 
 // Hooks returns the client hooks.
-func (c *TeltentClient) Hooks() []Hook {
-	return c.hooks.Teltent
+func (c *TenantClient) Hooks() []Hook {
+	return c.hooks.Tenant
 }
 
 // Interceptors returns the client interceptors.
-func (c *TeltentClient) Interceptors() []Interceptor {
-	return c.inters.Teltent
+func (c *TenantClient) Interceptors() []Interceptor {
+	return c.inters.Tenant
 }
 
-func (c *TeltentClient) mutate(ctx context.Context, m *TeltentMutation) (Value, error) {
+func (c *TenantClient) mutate(ctx context.Context, m *TenantMutation) (Value, error) {
 	switch m.Op() {
 	case OpCreate:
-		return (&TeltentCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+		return (&TenantCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
 	case OpUpdate:
-		return (&TeltentUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+		return (&TenantUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
 	case OpUpdateOne:
-		return (&TeltentUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+		return (&TenantUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
 	case OpDelete, OpDeleteOne:
-		return (&TeltentDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+		return (&TenantDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
-		return nil, fmt.Errorf("ent: unknown Teltent mutation op: %q", m.Op())
+		return nil, fmt.Errorf("ent: unknown Tenant mutation op: %q", m.Op())
 	}
 }
 
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Teltent []ent.Hook
+		Tenant []ent.Hook
 	}
 	inters struct {
-		Teltent []ent.Interceptor
+		Tenant []ent.Interceptor
 	}
 )

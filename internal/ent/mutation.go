@@ -13,7 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
 	"github.com/speech/fireworks-admin/internal/ent/predicate"
-	"github.com/speech/fireworks-admin/internal/ent/teltent"
+	"github.com/speech/fireworks-admin/internal/ent/tenant"
 )
 
 const (
@@ -25,11 +25,11 @@ const (
 	OpUpdateOne = ent.OpUpdateOne
 
 	// Node types.
-	TypeTeltent = "Teltent"
+	TypeTenant = "Tenant"
 )
 
-// TeltentMutation represents an operation that mutates the Teltent nodes in the graph.
-type TeltentMutation struct {
+// TenantMutation represents an operation that mutates the Tenant nodes in the graph.
+type TenantMutation struct {
 	config
 	op             Op
 	typ            string
@@ -49,21 +49,21 @@ type TeltentMutation struct {
 	expired_at     *time.Time
 	clearedFields  map[string]struct{}
 	done           bool
-	oldValue       func(context.Context) (*Teltent, error)
-	predicates     []predicate.Teltent
+	oldValue       func(context.Context) (*Tenant, error)
+	predicates     []predicate.Tenant
 }
 
-var _ ent.Mutation = (*TeltentMutation)(nil)
+var _ ent.Mutation = (*TenantMutation)(nil)
 
-// teltentOption allows management of the mutation configuration using functional options.
-type teltentOption func(*TeltentMutation)
+// tenantOption allows management of the mutation configuration using functional options.
+type tenantOption func(*TenantMutation)
 
-// newTeltentMutation creates new mutation for the Teltent entity.
-func newTeltentMutation(c config, op Op, opts ...teltentOption) *TeltentMutation {
-	m := &TeltentMutation{
+// newTenantMutation creates new mutation for the Tenant entity.
+func newTenantMutation(c config, op Op, opts ...tenantOption) *TenantMutation {
+	m := &TenantMutation{
 		config:        c,
 		op:            op,
-		typ:           TypeTeltent,
+		typ:           TypeTenant,
 		clearedFields: make(map[string]struct{}),
 	}
 	for _, opt := range opts {
@@ -72,20 +72,20 @@ func newTeltentMutation(c config, op Op, opts ...teltentOption) *TeltentMutation
 	return m
 }
 
-// withTeltentID sets the ID field of the mutation.
-func withTeltentID(id uuid.UUID) teltentOption {
-	return func(m *TeltentMutation) {
+// withTenantID sets the ID field of the mutation.
+func withTenantID(id uuid.UUID) tenantOption {
+	return func(m *TenantMutation) {
 		var (
 			err   error
 			once  sync.Once
-			value *Teltent
+			value *Tenant
 		)
-		m.oldValue = func(ctx context.Context) (*Teltent, error) {
+		m.oldValue = func(ctx context.Context) (*Tenant, error) {
 			once.Do(func() {
 				if m.done {
 					err = errors.New("querying old values post mutation is not allowed")
 				} else {
-					value, err = m.Client().Teltent.Get(ctx, id)
+					value, err = m.Client().Tenant.Get(ctx, id)
 				}
 			})
 			return value, err
@@ -94,10 +94,10 @@ func withTeltentID(id uuid.UUID) teltentOption {
 	}
 }
 
-// withTeltent sets the old Teltent of the mutation.
-func withTeltent(node *Teltent) teltentOption {
-	return func(m *TeltentMutation) {
-		m.oldValue = func(context.Context) (*Teltent, error) {
+// withTenant sets the old Tenant of the mutation.
+func withTenant(node *Tenant) tenantOption {
+	return func(m *TenantMutation) {
+		m.oldValue = func(context.Context) (*Tenant, error) {
 			return node, nil
 		}
 		m.id = &node.ID
@@ -106,7 +106,7 @@ func withTeltent(node *Teltent) teltentOption {
 
 // Client returns a new `ent.Client` from the mutation. If the mutation was
 // executed in a transaction (ent.Tx), a transactional client is returned.
-func (m TeltentMutation) Client() *Client {
+func (m TenantMutation) Client() *Client {
 	client := &Client{config: m.config}
 	client.init()
 	return client
@@ -114,7 +114,7 @@ func (m TeltentMutation) Client() *Client {
 
 // Tx returns an `ent.Tx` for mutations that were executed in transactions;
 // it returns an error otherwise.
-func (m TeltentMutation) Tx() (*Tx, error) {
+func (m TenantMutation) Tx() (*Tx, error) {
 	if _, ok := m.driver.(*txDriver); !ok {
 		return nil, errors.New("ent: mutation is not running in a transaction")
 	}
@@ -124,14 +124,14 @@ func (m TeltentMutation) Tx() (*Tx, error) {
 }
 
 // SetID sets the value of the id field. Note that this
-// operation is only accepted on creation of Teltent entities.
-func (m *TeltentMutation) SetID(id uuid.UUID) {
+// operation is only accepted on creation of Tenant entities.
+func (m *TenantMutation) SetID(id uuid.UUID) {
 	m.id = &id
 }
 
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *TeltentMutation) ID() (id uuid.UUID, exists bool) {
+func (m *TenantMutation) ID() (id uuid.UUID, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -142,7 +142,7 @@ func (m *TeltentMutation) ID() (id uuid.UUID, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *TeltentMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
+func (m *TenantMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
@@ -151,20 +151,20 @@ func (m *TeltentMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
-		return m.Client().Teltent.Query().Where(m.predicates...).IDs(ctx)
+		return m.Client().Tenant.Query().Where(m.predicates...).IDs(ctx)
 	default:
 		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
 	}
 }
 
 // SetStatus sets the "status" field.
-func (m *TeltentMutation) SetStatus(i int8) {
+func (m *TenantMutation) SetStatus(i int8) {
 	m.status = &i
 	m.addstatus = nil
 }
 
 // Status returns the value of the "status" field in the mutation.
-func (m *TeltentMutation) Status() (r int8, exists bool) {
+func (m *TenantMutation) Status() (r int8, exists bool) {
 	v := m.status
 	if v == nil {
 		return
@@ -172,10 +172,10 @@ func (m *TeltentMutation) Status() (r int8, exists bool) {
 	return *v, true
 }
 
-// OldStatus returns the old "status" field's value of the Teltent entity.
-// If the Teltent object wasn't provided to the builder, the object is fetched from the database.
+// OldStatus returns the old "status" field's value of the Tenant entity.
+// If the Tenant object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *TeltentMutation) OldStatus(ctx context.Context) (v int8, err error) {
+func (m *TenantMutation) OldStatus(ctx context.Context) (v int8, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldStatus is only allowed on UpdateOne operations")
 	}
@@ -190,7 +190,7 @@ func (m *TeltentMutation) OldStatus(ctx context.Context) (v int8, err error) {
 }
 
 // AddStatus adds i to the "status" field.
-func (m *TeltentMutation) AddStatus(i int8) {
+func (m *TenantMutation) AddStatus(i int8) {
 	if m.addstatus != nil {
 		*m.addstatus += i
 	} else {
@@ -199,7 +199,7 @@ func (m *TeltentMutation) AddStatus(i int8) {
 }
 
 // AddedStatus returns the value that was added to the "status" field in this mutation.
-func (m *TeltentMutation) AddedStatus() (r int8, exists bool) {
+func (m *TenantMutation) AddedStatus() (r int8, exists bool) {
 	v := m.addstatus
 	if v == nil {
 		return
@@ -208,18 +208,18 @@ func (m *TeltentMutation) AddedStatus() (r int8, exists bool) {
 }
 
 // ResetStatus resets all changes to the "status" field.
-func (m *TeltentMutation) ResetStatus() {
+func (m *TenantMutation) ResetStatus() {
 	m.status = nil
 	m.addstatus = nil
 }
 
 // SetCreatedAt sets the "created_at" field.
-func (m *TeltentMutation) SetCreatedAt(t time.Time) {
+func (m *TenantMutation) SetCreatedAt(t time.Time) {
 	m.created_at = &t
 }
 
 // CreatedAt returns the value of the "created_at" field in the mutation.
-func (m *TeltentMutation) CreatedAt() (r time.Time, exists bool) {
+func (m *TenantMutation) CreatedAt() (r time.Time, exists bool) {
 	v := m.created_at
 	if v == nil {
 		return
@@ -227,10 +227,10 @@ func (m *TeltentMutation) CreatedAt() (r time.Time, exists bool) {
 	return *v, true
 }
 
-// OldCreatedAt returns the old "created_at" field's value of the Teltent entity.
-// If the Teltent object wasn't provided to the builder, the object is fetched from the database.
+// OldCreatedAt returns the old "created_at" field's value of the Tenant entity.
+// If the Tenant object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *TeltentMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+func (m *TenantMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
 	}
@@ -245,17 +245,17 @@ func (m *TeltentMutation) OldCreatedAt(ctx context.Context) (v time.Time, err er
 }
 
 // ResetCreatedAt resets all changes to the "created_at" field.
-func (m *TeltentMutation) ResetCreatedAt() {
+func (m *TenantMutation) ResetCreatedAt() {
 	m.created_at = nil
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (m *TeltentMutation) SetUpdatedAt(t time.Time) {
+func (m *TenantMutation) SetUpdatedAt(t time.Time) {
 	m.updated_at = &t
 }
 
 // UpdatedAt returns the value of the "updated_at" field in the mutation.
-func (m *TeltentMutation) UpdatedAt() (r time.Time, exists bool) {
+func (m *TenantMutation) UpdatedAt() (r time.Time, exists bool) {
 	v := m.updated_at
 	if v == nil {
 		return
@@ -263,10 +263,10 @@ func (m *TeltentMutation) UpdatedAt() (r time.Time, exists bool) {
 	return *v, true
 }
 
-// OldUpdatedAt returns the old "updated_at" field's value of the Teltent entity.
-// If the Teltent object wasn't provided to the builder, the object is fetched from the database.
+// OldUpdatedAt returns the old "updated_at" field's value of the Tenant entity.
+// If the Tenant object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *TeltentMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+func (m *TenantMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
 	}
@@ -281,17 +281,17 @@ func (m *TeltentMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err er
 }
 
 // ResetUpdatedAt resets all changes to the "updated_at" field.
-func (m *TeltentMutation) ResetUpdatedAt() {
+func (m *TenantMutation) ResetUpdatedAt() {
 	m.updated_at = nil
 }
 
 // SetDeletedAt sets the "deleted_at" field.
-func (m *TeltentMutation) SetDeletedAt(t time.Time) {
+func (m *TenantMutation) SetDeletedAt(t time.Time) {
 	m.deleted_at = &t
 }
 
 // DeletedAt returns the value of the "deleted_at" field in the mutation.
-func (m *TeltentMutation) DeletedAt() (r time.Time, exists bool) {
+func (m *TenantMutation) DeletedAt() (r time.Time, exists bool) {
 	v := m.deleted_at
 	if v == nil {
 		return
@@ -299,10 +299,10 @@ func (m *TeltentMutation) DeletedAt() (r time.Time, exists bool) {
 	return *v, true
 }
 
-// OldDeletedAt returns the old "deleted_at" field's value of the Teltent entity.
-// If the Teltent object wasn't provided to the builder, the object is fetched from the database.
+// OldDeletedAt returns the old "deleted_at" field's value of the Tenant entity.
+// If the Tenant object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *TeltentMutation) OldDeletedAt(ctx context.Context) (v time.Time, err error) {
+func (m *TenantMutation) OldDeletedAt(ctx context.Context) (v time.Time, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldDeletedAt is only allowed on UpdateOne operations")
 	}
@@ -317,30 +317,30 @@ func (m *TeltentMutation) OldDeletedAt(ctx context.Context) (v time.Time, err er
 }
 
 // ClearDeletedAt clears the value of the "deleted_at" field.
-func (m *TeltentMutation) ClearDeletedAt() {
+func (m *TenantMutation) ClearDeletedAt() {
 	m.deleted_at = nil
-	m.clearedFields[teltent.FieldDeletedAt] = struct{}{}
+	m.clearedFields[tenant.FieldDeletedAt] = struct{}{}
 }
 
 // DeletedAtCleared returns if the "deleted_at" field was cleared in this mutation.
-func (m *TeltentMutation) DeletedAtCleared() bool {
-	_, ok := m.clearedFields[teltent.FieldDeletedAt]
+func (m *TenantMutation) DeletedAtCleared() bool {
+	_, ok := m.clearedFields[tenant.FieldDeletedAt]
 	return ok
 }
 
 // ResetDeletedAt resets all changes to the "deleted_at" field.
-func (m *TeltentMutation) ResetDeletedAt() {
+func (m *TenantMutation) ResetDeletedAt() {
 	m.deleted_at = nil
-	delete(m.clearedFields, teltent.FieldDeletedAt)
+	delete(m.clearedFields, tenant.FieldDeletedAt)
 }
 
 // SetCertificateNo sets the "certificate_no" field.
-func (m *TeltentMutation) SetCertificateNo(s string) {
+func (m *TenantMutation) SetCertificateNo(s string) {
 	m.certificate_no = &s
 }
 
 // CertificateNo returns the value of the "certificate_no" field in the mutation.
-func (m *TeltentMutation) CertificateNo() (r string, exists bool) {
+func (m *TenantMutation) CertificateNo() (r string, exists bool) {
 	v := m.certificate_no
 	if v == nil {
 		return
@@ -348,10 +348,10 @@ func (m *TeltentMutation) CertificateNo() (r string, exists bool) {
 	return *v, true
 }
 
-// OldCertificateNo returns the old "certificate_no" field's value of the Teltent entity.
-// If the Teltent object wasn't provided to the builder, the object is fetched from the database.
+// OldCertificateNo returns the old "certificate_no" field's value of the Tenant entity.
+// If the Tenant object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *TeltentMutation) OldCertificateNo(ctx context.Context) (v string, err error) {
+func (m *TenantMutation) OldCertificateNo(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldCertificateNo is only allowed on UpdateOne operations")
 	}
@@ -366,17 +366,17 @@ func (m *TeltentMutation) OldCertificateNo(ctx context.Context) (v string, err e
 }
 
 // ResetCertificateNo resets all changes to the "certificate_no" field.
-func (m *TeltentMutation) ResetCertificateNo() {
+func (m *TenantMutation) ResetCertificateNo() {
 	m.certificate_no = nil
 }
 
 // SetName sets the "name" field.
-func (m *TeltentMutation) SetName(s string) {
+func (m *TenantMutation) SetName(s string) {
 	m.name = &s
 }
 
 // Name returns the value of the "name" field in the mutation.
-func (m *TeltentMutation) Name() (r string, exists bool) {
+func (m *TenantMutation) Name() (r string, exists bool) {
 	v := m.name
 	if v == nil {
 		return
@@ -384,10 +384,10 @@ func (m *TeltentMutation) Name() (r string, exists bool) {
 	return *v, true
 }
 
-// OldName returns the old "name" field's value of the Teltent entity.
-// If the Teltent object wasn't provided to the builder, the object is fetched from the database.
+// OldName returns the old "name" field's value of the Tenant entity.
+// If the Tenant object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *TeltentMutation) OldName(ctx context.Context) (v string, err error) {
+func (m *TenantMutation) OldName(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldName is only allowed on UpdateOne operations")
 	}
@@ -402,18 +402,18 @@ func (m *TeltentMutation) OldName(ctx context.Context) (v string, err error) {
 }
 
 // ResetName resets all changes to the "name" field.
-func (m *TeltentMutation) ResetName() {
+func (m *TenantMutation) ResetName() {
 	m.name = nil
 }
 
 // SetType sets the "type" field.
-func (m *TeltentMutation) SetType(i int8) {
+func (m *TenantMutation) SetType(i int8) {
 	m._type = &i
 	m.add_type = nil
 }
 
 // GetType returns the value of the "type" field in the mutation.
-func (m *TeltentMutation) GetType() (r int8, exists bool) {
+func (m *TenantMutation) GetType() (r int8, exists bool) {
 	v := m._type
 	if v == nil {
 		return
@@ -421,10 +421,10 @@ func (m *TeltentMutation) GetType() (r int8, exists bool) {
 	return *v, true
 }
 
-// OldType returns the old "type" field's value of the Teltent entity.
-// If the Teltent object wasn't provided to the builder, the object is fetched from the database.
+// OldType returns the old "type" field's value of the Tenant entity.
+// If the Tenant object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *TeltentMutation) OldType(ctx context.Context) (v int8, err error) {
+func (m *TenantMutation) OldType(ctx context.Context) (v int8, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldType is only allowed on UpdateOne operations")
 	}
@@ -439,7 +439,7 @@ func (m *TeltentMutation) OldType(ctx context.Context) (v int8, err error) {
 }
 
 // AddType adds i to the "type" field.
-func (m *TeltentMutation) AddType(i int8) {
+func (m *TenantMutation) AddType(i int8) {
 	if m.add_type != nil {
 		*m.add_type += i
 	} else {
@@ -448,7 +448,7 @@ func (m *TeltentMutation) AddType(i int8) {
 }
 
 // AddedType returns the value that was added to the "type" field in this mutation.
-func (m *TeltentMutation) AddedType() (r int8, exists bool) {
+func (m *TenantMutation) AddedType() (r int8, exists bool) {
 	v := m.add_type
 	if v == nil {
 		return
@@ -457,18 +457,18 @@ func (m *TeltentMutation) AddedType() (r int8, exists bool) {
 }
 
 // ResetType resets all changes to the "type" field.
-func (m *TeltentMutation) ResetType() {
+func (m *TenantMutation) ResetType() {
 	m._type = nil
 	m.add_type = nil
 }
 
 // SetContactName sets the "contact_name" field.
-func (m *TeltentMutation) SetContactName(s string) {
+func (m *TenantMutation) SetContactName(s string) {
 	m.contact_name = &s
 }
 
 // ContactName returns the value of the "contact_name" field in the mutation.
-func (m *TeltentMutation) ContactName() (r string, exists bool) {
+func (m *TenantMutation) ContactName() (r string, exists bool) {
 	v := m.contact_name
 	if v == nil {
 		return
@@ -476,10 +476,10 @@ func (m *TeltentMutation) ContactName() (r string, exists bool) {
 	return *v, true
 }
 
-// OldContactName returns the old "contact_name" field's value of the Teltent entity.
-// If the Teltent object wasn't provided to the builder, the object is fetched from the database.
+// OldContactName returns the old "contact_name" field's value of the Tenant entity.
+// If the Tenant object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *TeltentMutation) OldContactName(ctx context.Context) (v string, err error) {
+func (m *TenantMutation) OldContactName(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldContactName is only allowed on UpdateOne operations")
 	}
@@ -494,17 +494,17 @@ func (m *TeltentMutation) OldContactName(ctx context.Context) (v string, err err
 }
 
 // ResetContactName resets all changes to the "contact_name" field.
-func (m *TeltentMutation) ResetContactName() {
+func (m *TenantMutation) ResetContactName() {
 	m.contact_name = nil
 }
 
 // SetEmail sets the "email" field.
-func (m *TeltentMutation) SetEmail(s string) {
+func (m *TenantMutation) SetEmail(s string) {
 	m.email = &s
 }
 
 // Email returns the value of the "email" field in the mutation.
-func (m *TeltentMutation) Email() (r string, exists bool) {
+func (m *TenantMutation) Email() (r string, exists bool) {
 	v := m.email
 	if v == nil {
 		return
@@ -512,10 +512,10 @@ func (m *TeltentMutation) Email() (r string, exists bool) {
 	return *v, true
 }
 
-// OldEmail returns the old "email" field's value of the Teltent entity.
-// If the Teltent object wasn't provided to the builder, the object is fetched from the database.
+// OldEmail returns the old "email" field's value of the Tenant entity.
+// If the Tenant object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *TeltentMutation) OldEmail(ctx context.Context) (v string, err error) {
+func (m *TenantMutation) OldEmail(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldEmail is only allowed on UpdateOne operations")
 	}
@@ -530,17 +530,17 @@ func (m *TeltentMutation) OldEmail(ctx context.Context) (v string, err error) {
 }
 
 // ResetEmail resets all changes to the "email" field.
-func (m *TeltentMutation) ResetEmail() {
+func (m *TenantMutation) ResetEmail() {
 	m.email = nil
 }
 
 // SetPhone sets the "phone" field.
-func (m *TeltentMutation) SetPhone(s string) {
+func (m *TenantMutation) SetPhone(s string) {
 	m.phone = &s
 }
 
 // Phone returns the value of the "phone" field in the mutation.
-func (m *TeltentMutation) Phone() (r string, exists bool) {
+func (m *TenantMutation) Phone() (r string, exists bool) {
 	v := m.phone
 	if v == nil {
 		return
@@ -548,10 +548,10 @@ func (m *TeltentMutation) Phone() (r string, exists bool) {
 	return *v, true
 }
 
-// OldPhone returns the old "phone" field's value of the Teltent entity.
-// If the Teltent object wasn't provided to the builder, the object is fetched from the database.
+// OldPhone returns the old "phone" field's value of the Tenant entity.
+// If the Tenant object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *TeltentMutation) OldPhone(ctx context.Context) (v string, err error) {
+func (m *TenantMutation) OldPhone(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldPhone is only allowed on UpdateOne operations")
 	}
@@ -566,17 +566,17 @@ func (m *TeltentMutation) OldPhone(ctx context.Context) (v string, err error) {
 }
 
 // ResetPhone resets all changes to the "phone" field.
-func (m *TeltentMutation) ResetPhone() {
+func (m *TenantMutation) ResetPhone() {
 	m.phone = nil
 }
 
 // SetExpiredAt sets the "expired_at" field.
-func (m *TeltentMutation) SetExpiredAt(t time.Time) {
+func (m *TenantMutation) SetExpiredAt(t time.Time) {
 	m.expired_at = &t
 }
 
 // ExpiredAt returns the value of the "expired_at" field in the mutation.
-func (m *TeltentMutation) ExpiredAt() (r time.Time, exists bool) {
+func (m *TenantMutation) ExpiredAt() (r time.Time, exists bool) {
 	v := m.expired_at
 	if v == nil {
 		return
@@ -584,10 +584,10 @@ func (m *TeltentMutation) ExpiredAt() (r time.Time, exists bool) {
 	return *v, true
 }
 
-// OldExpiredAt returns the old "expired_at" field's value of the Teltent entity.
-// If the Teltent object wasn't provided to the builder, the object is fetched from the database.
+// OldExpiredAt returns the old "expired_at" field's value of the Tenant entity.
+// If the Tenant object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *TeltentMutation) OldExpiredAt(ctx context.Context) (v time.Time, err error) {
+func (m *TenantMutation) OldExpiredAt(ctx context.Context) (v time.Time, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldExpiredAt is only allowed on UpdateOne operations")
 	}
@@ -602,32 +602,32 @@ func (m *TeltentMutation) OldExpiredAt(ctx context.Context) (v time.Time, err er
 }
 
 // ClearExpiredAt clears the value of the "expired_at" field.
-func (m *TeltentMutation) ClearExpiredAt() {
+func (m *TenantMutation) ClearExpiredAt() {
 	m.expired_at = nil
-	m.clearedFields[teltent.FieldExpiredAt] = struct{}{}
+	m.clearedFields[tenant.FieldExpiredAt] = struct{}{}
 }
 
 // ExpiredAtCleared returns if the "expired_at" field was cleared in this mutation.
-func (m *TeltentMutation) ExpiredAtCleared() bool {
-	_, ok := m.clearedFields[teltent.FieldExpiredAt]
+func (m *TenantMutation) ExpiredAtCleared() bool {
+	_, ok := m.clearedFields[tenant.FieldExpiredAt]
 	return ok
 }
 
 // ResetExpiredAt resets all changes to the "expired_at" field.
-func (m *TeltentMutation) ResetExpiredAt() {
+func (m *TenantMutation) ResetExpiredAt() {
 	m.expired_at = nil
-	delete(m.clearedFields, teltent.FieldExpiredAt)
+	delete(m.clearedFields, tenant.FieldExpiredAt)
 }
 
-// Where appends a list predicates to the TeltentMutation builder.
-func (m *TeltentMutation) Where(ps ...predicate.Teltent) {
+// Where appends a list predicates to the TenantMutation builder.
+func (m *TenantMutation) Where(ps ...predicate.Tenant) {
 	m.predicates = append(m.predicates, ps...)
 }
 
-// WhereP appends storage-level predicates to the TeltentMutation builder. Using this method,
+// WhereP appends storage-level predicates to the TenantMutation builder. Using this method,
 // users can use type-assertion to append predicates that do not depend on any generated package.
-func (m *TeltentMutation) WhereP(ps ...func(*sql.Selector)) {
-	p := make([]predicate.Teltent, len(ps))
+func (m *TenantMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.Tenant, len(ps))
 	for i := range ps {
 		p[i] = ps[i]
 	}
@@ -635,57 +635,57 @@ func (m *TeltentMutation) WhereP(ps ...func(*sql.Selector)) {
 }
 
 // Op returns the operation name.
-func (m *TeltentMutation) Op() Op {
+func (m *TenantMutation) Op() Op {
 	return m.op
 }
 
 // SetOp allows setting the mutation operation.
-func (m *TeltentMutation) SetOp(op Op) {
+func (m *TenantMutation) SetOp(op Op) {
 	m.op = op
 }
 
-// Type returns the node type of this mutation (Teltent).
-func (m *TeltentMutation) Type() string {
+// Type returns the node type of this mutation (Tenant).
+func (m *TenantMutation) Type() string {
 	return m.typ
 }
 
 // Fields returns all fields that were changed during this mutation. Note that in
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
-func (m *TeltentMutation) Fields() []string {
+func (m *TenantMutation) Fields() []string {
 	fields := make([]string, 0, 11)
 	if m.status != nil {
-		fields = append(fields, teltent.FieldStatus)
+		fields = append(fields, tenant.FieldStatus)
 	}
 	if m.created_at != nil {
-		fields = append(fields, teltent.FieldCreatedAt)
+		fields = append(fields, tenant.FieldCreatedAt)
 	}
 	if m.updated_at != nil {
-		fields = append(fields, teltent.FieldUpdatedAt)
+		fields = append(fields, tenant.FieldUpdatedAt)
 	}
 	if m.deleted_at != nil {
-		fields = append(fields, teltent.FieldDeletedAt)
+		fields = append(fields, tenant.FieldDeletedAt)
 	}
 	if m.certificate_no != nil {
-		fields = append(fields, teltent.FieldCertificateNo)
+		fields = append(fields, tenant.FieldCertificateNo)
 	}
 	if m.name != nil {
-		fields = append(fields, teltent.FieldName)
+		fields = append(fields, tenant.FieldName)
 	}
 	if m._type != nil {
-		fields = append(fields, teltent.FieldType)
+		fields = append(fields, tenant.FieldType)
 	}
 	if m.contact_name != nil {
-		fields = append(fields, teltent.FieldContactName)
+		fields = append(fields, tenant.FieldContactName)
 	}
 	if m.email != nil {
-		fields = append(fields, teltent.FieldEmail)
+		fields = append(fields, tenant.FieldEmail)
 	}
 	if m.phone != nil {
-		fields = append(fields, teltent.FieldPhone)
+		fields = append(fields, tenant.FieldPhone)
 	}
 	if m.expired_at != nil {
-		fields = append(fields, teltent.FieldExpiredAt)
+		fields = append(fields, tenant.FieldExpiredAt)
 	}
 	return fields
 }
@@ -693,29 +693,29 @@ func (m *TeltentMutation) Fields() []string {
 // Field returns the value of a field with the given name. The second boolean
 // return value indicates that this field was not set, or was not defined in the
 // schema.
-func (m *TeltentMutation) Field(name string) (ent.Value, bool) {
+func (m *TenantMutation) Field(name string) (ent.Value, bool) {
 	switch name {
-	case teltent.FieldStatus:
+	case tenant.FieldStatus:
 		return m.Status()
-	case teltent.FieldCreatedAt:
+	case tenant.FieldCreatedAt:
 		return m.CreatedAt()
-	case teltent.FieldUpdatedAt:
+	case tenant.FieldUpdatedAt:
 		return m.UpdatedAt()
-	case teltent.FieldDeletedAt:
+	case tenant.FieldDeletedAt:
 		return m.DeletedAt()
-	case teltent.FieldCertificateNo:
+	case tenant.FieldCertificateNo:
 		return m.CertificateNo()
-	case teltent.FieldName:
+	case tenant.FieldName:
 		return m.Name()
-	case teltent.FieldType:
+	case tenant.FieldType:
 		return m.GetType()
-	case teltent.FieldContactName:
+	case tenant.FieldContactName:
 		return m.ContactName()
-	case teltent.FieldEmail:
+	case tenant.FieldEmail:
 		return m.Email()
-	case teltent.FieldPhone:
+	case tenant.FieldPhone:
 		return m.Phone()
-	case teltent.FieldExpiredAt:
+	case tenant.FieldExpiredAt:
 		return m.ExpiredAt()
 	}
 	return nil, false
@@ -724,110 +724,110 @@ func (m *TeltentMutation) Field(name string) (ent.Value, bool) {
 // OldField returns the old value of the field from the database. An error is
 // returned if the mutation operation is not UpdateOne, or the query to the
 // database failed.
-func (m *TeltentMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+func (m *TenantMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
-	case teltent.FieldStatus:
+	case tenant.FieldStatus:
 		return m.OldStatus(ctx)
-	case teltent.FieldCreatedAt:
+	case tenant.FieldCreatedAt:
 		return m.OldCreatedAt(ctx)
-	case teltent.FieldUpdatedAt:
+	case tenant.FieldUpdatedAt:
 		return m.OldUpdatedAt(ctx)
-	case teltent.FieldDeletedAt:
+	case tenant.FieldDeletedAt:
 		return m.OldDeletedAt(ctx)
-	case teltent.FieldCertificateNo:
+	case tenant.FieldCertificateNo:
 		return m.OldCertificateNo(ctx)
-	case teltent.FieldName:
+	case tenant.FieldName:
 		return m.OldName(ctx)
-	case teltent.FieldType:
+	case tenant.FieldType:
 		return m.OldType(ctx)
-	case teltent.FieldContactName:
+	case tenant.FieldContactName:
 		return m.OldContactName(ctx)
-	case teltent.FieldEmail:
+	case tenant.FieldEmail:
 		return m.OldEmail(ctx)
-	case teltent.FieldPhone:
+	case tenant.FieldPhone:
 		return m.OldPhone(ctx)
-	case teltent.FieldExpiredAt:
+	case tenant.FieldExpiredAt:
 		return m.OldExpiredAt(ctx)
 	}
-	return nil, fmt.Errorf("unknown Teltent field %s", name)
+	return nil, fmt.Errorf("unknown Tenant field %s", name)
 }
 
 // SetField sets the value of a field with the given name. It returns an error if
 // the field is not defined in the schema, or if the type mismatched the field
 // type.
-func (m *TeltentMutation) SetField(name string, value ent.Value) error {
+func (m *TenantMutation) SetField(name string, value ent.Value) error {
 	switch name {
-	case teltent.FieldStatus:
+	case tenant.FieldStatus:
 		v, ok := value.(int8)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetStatus(v)
 		return nil
-	case teltent.FieldCreatedAt:
+	case tenant.FieldCreatedAt:
 		v, ok := value.(time.Time)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetCreatedAt(v)
 		return nil
-	case teltent.FieldUpdatedAt:
+	case tenant.FieldUpdatedAt:
 		v, ok := value.(time.Time)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetUpdatedAt(v)
 		return nil
-	case teltent.FieldDeletedAt:
+	case tenant.FieldDeletedAt:
 		v, ok := value.(time.Time)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetDeletedAt(v)
 		return nil
-	case teltent.FieldCertificateNo:
+	case tenant.FieldCertificateNo:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetCertificateNo(v)
 		return nil
-	case teltent.FieldName:
+	case tenant.FieldName:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetName(v)
 		return nil
-	case teltent.FieldType:
+	case tenant.FieldType:
 		v, ok := value.(int8)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetType(v)
 		return nil
-	case teltent.FieldContactName:
+	case tenant.FieldContactName:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetContactName(v)
 		return nil
-	case teltent.FieldEmail:
+	case tenant.FieldEmail:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetEmail(v)
 		return nil
-	case teltent.FieldPhone:
+	case tenant.FieldPhone:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetPhone(v)
 		return nil
-	case teltent.FieldExpiredAt:
+	case tenant.FieldExpiredAt:
 		v, ok := value.(time.Time)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
@@ -835,18 +835,18 @@ func (m *TeltentMutation) SetField(name string, value ent.Value) error {
 		m.SetExpiredAt(v)
 		return nil
 	}
-	return fmt.Errorf("unknown Teltent field %s", name)
+	return fmt.Errorf("unknown Tenant field %s", name)
 }
 
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
-func (m *TeltentMutation) AddedFields() []string {
+func (m *TenantMutation) AddedFields() []string {
 	var fields []string
 	if m.addstatus != nil {
-		fields = append(fields, teltent.FieldStatus)
+		fields = append(fields, tenant.FieldStatus)
 	}
 	if m.add_type != nil {
-		fields = append(fields, teltent.FieldType)
+		fields = append(fields, tenant.FieldType)
 	}
 	return fields
 }
@@ -854,11 +854,11 @@ func (m *TeltentMutation) AddedFields() []string {
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
-func (m *TeltentMutation) AddedField(name string) (ent.Value, bool) {
+func (m *TenantMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
-	case teltent.FieldStatus:
+	case tenant.FieldStatus:
 		return m.AddedStatus()
-	case teltent.FieldType:
+	case tenant.FieldType:
 		return m.AddedType()
 	}
 	return nil, false
@@ -867,16 +867,16 @@ func (m *TeltentMutation) AddedField(name string) (ent.Value, bool) {
 // AddField adds the value to the field with the given name. It returns an error if
 // the field is not defined in the schema, or if the type mismatched the field
 // type.
-func (m *TeltentMutation) AddField(name string, value ent.Value) error {
+func (m *TenantMutation) AddField(name string, value ent.Value) error {
 	switch name {
-	case teltent.FieldStatus:
+	case tenant.FieldStatus:
 		v, ok := value.(int8)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddStatus(v)
 		return nil
-	case teltent.FieldType:
+	case tenant.FieldType:
 		v, ok := value.(int8)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
@@ -884,128 +884,128 @@ func (m *TeltentMutation) AddField(name string, value ent.Value) error {
 		m.AddType(v)
 		return nil
 	}
-	return fmt.Errorf("unknown Teltent numeric field %s", name)
+	return fmt.Errorf("unknown Tenant numeric field %s", name)
 }
 
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
-func (m *TeltentMutation) ClearedFields() []string {
+func (m *TenantMutation) ClearedFields() []string {
 	var fields []string
-	if m.FieldCleared(teltent.FieldDeletedAt) {
-		fields = append(fields, teltent.FieldDeletedAt)
+	if m.FieldCleared(tenant.FieldDeletedAt) {
+		fields = append(fields, tenant.FieldDeletedAt)
 	}
-	if m.FieldCleared(teltent.FieldExpiredAt) {
-		fields = append(fields, teltent.FieldExpiredAt)
+	if m.FieldCleared(tenant.FieldExpiredAt) {
+		fields = append(fields, tenant.FieldExpiredAt)
 	}
 	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
 // cleared in this mutation.
-func (m *TeltentMutation) FieldCleared(name string) bool {
+func (m *TenantMutation) FieldCleared(name string) bool {
 	_, ok := m.clearedFields[name]
 	return ok
 }
 
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
-func (m *TeltentMutation) ClearField(name string) error {
+func (m *TenantMutation) ClearField(name string) error {
 	switch name {
-	case teltent.FieldDeletedAt:
+	case tenant.FieldDeletedAt:
 		m.ClearDeletedAt()
 		return nil
-	case teltent.FieldExpiredAt:
+	case tenant.FieldExpiredAt:
 		m.ClearExpiredAt()
 		return nil
 	}
-	return fmt.Errorf("unknown Teltent nullable field %s", name)
+	return fmt.Errorf("unknown Tenant nullable field %s", name)
 }
 
 // ResetField resets all changes in the mutation for the field with the given name.
 // It returns an error if the field is not defined in the schema.
-func (m *TeltentMutation) ResetField(name string) error {
+func (m *TenantMutation) ResetField(name string) error {
 	switch name {
-	case teltent.FieldStatus:
+	case tenant.FieldStatus:
 		m.ResetStatus()
 		return nil
-	case teltent.FieldCreatedAt:
+	case tenant.FieldCreatedAt:
 		m.ResetCreatedAt()
 		return nil
-	case teltent.FieldUpdatedAt:
+	case tenant.FieldUpdatedAt:
 		m.ResetUpdatedAt()
 		return nil
-	case teltent.FieldDeletedAt:
+	case tenant.FieldDeletedAt:
 		m.ResetDeletedAt()
 		return nil
-	case teltent.FieldCertificateNo:
+	case tenant.FieldCertificateNo:
 		m.ResetCertificateNo()
 		return nil
-	case teltent.FieldName:
+	case tenant.FieldName:
 		m.ResetName()
 		return nil
-	case teltent.FieldType:
+	case tenant.FieldType:
 		m.ResetType()
 		return nil
-	case teltent.FieldContactName:
+	case tenant.FieldContactName:
 		m.ResetContactName()
 		return nil
-	case teltent.FieldEmail:
+	case tenant.FieldEmail:
 		m.ResetEmail()
 		return nil
-	case teltent.FieldPhone:
+	case tenant.FieldPhone:
 		m.ResetPhone()
 		return nil
-	case teltent.FieldExpiredAt:
+	case tenant.FieldExpiredAt:
 		m.ResetExpiredAt()
 		return nil
 	}
-	return fmt.Errorf("unknown Teltent field %s", name)
+	return fmt.Errorf("unknown Tenant field %s", name)
 }
 
 // AddedEdges returns all edge names that were set/added in this mutation.
-func (m *TeltentMutation) AddedEdges() []string {
+func (m *TenantMutation) AddedEdges() []string {
 	edges := make([]string, 0, 0)
 	return edges
 }
 
 // AddedIDs returns all IDs (to other nodes) that were added for the given edge
 // name in this mutation.
-func (m *TeltentMutation) AddedIDs(name string) []ent.Value {
+func (m *TenantMutation) AddedIDs(name string) []ent.Value {
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
-func (m *TeltentMutation) RemovedEdges() []string {
+func (m *TenantMutation) RemovedEdges() []string {
 	edges := make([]string, 0, 0)
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
-func (m *TeltentMutation) RemovedIDs(name string) []ent.Value {
+func (m *TenantMutation) RemovedIDs(name string) []ent.Value {
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
-func (m *TeltentMutation) ClearedEdges() []string {
+func (m *TenantMutation) ClearedEdges() []string {
 	edges := make([]string, 0, 0)
 	return edges
 }
 
 // EdgeCleared returns a boolean which indicates if the edge with the given name
 // was cleared in this mutation.
-func (m *TeltentMutation) EdgeCleared(name string) bool {
+func (m *TenantMutation) EdgeCleared(name string) bool {
 	return false
 }
 
 // ClearEdge clears the value of the edge with the given name. It returns an error
 // if that edge is not defined in the schema.
-func (m *TeltentMutation) ClearEdge(name string) error {
-	return fmt.Errorf("unknown Teltent unique edge %s", name)
+func (m *TenantMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown Tenant unique edge %s", name)
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
 // It returns an error if the edge is not defined in the schema.
-func (m *TeltentMutation) ResetEdge(name string) error {
-	return fmt.Errorf("unknown Teltent edge %s", name)
+func (m *TenantMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown Tenant edge %s", name)
 }

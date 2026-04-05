@@ -1,25 +1,28 @@
 package db
 
 import (
+	"context"
 	"database/sql"
 	"time"
 
 	"github.com/speech/fireworks-admin/internal/ent"
 	"github.com/speech/fireworks-admin/internal/pkg/config"
+	"github.com/speech/fireworks-admin/internal/pkg/lifecycle"
+	"github.com/speech/fireworks-admin/internal/pkg/logger"
 
 	"entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
+	_ "github.com/lib/pq"
 )
 
 // NewEntClient 根据配置创建并初始化 Ent 数据库客户端。
 // 该函数会打开数据库连接、配置连接池参数，并返回客户端实例及清理函数。
-func NewEntClient(cfg *config.Config) (*ent.Client, func(), error) {
+func NewEntClient(lc *lifecycle.Lifecycle, cfg *config.Config) (*ent.Client, error) {
 	db, err := sql.Open("postgres", cfg.Database.DSN())
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
-	// 配置数据库连接池参数
 	db.SetMaxOpenConns(defaultMaxOpenConns(cfg.Database.MaxOpenConns))
 	db.SetMaxIdleConns(defaultMaxIdleConns(cfg.Database.MaxIdleConns))
 	db.SetConnMaxLifetime(defaultConnMaxLifetime(cfg.Database.ConnMaxLifetime))
@@ -28,10 +31,17 @@ func NewEntClient(cfg *config.Config) (*ent.Client, func(), error) {
 	drv := entsql.OpenDB(dialect.Postgres, db)
 	client := ent.NewClient(ent.Driver(drv))
 
-	cleanup := func() {
-		_ = client.Close()
-	}
-	return client, cleanup, nil
+	lc.Append(lifecycle.Hook{
+		Name: "Database",
+		OnStart: func(ctx context.Context) error {
+			return db.PingContext(ctx)
+		},
+		OnStop: func(ctx context.Context) error {
+			logger.Info("正在关闭数据库连接池...")
+			return client.Close()
+		},
+	})
+	return client, nil
 }
 
 // defaultMaxOpenConns 返回最大打开连接数，当配置值为 0 时使用默认值 25。

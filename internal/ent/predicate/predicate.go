@@ -6,5 +6,5 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
-// Teltent is the predicate function for teltent builders.
-type Teltent func(*sql.Selector)
+// Tenant is the predicate function for tenant builders.
+type Tenant func(*sql.Selector)

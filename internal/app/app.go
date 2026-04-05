@@ -5,6 +5,7 @@ import (
 
 	"github.com/speech/fireworks-admin/internal/ent"
 	"github.com/speech/fireworks-admin/internal/pkg/config"
+	"github.com/speech/fireworks-admin/internal/pkg/lifecycle"
 )
 
 // App 应用依赖容器。
@@ -13,4 +14,6 @@ type App struct {
 	Logger     *slog.Logger
 	EntClient  *ent.Client
 	Registrars []RouterRegistrar
+	Lifecycle  *lifecycle.Lifecycle
+	Server     *Server
 }

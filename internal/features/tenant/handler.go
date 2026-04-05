@@ -1,4 +1,4 @@
-package teltent
+package tenant
 
 import (
 	"log/slog"
@@ -35,7 +35,7 @@ func (h *Handler) RegisterRoutes(public *echo.Group, protected *echo.Group) {
 
 // Create 处理 POST /api/v1/tenants 创建租户请求。
 func (h *Handler) Create(c *echo.Context) error {
-	var req CreateTeltentReq
+	var req CreateTenantReq
 	if err := c.Bind(&req); err != nil {
 		return api.BadRequest(c, "无效的请求参数")
 	}
@@ -44,28 +44,28 @@ func (h *Handler) Create(c *echo.Context) error {
 		return api.BadRequest(c, err.Error())
 	}
 
-	teltent, err := h.service.Create(c.Request().Context(), &req)
+	tenant, err := h.service.Create(c.Request().Context(), &req)
 	if err != nil {
-		return h.handleError(c, "Create.Teltent", err)
+		return h.handleError(c, "Create.Tenant", err)
 	}
 
 	return c.JSON(http.StatusCreated, api.ApiResponse{
 		Code:    http.StatusCreated,
 		Message: "创建成功",
-		Data:    teltent,
+		Data:    tenant,
 	})
 }
 
 // FindByPage 处理 GET /api/v1/tenants 分页查询租户列表请求。
 func (h *Handler) FindByPage(c *echo.Context) error {
-	var query TeltentQuery
+	var query TenantQuery
 	if err := c.Bind(&query); err != nil {
 		return api.BadRequest(c, "无效的查询参数")
 	}
 
 	result, err := h.service.FindByPage(c.Request().Context(), &query)
 	if err != nil {
-		return h.handleError(c, "FindByPage.Teltent", err)
+		return h.handleError(c, "FindByPage.Tenant", err)
 	}
 
 	return api.Success(c, result)
@@ -78,12 +78,12 @@ func (h *Handler) GetByID(c *echo.Context) error {
 		return api.BadRequest(c, "租户ID不能为空")
 	}
 
-	teltent, err := h.service.GetByID(c.Request().Context(), id)
+	tenant, err := h.service.GetByID(c.Request().Context(), id)
 	if err != nil {
-		return h.handleError(c, "GetByID.Teltent", err)
+		return h.handleError(c, "GetByID.Tenant", err)
 	}
 
-	return api.Success(c, teltent)
+	return api.Success(c, tenant)
 }
 
 // Update 处理 PUT /api/v1/tenants/:id 更新租户请求。
@@ -93,7 +93,7 @@ func (h *Handler) Update(c *echo.Context) error {
 		return api.BadRequest(c, "租户ID不能为空")
 	}
 
-	var req UpdateTeltentReq
+	var req UpdateTenantReq
 	if err := c.Bind(&req); err != nil {
 		return api.BadRequest(c, "无效的请求参数")
 	}
@@ -102,12 +102,12 @@ func (h *Handler) Update(c *echo.Context) error {
 		return api.BadRequest(c, err.Error())
 	}
 
-	teltent, err := h.service.Update(c.Request().Context(), id, &req)
+	tenant, err := h.service.Update(c.Request().Context(), id, &req)
 	if err != nil {
-		return h.handleError(c, "Update.Teltent", err)
+		return h.handleError(c, "Update.Tenant", err)
 	}
 
-	return api.Success(c, teltent)
+	return api.Success(c, tenant)
 }
 
 // Delete 处理 DELETE /api/v1/tenants/:id 删除租户请求。
@@ -118,7 +118,7 @@ func (h *Handler) Delete(c *echo.Context) error {
 	}
 
 	if err := h.service.Delete(c.Request().Context(), id); err != nil {
-		return h.handleError(c, "Delete.Teltent", err)
+		return h.handleError(c, "Delete.Tenant", err)
 	}
 
 	return c.NoContent(http.StatusNoContent)
