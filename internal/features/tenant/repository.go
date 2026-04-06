@@ -5,18 +5,19 @@ import (
 
 	entgo "github.com/speech/fireworks-admin/internal/ent"
 	"github.com/speech/fireworks-admin/internal/ent/tenant"
+	"github.com/speech/fireworks-admin/internal/pkg/db"
 	"github.com/speech/fireworks-admin/internal/pkg/idgen"
 )
 
 // Repository 租户数据持久化操作。
 type Repository struct {
-	client *entgo.Client
+	tx *db.TxManager
 }
 
 // NewRepository 使用给定的 Ent 客户端创建 Repository 实例。
-func NewRepository(client *entgo.Client) *Repository {
+func NewRepository(txManager *db.TxManager) *Repository {
 	return &Repository{
-		client: client,
+		tx: txManager,
 	}
 }
 
@@ -44,7 +45,7 @@ func (r *Repository) Create(ctx context.Context, req *CreateTenantReq) (*Tenant,
 		return nil, err
 	}
 
-	builder := r.client.Tenant.Create().
+	builder := r.tx.DB(ctx).Tenant.Create().
 		SetID(id).
 		SetCertificateNo(req.CertificateNo).
 		SetName(req.Name).
@@ -72,12 +73,12 @@ func (r *Repository) Delete(ctx context.Context, id string) error {
 	if err != nil {
 		return err
 	}
-	return r.client.Tenant.DeleteOneID(tenantId).Exec(ctx)
+	return r.tx.DB(ctx).Tenant.DeleteOneID(tenantId).Exec(ctx)
 }
 
 // FindByPage 根据查询条件分页查询租户列表。
 func (r *Repository) FindByPage(ctx context.Context, query *TenantQuery) ([]*Tenant, int64, error) {
-	builder := r.client.Tenant.Query()
+	builder := r.tx.DB(ctx).Tenant.Query()
 
 	if query.HasKeyword() {
 		builder.Where(
@@ -128,7 +129,7 @@ func (r *Repository) GetByID(ctx context.Context, id string) (*Tenant, error) {
 	if err != nil {
 		return nil, err
 	}
-	t, err := r.client.Tenant.Get(ctx, tenantId)
+	t, err := r.tx.DB(ctx).Tenant.Get(ctx, tenantId)
 	if err != nil {
 		return nil, err
 	}
@@ -138,7 +139,7 @@ func (r *Repository) GetByID(ctx context.Context, id string) (*Tenant, error) {
 // ExistsByCertificateNo 根据证件号检查租户是否已存在。
 // 返回 true 表示该证件号已被使用，false 表示未使用。
 func (r *Repository) ExistsByCertificateNo(ctx context.Context, certNo string) (bool, error) {
-	count, err := r.client.Tenant.Query().
+	count, err := r.tx.DB(ctx).Tenant.Query().
 		Where(tenant.CertificateNoEQ(certNo)).
 		Count(ctx)
 	if err != nil {
@@ -154,7 +155,7 @@ func (r *Repository) ExistsByCertificateNoExcludingID(ctx context.Context, certN
 	if err != nil {
 		return false, err
 	}
-	count, err := r.client.Tenant.Query().
+	count, err := r.tx.DB(ctx).Tenant.Query().
 		Where(
 			tenant.CertificateNoEQ(certNo),
 			tenant.IDNEQ(tenantId),
@@ -172,7 +173,7 @@ func (r *Repository) Update(ctx context.Context, id string, req *UpdateTenantReq
 	if err != nil {
 		return nil, err
 	}
-	builder := r.client.Tenant.UpdateOneID(tenantId)
+	builder := r.tx.DB(ctx).Tenant.UpdateOneID(tenantId)
 	if req.CertificateNo != nil {
 		builder.SetCertificateNo(*req.CertificateNo)
 	}

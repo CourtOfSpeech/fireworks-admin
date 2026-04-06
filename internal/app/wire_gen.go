@@ -28,7 +28,8 @@ func InitializeApp() (*App, error) {
 	if err != nil {
 		return nil, err
 	}
-	repository := tenant.NewRepository(client)
+	txManager := db.NewTxManager(client)
+	repository := tenant.NewRepository(txManager)
 	service := tenant.NewService(repository)
 	handler := tenant.NewHandler(service)
 	healthRouter := NewHealthRouter(client)
