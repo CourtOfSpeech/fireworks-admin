@@ -8,7 +8,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v5"
-	"github.com/speech/fireworks-admin/internal/pkg/api"
+	bizerr "github.com/speech/fireworks-admin/internal/pkg/errors"
 )
 
 // JWTConfig 定义JWT中间件的配置结构
@@ -261,5 +261,5 @@ func GetClaimFromToken(c *echo.Context, claimKey string) (interface{}, error) {
 // 返回:
 //   - error: HTTP错误
 func JWTErrorResponse(c *echo.Context, err error) error {
-	return api.Error(c, http.StatusUnauthorized, fmt.Sprintf("认证失败: %v", err))
+	return bizerr.New(http.StatusUnauthorized, fmt.Sprintf("认证失败: %v", err), http.StatusUnauthorized)
 }

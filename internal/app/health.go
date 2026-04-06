@@ -6,6 +6,7 @@ import (
 	"github.com/labstack/echo/v5"
 	"github.com/speech/fireworks-admin/internal/ent"
 	"github.com/speech/fireworks-admin/internal/pkg/api"
+	bizerr "github.com/speech/fireworks-admin/internal/pkg/errors"
 )
 
 // HealthRouter 健康检查路由注册器。
@@ -41,7 +42,7 @@ func (h *HealthRouter) readinessHandler(c *echo.Context) error {
 	ctx := c.Request().Context()
 
 	if _, err := h.client.Tenant.Query().Count(ctx); err != nil {
-		return api.Error(c, http.StatusServiceUnavailable, "数据库连接不可用: "+err.Error())
+		return bizerr.New(http.StatusServiceUnavailable, "数据库连接不可用: "+err.Error(), http.StatusServiceUnavailable)
 	}
 
 	return api.Success(c, map[string]string{

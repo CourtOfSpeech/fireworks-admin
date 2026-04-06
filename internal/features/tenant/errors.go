@@ -2,6 +2,7 @@ package tenant
 
 import (
 	"fmt"
+	"net/http"
 
 	bizerr "github.com/speech/fireworks-admin/internal/pkg/errors"
 )
@@ -9,36 +10,36 @@ import (
 // 租户模块业务错误码定义。
 // 使用 4xxxx 范围作为租户模块的错误码段，便于错误分类和追踪。
 const (
-	ErrCodeTenantNotFound   = 40401 // 租户不存在
-	ErrCodeDuplicateCertNo  = 40901 // 证件号重复
-	ErrCodeDuplicateEmail   = 40902 // 邮箱重复
-	ErrCodeDuplicatePhone   = 40903 // 电话重复
-	ErrCodeInvalidStatus    = 40001 // 状态无效
-	ErrCodeTenantExpired    = 40002 // 租户已过期
+	ErrCodeTenantNotFound  = 40401 // 租户不存在
+	ErrCodeDuplicateCertNo = 40901 // 证件号重复
+	ErrCodeDuplicateEmail  = 40902 // 邮箱重复
+	ErrCodeDuplicatePhone  = 40903 // 电话重复
+	ErrCodeInvalidStatus   = 40001 // 状态无效
+	ErrCodeTenantExpired   = 40002 // 租户已过期
 )
 
 // ErrTenantNotFound 表示租户记录不存在。
 // 在 GetByID、Update、Delete 操作中当目标租户未找到时返回此错误。
-var ErrTenantNotFound = bizerr.NewNotFoundError("租户", "ID")
+var ErrTenantNotFound = bizerr.New(ErrCodeTenantNotFound, "租户不存在", http.StatusNotFound)
 
 // ErrDuplicateCertNo 表示证件号已存在。
 // 创建或更新租户时，若证件号与已有记录冲突则返回此错误。
-var ErrDuplicateCertNo = bizerr.NewConflictError("证件号已被使用")
+var ErrDuplicateCertNo = bizerr.New(ErrCodeDuplicateCertNo, "证件号已被使用", http.StatusConflict)
 
 // ErrDuplicateEmail 表示邮箱已存在。
-var ErrDuplicateEmail = bizerr.NewConflictError("邮箱已被注册")
+var ErrDuplicateEmail = bizerr.New(ErrCodeDuplicateEmail, "邮箱已被注册", http.StatusConflict)
 
 // ErrDuplicatePhone 表示电话号码已存在。
-var ErrDuplicatePhone = bizerr.NewConflictError("电话号码已被使用")
+var ErrDuplicatePhone = bizerr.New(ErrCodeDuplicatePhone, "电话号码已被使用", http.StatusConflict)
 
 // ErrInvalidStatus 表示状态值无效。
 // 当传入的状态值不在允许范围内（非禁用/正常）时返回此错误。
-var ErrInvalidStatus = bizerr.NewInvalidArgumentError("无效的租户状态值")
+var ErrInvalidStatus = bizerr.New(ErrCodeInvalidStatus, "无效的租户状态值", http.StatusBadRequest)
 
 // NewTenantNotFound 根据给定 ID 创建具体的"租户不存在"错误实例。
 // 用于在 Service 层返回带有具体查询条件的 NotFoundError。
 func NewTenantNotFound(id string) error {
-	return bizerr.NewNotFoundError("租户", fmt.Sprintf("id=%s", id))
+	return bizerr.New(ErrCodeTenantNotFound, fmt.Sprintf("租户不存在: id=%s", id), http.StatusNotFound)
 }
 
 // IsDuplicateKeyError 判断数据库错误是否为唯一约束冲突（重复键）。

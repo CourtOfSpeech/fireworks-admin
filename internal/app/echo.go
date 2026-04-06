@@ -9,6 +9,7 @@ import (
 	"github.com/speech/fireworks-admin/internal/middleware"
 	"github.com/speech/fireworks-admin/internal/pkg/api"
 	"github.com/speech/fireworks-admin/internal/pkg/config"
+	bizerr "github.com/speech/fireworks-admin/internal/pkg/errors"
 	"github.com/speech/fireworks-admin/internal/pkg/logger"
 	"github.com/speech/fireworks-admin/internal/pkg/validator"
 )
@@ -51,11 +52,17 @@ func customHTTPErrorHandler(c *echo.Context, err error) {
 			return
 		}
 	}
-	code := http.StatusInternalServerError
-	message := ""
-	if he, ok := errors.AsType[*echo.HTTPError](err); ok {
+	code := bizerr.ErrInternal
+	message := "internal server error"
+	httpStatus := http.StatusInternalServerError
+	if biz, ok := errors.AsType[*bizerr.BizError](err); ok {
+		httpStatus = biz.HTTPStatus
+		message = biz.Message
+		code = biz.Code
+	} else if he, ok := errors.AsType[*echo.HTTPError](err); ok {
 		code = he.Code
 		message = he.Message
+		httpStatus = he.Code
 	}
 
 	// 根据状态码分级记录
@@ -64,6 +71,7 @@ func customHTTPErrorHandler(c *echo.Context, err error) {
 		slog.Int("status", code),
 		slog.String("method", c.Request().Method),
 		slog.String("path", c.Request().URL.Path),
+		slog.String("message", message),
 		slog.Any("error", err),
 	}
 	if code >= 500 {
@@ -76,5 +84,9 @@ func customHTTPErrorHandler(c *echo.Context, err error) {
 		_ = c.NoContent(code)
 		return
 	}
-	_ = api.Error(c, code, message)
+	_ = c.JSON(httpStatus, api.ApiResponse{
+		Code:    code,
+		Message: message,
+		Data:    nil,
+	})
 }

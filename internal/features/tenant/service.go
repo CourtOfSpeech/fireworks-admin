@@ -3,8 +3,8 @@ package tenant
 import (
 	"context"
 
-	bizerr "github.com/speech/fireworks-admin/internal/pkg/errors"
 	"github.com/speech/fireworks-admin/internal/pkg/api"
+	bizerr "github.com/speech/fireworks-admin/internal/pkg/errors"
 )
 
 // Service 封装租户业务逻辑操作。
@@ -24,7 +24,7 @@ func NewService(repo *Repository) *Service {
 func (s *Service) Create(ctx context.Context, req *CreateTenantReq) (*Tenant, error) {
 	exists, err := s.repo.ExistsByCertificateNo(ctx, req.CertificateNo)
 	if err != nil {
-		return nil, bizerr.Wrap(err, "检查证件号唯一性失败")
+		return nil, bizerr.Internal(err)
 	}
 	if exists {
 		return nil, ErrDuplicateCertNo
@@ -47,7 +47,7 @@ func (s *Service) Update(ctx context.Context, id string, req *UpdateTenantReq) (
 	if req.CertificateNo != nil {
 		exists, err := s.repo.ExistsByCertificateNoExcludingID(ctx, *req.CertificateNo, id)
 		if err != nil {
-			return nil, bizerr.Wrap(err, "检查证件号唯一性失败")
+			return nil, bizerr.Internal(err)
 		}
 		if exists {
 			return nil, ErrDuplicateCertNo
@@ -86,7 +86,7 @@ func (s *Service) GetByID(ctx context.Context, id string) (*Tenant, error) {
 func (s *Service) FindByPage(ctx context.Context, query *TenantQuery) (*api.PageResult[*Tenant], error) {
 	list, total, err := s.repo.FindByPage(ctx, query)
 	if err != nil {
-		return nil, err
+		return nil, bizerr.Internal(err)
 	}
 
 	return api.NewPageResult(list, total, query.Page, query.PageSize), nil

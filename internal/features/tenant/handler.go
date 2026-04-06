@@ -1,13 +1,11 @@
 package tenant
 
 import (
-	"log/slog"
 	"net/http"
 
 	"github.com/labstack/echo/v5"
-	bizerr "github.com/speech/fireworks-admin/internal/pkg/errors"
 	"github.com/speech/fireworks-admin/internal/pkg/api"
-	"github.com/speech/fireworks-admin/internal/pkg/logger"
+	bizerr "github.com/speech/fireworks-admin/internal/pkg/errors"
 )
 
 // Handler 处理租户相关的 HTTP 请求。
@@ -37,16 +35,16 @@ func (h *Handler) RegisterRoutes(public *echo.Group, protected *echo.Group) {
 func (h *Handler) Create(c *echo.Context) error {
 	var req CreateTenantReq
 	if err := c.Bind(&req); err != nil {
-		return api.BadRequest(c, "无效的请求参数")
+		return bizerr.InvalidParam(err.Error())
 	}
 
 	if err := c.Validate(&req); err != nil {
-		return api.BadRequest(c, err.Error())
+		return bizerr.InvalidParam(err.Error())
 	}
 
 	tenant, err := h.service.Create(c.Request().Context(), &req)
 	if err != nil {
-		return h.handleError(c, "Create.Tenant", err)
+		return err
 	}
 
 	return c.JSON(http.StatusCreated, api.ApiResponse{
@@ -60,12 +58,12 @@ func (h *Handler) Create(c *echo.Context) error {
 func (h *Handler) FindByPage(c *echo.Context) error {
 	var query TenantQuery
 	if err := c.Bind(&query); err != nil {
-		return api.BadRequest(c, "无效的查询参数")
+		return bizerr.InvalidParam("无效的查询参数")
 	}
 
 	result, err := h.service.FindByPage(c.Request().Context(), &query)
 	if err != nil {
-		return h.handleError(c, "FindByPage.Tenant", err)
+		return err
 	}
 
 	return api.Success(c, result)
@@ -75,12 +73,12 @@ func (h *Handler) FindByPage(c *echo.Context) error {
 func (h *Handler) GetByID(c *echo.Context) error {
 	id := c.Param("id")
 	if id == "" {
-		return api.BadRequest(c, "租户ID不能为空")
+		return bizerr.InvalidParam("租户ID不能为空")
 	}
 
 	tenant, err := h.service.GetByID(c.Request().Context(), id)
 	if err != nil {
-		return h.handleError(c, "GetByID.Tenant", err)
+		return err
 	}
 
 	return api.Success(c, tenant)
@@ -90,21 +88,21 @@ func (h *Handler) GetByID(c *echo.Context) error {
 func (h *Handler) Update(c *echo.Context) error {
 	id := c.Param("id")
 	if id == "" {
-		return api.BadRequest(c, "租户ID不能为空")
+		return bizerr.InvalidParam("租户ID不能为空")
 	}
 
 	var req UpdateTenantReq
 	if err := c.Bind(&req); err != nil {
-		return api.BadRequest(c, "无效的请求参数")
+		return bizerr.InvalidParam("无效的请求参数")
 	}
 
 	if err := c.Validate(&req); err != nil {
-		return api.BadRequest(c, err.Error())
+		return bizerr.InvalidParam(err.Error())
 	}
 
 	tenant, err := h.service.Update(c.Request().Context(), id, &req)
 	if err != nil {
-		return h.handleError(c, "Update.Tenant", err)
+		return err
 	}
 
 	return api.Success(c, tenant)
@@ -114,61 +112,12 @@ func (h *Handler) Update(c *echo.Context) error {
 func (h *Handler) Delete(c *echo.Context) error {
 	id := c.Param("id")
 	if id == "" {
-		return api.BadRequest(c, "租户ID不能为空")
+		return bizerr.InvalidParam("租户ID不能为空")
 	}
 
 	if err := h.service.Delete(c.Request().Context(), id); err != nil {
-		return h.handleError(c, "Delete.Tenant", err)
+		return err
 	}
 
 	return c.NoContent(http.StatusNoContent)
-}
-
-// handleError 统一处理业务层返回的错误，根据错误类型映射到对应的 HTTP 响应。
-// 错误处理策略：
-//   - NotFoundError    → 404 Not Found
-//   - ConflictError    → 409 Conflict
-//   - InvalidArgumentError → 400 Bad Request
-//   - 其他 BizError     → 使用 BizError 中定义的 HTTPStatus
-//   - 未知错误          → 500 Internal Server Error
-//
-// 同时记录包含请求上下文的详细错误日志，便于问题排查。
-func (h *Handler) handleError(c *echo.Context, operation string, err error) error {
-	requestID, _ := c.Get("request_id").(string)
-
-	switch {
-	case bizerr.IsNotFoundError(err):
-		logger.WarnCtx(c.Request().Context(), "BUSINESS_WARNING",
-			slog.String("operation", operation),
-			slog.String("request_id", requestID),
-			slog.String("error", err.Error()),
-		)
-		return api.NotFound(c, err.Error())
-
-	case bizerr.IsConflictError(err):
-		logger.WarnCtx(c.Request().Context(), "BUSINESS_WARNING",
-			slog.String("operation", operation),
-			slog.String("request_id", requestID),
-			slog.String("error", err.Error()),
-		)
-		return api.Conflict(c, err.Error())
-
-	case bizerr.IsBizError(err):
-		logger.WarnCtx(c.Request().Context(), "BUSINESS_ERROR",
-			slog.String("operation", operation),
-			slog.String("request_id", requestID),
-			slog.Int("http_status", bizerr.HTTPStatus(err)),
-			slog.String("error", err.Error()),
-		)
-		status := bizerr.HTTPStatus(err)
-		return api.Error(c, status, err.Error())
-
-	default:
-		logger.ErrorCtx(c.Request().Context(), "INTERNAL_ERROR",
-			slog.String("operation", operation),
-			slog.String("request_id", requestID),
-			slog.String("error", err.Error()),
-		)
-		return api.InternalError(c, "服务器内部错误")
-	}
 }
