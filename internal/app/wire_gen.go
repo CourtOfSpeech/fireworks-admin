@@ -29,12 +29,12 @@ func InitializeApp() (*App, error) {
 		return nil, err
 	}
 	txManager := db.NewTxManager(client)
-	repository := tenant.NewRepository(txManager)
-	service := tenant.NewService(repository)
-	handler := tenant.NewHandler(service)
+	tenantRepo := tenant.NewTenantRepo(txManager)
+	tenantService := tenant.NewTenantService(tenantRepo)
+	tenantHandler := tenant.NewTenantHandler(tenantService)
 	healthRouter := NewHealthRouter(client)
 	registrarIn := RegistrarIn{
-		Tenant: handler,
+		Tenant: tenantHandler,
 		Health: healthRouter,
 	}
 	v := ProvideRegistrars(registrarIn)

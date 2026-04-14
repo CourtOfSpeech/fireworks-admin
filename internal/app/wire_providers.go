@@ -25,7 +25,7 @@ var ProviderSet = wire.NewSet(
 
 // Registrars 内部结构体，用于收集所有 RouterRegistrar 实现。
 type RegistrarIn struct {
-	Tenant *tenant.Handler
+	Tenant *tenant.TenantHandler
 	Health *HealthRouter
 }
 

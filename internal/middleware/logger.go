@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"context"
 	"log/slog"
 	"net/http"
 	"os"
@@ -15,7 +16,7 @@ import (
 func Logger() echo.MiddlewareFunc {
 	m, err := defaultLoggerConfig.ToMiddleware()
 	if err != nil {
-		logger.Error("LOGGER_MIDDLEWARE_INIT_FAILED", slog.String("error", err.Error()))
+		logger.Error(context.Background(), "LOGGER_MIDDLEWARE_INIT_FAILED", slog.String("error", err.Error()))
 		os.Exit(1)
 	}
 	return m
@@ -31,26 +32,25 @@ var defaultLoggerConfig = echoMiddleware.RequestLoggerConfig{
 	LogMethod:    true,
 	LogURI:       true,
 	LogStatus:    true,
-	LogRequestID: true,
+	LogRequestID: false,
 	LogRemoteIP:  true,
 	HandleError:  true,
 	LogValuesFunc: func(c *echo.Context, v echoMiddleware.RequestLoggerValues) error {
+		ctx := c.Request().Context()
 		if v.Error == nil {
-			logger.Info("REQUEST",
+			logger.Info(ctx, "request processed",
 				slog.String("method", v.Method),
 				slog.String("uri", v.URI),
 				slog.Int("status", v.Status),
 				slog.String("latency", v.Latency.String()),
-				slog.String("request_id", v.RequestID),
 				slog.String("remote_ip", v.RemoteIP),
 			)
 		} else {
-			logger.Error("REQUEST_ERROR",
+			logger.Error(ctx, "request error",
 				slog.String("method", v.Method),
 				slog.String("uri", v.URI),
 				slog.Int("status", v.Status),
 				slog.String("latency", v.Latency.String()),
-				slog.String("request_id", v.RequestID),
 				slog.String("remote_ip", v.RemoteIP),
 				slog.String("error", v.Error.Error()),
 			)

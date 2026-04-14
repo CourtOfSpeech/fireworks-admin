@@ -7,93 +7,46 @@ import (
 	bizerr "github.com/speech/fireworks-admin/internal/pkg/errors"
 )
 
-// Service 封装租户业务逻辑操作。
-type Service struct {
-	repo *Repository
+// TenantService 封装租户业务逻辑操作
+type TenantService struct {
+	repo *TenantRepo
 }
 
-// NewService 创建 Service 实例。
-func NewService(repo *Repository) *Service {
-	return &Service{
+// NewTenantService 创建 Service 实例
+func NewTenantService(repo *TenantRepo) *TenantService {
+	return &TenantService{
 		repo: repo,
 	}
 }
 
-// Create 根据请求参数创建新租户。
-// 执行步骤：1) 证件号唯一性校验 2) 设置默认状态 3) 持久化存储。
-func (s *Service) Create(ctx context.Context, req *CreateTenantReq) (*Tenant, error) {
-	exists, err := s.repo.ExistsByCertificateNo(ctx, req.CertificateNo)
-	if err != nil {
-		return nil, bizerr.Internal(err)
-	}
-	if exists {
-		return nil, ErrDuplicateCertNo
-	}
-
+func (s *TenantService) Create(ctx context.Context, req *CreateTenantReq) (*Tenant, error) {
 	if req.Status == 0 {
 		req.Status = TenantStatusEnabled
 	}
 	return s.repo.Create(ctx, req)
 }
 
-// Update 根据ID和请求参数更新租户信息。
-// 执行步骤：1) 存在性校验 2) 证件号唯一性校验（排除自身）3) 状态有效性校验 4) 持久化更新。
-func (s *Service) Update(ctx context.Context, id string, req *UpdateTenantReq) (*Tenant, error) {
-	_, err := s.repo.GetByID(ctx, id)
-	if err != nil {
-		return nil, NewTenantNotFound(id)
-	}
-
-	if req.CertificateNo != nil {
-		exists, err := s.repo.ExistsByCertificateNoExcludingID(ctx, *req.CertificateNo, id)
-		if err != nil {
-			return nil, bizerr.Internal(err)
-		}
-		if exists {
-			return nil, ErrDuplicateCertNo
-		}
-	}
-
-	if req.Status != nil && !isValidStatus(*req.Status) {
-		return nil, ErrInvalidStatus
+func (s *TenantService) Update(ctx context.Context, id string, req *UpdateTenantReq) (*Tenant, error) {
+	if req.Status != nil && !IsValidStatus(*req.Status) {
+		return nil, ErrInvalidStatus()
 	}
 
 	return s.repo.Update(ctx, id, req)
 }
 
-// Delete 根据ID删除租户。
-// 先执行存在性校验，确保目标记录存在后再执行删除操作，
-// 从而为调用方提供更精确的错误信息（ NotFound vs InternalError）。
-func (s *Service) Delete(ctx context.Context, id string) error {
-	_, err := s.repo.GetByID(ctx, id)
-	if err != nil {
-		return NewTenantNotFound(id)
-	}
+func (s *TenantService) Delete(ctx context.Context, id string) error {
 	return s.repo.Delete(ctx, id)
 }
 
-// GetByID 根据ID查询租户。
-// 当记录不存在时返回具体的 NotFoundError，而非泛型数据库错误。
-func (s *Service) GetByID(ctx context.Context, id string) (*Tenant, error) {
-	tenant, err := s.repo.GetByID(ctx, id)
-	if err != nil {
-		return nil, NewTenantNotFound(id)
-	}
-	return tenant, nil
+func (s *TenantService) GetByID(ctx context.Context, id string) (*Tenant, error) {
+	return s.repo.GetByID(ctx, id)
 }
 
-// FindByPage 根据查询条件分页查询租户列表。
-func (s *Service) FindByPage(ctx context.Context, query *TenantQuery) (*api.PageResult[*Tenant], error) {
-	list, total, err := s.repo.FindByPage(ctx, query)
+func (s *TenantService) List(ctx context.Context, query *TenantQuery) (*api.PageResult[*Tenant], error) {
+	list, total, err := s.repo.List(ctx, query)
 	if err != nil {
 		return nil, bizerr.Internal(err)
 	}
 
 	return api.NewPageResult(list, total, query.Page, query.PageSize), nil
-}
-
-// isValidStatus 校验状态值是否在允许的范围内。
-// 当前仅支持 TenantStatusDisabled(1) 和 TenantStatusEnabled(2)。
-func isValidStatus(status int8) bool {
-	return status == TenantStatusDisabled || status == TenantStatusEnabled
 }

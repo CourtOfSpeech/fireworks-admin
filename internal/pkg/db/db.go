@@ -37,7 +37,7 @@ func NewEntClient(lc *lifecycle.Lifecycle, cfg *config.Config) (*ent.Client, err
 			return db.PingContext(ctx)
 		},
 		OnStop: func(ctx context.Context) error {
-			logger.Info("正在关闭数据库连接池...")
+			logger.Info(ctx, "正在关闭数据库连接池...")
 			return client.Close()
 		},
 	})

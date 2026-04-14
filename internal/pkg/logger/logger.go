@@ -2,117 +2,97 @@ package logger
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"os"
+	"runtime"
+	"strings"
 	"time"
+
+	"github.com/speech/fireworks-admin/internal/pkg/ctxutil"
 )
 
-// NewLogger 创建并配置一个新的 slog.Logger 实例。
-// 该函数接收日志级别、输出格式和是否添加源码位置三个参数，
-// 内部通过解析日志级别、构建处理器配置、创建处理器等步骤完成日志记录器的初始化，
-// 并将创建的 logger 设置为默认日志记录器。
-func NewLogger(level string, format string, addSource bool) *slog.Logger {
-	logLevel := parseLogLevel(level)
-	opts := buildHandlerOptions(logLevel, addSource)
+var projectRoot = detectProjectRoot()
 
-	handler := buildHandle(format, opts)
-	logger := slog.New(handler)
-	slog.SetDefault(logger)
-	return logger
+// ContextHandler 负责在日志写入前，自动从 Context 提取信息
+type ContextHandler struct {
+	slog.Handler
 }
 
-// Info 使用默认 context 记录 INFO 级别日志。
-// 这是一个高性能函数，使用 LogAttrs 方法避免反射开销。
-func Info(msg string, attrs ...slog.Attr) {
-	slog.LogAttrs(context.Background(), slog.LevelInfo, msg, attrs...)
-}
-
-// InfoCtx 使用指定的 context 记录 INFO 级别日志。
-// 这是一个高性能函数，使用 LogAttrs 方法避免反射开销。
-func InfoCtx(ctx context.Context, msg string, attrs ...slog.Attr) {
-	slog.LogAttrs(ctx, slog.LevelInfo, msg, attrs...)
-}
-
-// Debug 使用默认 context 记录 DEBUG 级别日志。
-// 这是一个高性能函数，使用 LogAttrs 方法避免反射开销。
-func Debug(msg string, attrs ...slog.Attr) {
-	slog.LogAttrs(context.Background(), slog.LevelDebug, msg, attrs...)
-}
-
-// DebugCtx 使用指定的 context 记录 DEBUG 级别日志。
-// 这是一个高性能函数，使用 LogAttrs 方法避免反射开销。
-func DebugCtx(ctx context.Context, msg string, attrs ...slog.Attr) {
-	slog.LogAttrs(ctx, slog.LevelDebug, msg, attrs...)
-}
-
-// Warn 使用默认 context 记录 WARN 级别日志。
-// 这是一个高性能函数，使用 LogAttrs 方法避免反射开销。
-func Warn(msg string, attrs ...slog.Attr) {
-	slog.LogAttrs(context.Background(), slog.LevelWarn, msg, attrs...)
-}
-
-// WarnCtx 使用指定的 context 记录 WARN 级别日志。
-// 这是一个高性能函数，使用 LogAttrs 方法避免反射开销。
-func WarnCtx(ctx context.Context, msg string, attrs ...slog.Attr) {
-	slog.LogAttrs(ctx, slog.LevelWarn, msg, attrs...)
-}
-
-// Error 使用默认 context 记录 ERROR 级别日志。
-// 这是一个高性能函数，使用 LogAttrs 方法避免反射开销。
-func Error(msg string, attrs ...slog.Attr) {
-	slog.LogAttrs(context.Background(), slog.LevelError, msg, attrs...)
-}
-
-// ErrorCtx 使用指定的 context 记录 ERROR 级别日志。
-// 这是一个高性能函数，使用 LogAttrs 方法避免反射开销。
-func ErrorCtx(ctx context.Context, msg string, attrs ...slog.Attr) {
-	slog.LogAttrs(ctx, slog.LevelError, msg, attrs...)
-}
-
-// buildHandle 根据指定的格式创建日志处理器。
-// format 参数支持 "json" 和 "text" 两种格式，分别创建 JSONHandler 和 TextHandler，
-// 其他值默认使用 JSONHandler。opts 参数用于配置处理器的行为。
-func buildHandle(format string, opts *slog.HandlerOptions) slog.Handler {
-	switch format {
-	case "json":
-		return slog.NewJSONHandler(os.Stdout, opts)
-	case "text":
-		return slog.NewTextHandler(os.Stdout, opts)
-	default:
-		return slog.NewJSONHandler(os.Stdout, opts)
+func (h *ContextHandler) Handle(ctx context.Context, r slog.Record) error {
+	if ctx != nil {
+		if id := ctxutil.GetRequestID(ctx); id != "" {
+			r.AddAttrs(slog.String("request_id", id))
+		}
 	}
+	return h.Handler.Handle(ctx, r)
 }
 
-// buildHandlerOptions 构建日志处理器的配置选项。
-// 该函数设置日志级别、是否添加源码位置信息，以及属性转换函数。
-// 属性转换函数会将 password 字段脱敏为 "***REDACTED***"，并将时间字段重命名为 timestamp，
-// 同时格式化为 "2006-01-02 15:04:05" 格式。
-func buildHandlerOptions(level slog.Level, addSource bool) *slog.HandlerOptions {
-	return &slog.HandlerOptions{
-		Level:     level,
+func NewLogger(level string, format string, addSource bool) *slog.Logger {
+	opts := &slog.HandlerOptions{
+		Level:     parseLogLevel(level),
 		AddSource: addSource,
 		ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
 			if a.Key == "password" {
 				return slog.String("password", "***REDACTED***")
 			}
-			if a.Key == slog.TimeKey && len(groups) == 0 {
-				return slog.String("timestamp", a.Value.Time().Format(time.DateTime))
+			if addSource && a.Key == slog.SourceKey {
+				if src, ok := a.Value.Any().(*slog.Source); ok {
+					file := src.File
+					if projectRoot != "" && strings.HasPrefix(file, projectRoot) {
+						file = file[len(projectRoot):]
+					}
+					return slog.String(slog.SourceKey, fmt.Sprintf("%s:%d", file, src.Line))
+				}
 			}
 			return a
 		},
 	}
+
+	var baseHandler slog.Handler
+	if strings.ToLower(format) == "json" {
+		baseHandler = slog.NewJSONHandler(os.Stdout, opts)
+	} else {
+		baseHandler = slog.NewTextHandler(os.Stdout, opts)
+	}
+
+	logger := slog.New(&ContextHandler{Handler: baseHandler})
+	slog.SetDefault(logger)
+	return logger
 }
 
-// parseLogLevel 将字符串日志级别转换为 slog.Level 类型。
-// 支持的级别包括："debug"、"info"、"warn"、"error"，
-// 分别对应 LevelDebug、LevelInfo、LevelWarn、LevelError。
-// 如果传入无法识别的字符串，默认返回 LevelInfo。
+func logHelper(ctx context.Context, level slog.Level, msg string, attrs ...slog.Attr) {
+	l := slog.Default()
+	if !l.Enabled(ctx, level) {
+		return
+	}
+	var pcs [1]uintptr
+	runtime.Callers(3, pcs[:])
+	r := slog.NewRecord(time.Now(), level, msg, pcs[0])
+	r.AddAttrs(attrs...)
+	_ = l.Handler().Handle(ctx, r)
+}
+
+func Info(ctx context.Context, msg string, attrs ...slog.Attr) {
+	logHelper(ctx, slog.LevelInfo, msg, attrs...)
+}
+
+func Debug(ctx context.Context, msg string, attrs ...slog.Attr) {
+	logHelper(ctx, slog.LevelDebug, msg, attrs...)
+}
+
+func Warn(ctx context.Context, msg string, attrs ...slog.Attr) {
+	logHelper(ctx, slog.LevelWarn, msg, attrs...)
+}
+
+func Error(ctx context.Context, msg string, attrs ...slog.Attr) {
+	logHelper(ctx, slog.LevelError, msg, attrs...)
+}
+
 func parseLogLevel(level string) slog.Level {
-	switch level {
+	switch strings.ToLower(level) {
 	case "debug":
 		return slog.LevelDebug
-	case "info":
-		return slog.LevelInfo
 	case "warn":
 		return slog.LevelWarn
 	case "error":
@@ -120,4 +100,12 @@ func parseLogLevel(level string) slog.Level {
 	default:
 		return slog.LevelInfo
 	}
+}
+
+func detectProjectRoot() string {
+	_, file, _, _ := runtime.Caller(0)
+	if idx := strings.Index(file, "/internal"); idx != -1 {
+		return file[:idx+1]
+	}
+	return ""
 }

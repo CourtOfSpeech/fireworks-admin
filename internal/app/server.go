@@ -32,13 +32,13 @@ func NewServer(
 		OnStart: func(ctx context.Context) error {
 			go func() {
 				if err := httpSrv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-					logger.Error("HTTP服务异常", slog.Any("error", err))
+					logger.Error(context.Background(), "HTTP服务异常", slog.Any("error", err))
 				}
 			}()
 			return nil
 		},
 		OnStop: func(ctx context.Context) error {
-			logger.Info("正在停止 HTTP 服务 (Graceful Shutdown)...")
+			logger.Info(ctx, "正在停止 HTTP 服务 (Graceful Shutdown)...")
 			return httpSrv.Shutdown(ctx)
 		},
 	})

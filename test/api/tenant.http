@@ -1,0 +1,150 @@
+@baseUrl = http://localhost:9090/api/v1
+@contentType = application/json
+
+### ========================================
+### 租户 API 测试
+### ========================================
+
+### 1. 创建租户 - 企业类型
+# @name createTenantCompany
+POST {{baseUrl}}/tenants
+Content-Type: {{contentType}}
+
+{
+  "certificate_no": "91110000MA00ABCD12",
+  "name": "测试科技有限公司",
+  "type": 1,
+  "contact_name": "张三",
+  "email": "zhangsan@test.com",
+  "phone": "13800138001",
+  "expired_at": "2025-12-31T23:59:59Z",
+  "status": 2
+}
+
+### 2. 创建租户 - 个人类型
+# @name createTenantPersonal
+POST {{baseUrl}}/tenants
+Content-Type: {{contentType}}
+
+{
+  "certificate_no": "110101199001011234",
+  "name": "李四个体户",
+  "type": 2,
+  "contact_name": "李四",
+  "email": "lisi@test.com",
+  "phone": "13800138002",
+  "expired_at": "2025-12-31T23:59:59Z",
+  "status": 2
+}
+
+### 3. 创建租户 - 验证失败（缺少必填字段）
+POST {{baseUrl}}/tenants
+Content-Type: {{contentType}}
+
+{
+  "name": "缺少字段的租户"
+}
+
+### 4. 创建租户 - 验证失败（邮箱格式错误）
+POST {{baseUrl}}/tenants
+Content-Type: {{contentType}}
+
+{
+  "certificate_no": "91110000MA00ABCD99",
+  "name": "邮箱格式错误",
+  "type": 1,
+  "contact_name": "王五",
+  "email": "invalid-email",
+  "phone": "13800138003",
+  "expired_at": "2025-12-31T23:59:59Z",
+  "status": 2
+}
+
+### ========================================
+### 查询租户
+### ========================================
+
+### 5. 分页查询租户 - 默认参数
+# @name listTenants
+GET {{baseUrl}}/tenants
+
+### 6. 分页查询租户 - 带分页参数
+GET {{baseUrl}}/tenants?page=1&page_size=10
+
+### 7. 分页查询租户 - 按关键字搜索
+GET {{baseUrl}}/tenants?keyword=测试
+
+### 8. 分页查询租户 - 按状态筛选
+GET {{baseUrl}}/tenants?status=2
+
+### 9. 分页查询租户 - 组合查询
+GET {{baseUrl}}/tenants?page=1&page_size=5&keyword=科技&status=2
+
+### ========================================
+### 获取单个租户
+### ========================================
+
+### 10. 根据ID获取租户
+# 使用上面创建的租户ID，需要手动替换
+@tenantId = 019d7277075877c484deacd2d6af01bb
+GET {{baseUrl}}/tenants/{{tenantId}}
+
+### 11. 获取不存在的租户
+GET {{baseUrl}}/tenants/01999999-9999-9999-9999-999999999999
+
+### ========================================
+### 更新租户
+### ========================================
+
+### 12. 更新租户 - 部分字段
+PUT {{baseUrl}}/tenants/{{tenantId}}
+Content-Type: {{contentType}}
+
+{
+  "name": "更新后的公司名称",
+  "contact_name": "新联系人"
+}
+
+### 13. 更新租户 - 所有可更新字段
+PUT {{baseUrl}}/tenants/{{tenantId}}
+Content-Type: {{contentType}}
+
+{
+  "certificate_no": "91110000MA00ABCD13",
+  "name": "完全更新公司",
+  "type": 1,
+  "contact_name": "新联系人",
+  "email": "newemail@test.com",
+  "phone": "13900139001",
+  "expired_at": "2026-12-31T23:59:59Z",
+  "status": 1
+}
+
+### 14. 更新租户 - 邮箱格式错误
+PUT {{baseUrl}}/tenants/{{tenantId}}
+Content-Type: {{contentType}}
+
+{
+  "email": "invalid-email-format"
+}
+
+### ========================================
+### 删除租户
+### ========================================
+
+### 15. 删除租户
+# 注意：删除后无法恢复
+DELETE {{baseUrl}}/tenants/{{tenantId}}
+
+### 16. 删除不存在的租户
+DELETE {{baseUrl}}/tenants/01999999-9999-9999-9999-999999999999
+
+### ========================================
+### 健康检查
+### ========================================
+
+### 17. 存活检查
+GET {{baseUrl}}/../health
+
+### 18. 就绪检查
+GET {{baseUrl}}/../ready

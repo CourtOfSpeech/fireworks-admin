@@ -55,17 +55,20 @@ func customHTTPErrorHandler(c *echo.Context, err error) {
 	code := bizerr.ErrInternal
 	message := "internal server error"
 	httpStatus := http.StatusInternalServerError
+	var stackAttrs slog.Value
 	if biz, ok := errors.AsType[*bizerr.BizError](err); ok {
 		httpStatus = biz.HTTPStatus
 		message = biz.Message
 		code = biz.Code
+		if len(biz.Stack) > 0 {
+			stackAttrs = biz.StackValue()
+		}
 	} else if he, ok := errors.AsType[*echo.HTTPError](err); ok {
 		code = he.Code
 		message = he.Message
 		httpStatus = he.Code
 	}
 
-	// 根据状态码分级记录
 	logMsg := "HTTP response error"
 	attrs := []slog.Attr{
 		slog.Int("status", code),
@@ -74,10 +77,13 @@ func customHTTPErrorHandler(c *echo.Context, err error) {
 		slog.String("message", message),
 		slog.Any("error", err),
 	}
+	if stackAttrs.Kind() == slog.KindString {
+		attrs = append(attrs, slog.Any("stack", stackAttrs))
+	}
 	if code >= 500 {
-		logger.Error(logMsg, attrs...)
+		logger.Error(c.Request().Context(), logMsg, attrs...)
 	} else {
-		logger.Warn(logMsg, attrs...)
+		logger.Warn(c.Request().Context(), logMsg, attrs...)
 	}
 
 	if c.Request().Method == http.MethodHead {

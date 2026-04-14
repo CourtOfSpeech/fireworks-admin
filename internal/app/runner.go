@@ -15,7 +15,7 @@ import (
 func Run() {
 	a, err := InitializeApp()
 	if err != nil {
-		logger.Error("应用初始化失败", slog.Any("error", err))
+		logger.Error(context.Background(), "应用初始化失败", slog.Any("error", err))
 		os.Exit(1)
 	}
 
@@ -24,14 +24,14 @@ func Run() {
 	defer cancelStart()
 
 	if err := a.Lifecycle.Start(startCtx); err != nil {
-		logger.Error("应用启动失败", slog.Any("error", err))
+		logger.Error(context.Background(), "应用启动失败", slog.Any("error", err))
 		os.Exit(1)
 	}
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	s := <-quit
-	logger.Info("接收到退出信号", slog.String("signal", s.String()))
+	logger.Info(context.Background(), "接收到退出信号", slog.String("signal", s.String()))
 
 	shutdownTimeout := time.Duration(a.Config.Server.ShutdownTimeout) * time.Second
 	stopCtx, cancelStop := context.WithTimeout(context.Background(), shutdownTimeout)
@@ -39,5 +39,5 @@ func Run() {
 
 	a.Lifecycle.Stop(stopCtx)
 
-	logger.Info("应用已安全退出")
+	logger.Info(context.Background(), "应用已安全退出")
 }

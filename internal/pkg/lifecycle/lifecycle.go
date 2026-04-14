@@ -38,7 +38,7 @@ func (l *Lifecycle) Append(h Hook) {
 func (l *Lifecycle) Start(ctx context.Context) error {
 	for _, h := range l.hooks {
 		if h.OnStart != nil {
-			logger.Info("正在启动组件", slog.String("name", h.Name))
+			logger.Info(ctx, "正在启动组件", slog.String("name", h.Name))
 			if err := h.OnStart(ctx); err != nil {
 				return fmt.Errorf("组件 [%s] 启动失败: %w", h.Name, err)
 			}
@@ -52,9 +52,9 @@ func (l *Lifecycle) Stop(ctx context.Context) {
 	for i := len(l.hooks) - 1; i >= 0; i-- {
 		h := l.hooks[i]
 		if h.OnStop != nil {
-			logger.Info("正在停止组件", slog.String("name", h.Name))
+			logger.Info(ctx, "正在停止组件", slog.String("name", h.Name))
 			if err := h.OnStop(ctx); err != nil {
-				logger.Error("组件停止失败", slog.String("name", h.Name), slog.Any("error", err))
+				logger.Error(ctx, "组件停止失败", slog.String("name", h.Name), slog.Any("error", err))
 			}
 		}
 	}

@@ -20,21 +20,31 @@ const (
 
 // ErrTenantNotFound 表示租户记录不存在。
 // 在 GetByID、Update、Delete 操作中当目标租户未找到时返回此错误。
-var ErrTenantNotFound = bizerr.New(ErrCodeTenantNotFound, "租户不存在", http.StatusNotFound)
+func ErrTenantNotFound() error {
+	return bizerr.New(ErrCodeTenantNotFound, "租户不存在", http.StatusNotFound)
+}
 
 // ErrDuplicateCertNo 表示证件号已存在。
 // 创建或更新租户时，若证件号与已有记录冲突则返回此错误。
-var ErrDuplicateCertNo = bizerr.New(ErrCodeDuplicateCertNo, "证件号已被使用", http.StatusConflict)
+func ErrDuplicateCertNo() error {
+	return bizerr.New(ErrCodeDuplicateCertNo, "证件号已被使用", http.StatusConflict)
+}
 
 // ErrDuplicateEmail 表示邮箱已存在。
-var ErrDuplicateEmail = bizerr.New(ErrCodeDuplicateEmail, "邮箱已被注册", http.StatusConflict)
+func ErrDuplicateEmail() error {
+	return bizerr.New(ErrCodeDuplicateEmail, "邮箱已被注册", http.StatusConflict)
+}
 
 // ErrDuplicatePhone 表示电话号码已存在。
-var ErrDuplicatePhone = bizerr.New(ErrCodeDuplicatePhone, "电话号码已被使用", http.StatusConflict)
+func ErrDuplicatePhone() error {
+	return bizerr.New(ErrCodeDuplicatePhone, "电话号码已被使用", http.StatusConflict)
+}
 
 // ErrInvalidStatus 表示状态值无效。
 // 当传入的状态值不在允许范围内（非禁用/正常）时返回此错误。
-var ErrInvalidStatus = bizerr.New(ErrCodeInvalidStatus, "无效的租户状态值", http.StatusBadRequest)
+func ErrInvalidStatus() error {
+	return bizerr.New(ErrCodeInvalidStatus, "无效的租户状态值", http.StatusBadRequest)
+}
 
 // NewTenantNotFound 根据给定 ID 创建具体的"租户不存在"错误实例。
 // 用于在 Service 层返回带有具体查询条件的 NotFoundError。
