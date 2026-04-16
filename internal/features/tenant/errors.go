@@ -3,7 +3,9 @@ package tenant
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
+	entgo "github.com/speech/fireworks-admin/internal/ent"
 	bizerr "github.com/speech/fireworks-admin/internal/pkg/errors"
 )
 
@@ -52,59 +54,39 @@ func NewTenantNotFound(id string) error {
 	return bizerr.New(ErrCodeTenantNotFound, fmt.Sprintf("租户不存在: id=%s", id), http.StatusNotFound)
 }
 
-// IsDuplicateKeyError 判断数据库错误是否为唯一约束冲突（重复键）。
-// Ent/PostgreSQL 的唯一约束违反会返回包含特定关键词的错误，
-// 此函数用于在 Repository 层识别此类错误并转换为业务错误。
-func IsDuplicateKeyError(err error) bool {
+// ParseRepoError 解析 Repository 层返回的错误，转换为对应的业务错误。
+// 此函数封装了 ent 错误类型的判断逻辑，使 Service 层无需依赖 ent 包。
+// 参数 id 用于 NotFound 错误时提供具体的查询条件信息。
+func ParseRepoError(err error, id string) error {
 	if err == nil {
-		return false
+		return nil
+	}
+
+	if entgo.IsNotFound(err) {
+		return NewTenantNotFound(id)
+	}
+
+	if entgo.IsConstraintError(err) {
+		return parseConstraintError(err)
+	}
+
+	return err
+}
+
+// parseConstraintError 解析约束错误，返回对应的领域错误。
+func parseConstraintError(err error) error {
+	if !entgo.IsConstraintError(err) {
+		return err
 	}
 	errMsg := err.Error()
-	return containsAny(errMsg,
-		"unique constraint",
-		"duplicate key",
-		"SQLSTATE 23505",
-	)
-}
-
-// containsAny 检查字符串 s 是否包含 substrs 中的任意一个子串。
-// 忽略大小写进行匹配。
-func containsAny(s string, substrs ...string) bool {
-	for _, sub := range substrs {
-		if containsIgnoreCase(s, sub) {
-			return true
-		}
+	switch {
+	case strings.Contains(errMsg, "uk_certificate_no"):
+		return ErrDuplicateCertNo()
+	case strings.Contains(errMsg, "uk_email"):
+		return ErrDuplicateEmail()
+	case strings.Contains(errMsg, "uk_phone"):
+		return ErrDuplicatePhone()
+	default:
+		return err
 	}
-	return false
-}
-
-// containsIgnoreCase 忽略大小写检查 s 是否包含 sub。
-func containsIgnoreCase(s, sub string) bool {
-	sLower := make([]byte, len(s))
-	subLower := make([]byte, len(sub))
-	for i := 0; i < len(s); i++ {
-		c := s[i]
-		if c >= 'A' && c <= 'Z' {
-			c += 32
-		}
-		sLower[i] = c
-	}
-	for i := 0; i < len(sub); i++ {
-		c := sub[i]
-		if c >= 'A' && c <= 'Z' {
-			c += 32
-		}
-		subLower[i] = c
-	}
-	return contains(string(sLower), string(subLower))
-}
-
-// contains 检查 s 是否包含 sub（标准库简单实现，避免引入 strings 包的额外依赖）。
-func contains(s, sub string) bool {
-	for i := 0; i <= len(s)-len(sub); i++ {
-		if s[i:i+len(sub)] == sub {
-			return true
-		}
-	}
-	return false
 }

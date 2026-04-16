@@ -28,7 +28,7 @@ func (h *TenantHandler) RegisterRoutes(public *echo.Group, protected *echo.Group
 func (h *TenantHandler) Create(c *echo.Context) error {
 	var req CreateTenantReq
 	if err := c.Bind(&req); err != nil {
-		return bizerr.InvalidParam(err.Error())
+		return bizerr.InvalidParamWrap(err, "无效的请求参数")
 	}
 
 	if err := c.Validate(&req); err != nil {
@@ -47,7 +47,7 @@ func (h *TenantHandler) Create(c *echo.Context) error {
 func (h *TenantHandler) List(c *echo.Context) error {
 	var query TenantQuery
 	if err := c.Bind(&query); err != nil {
-		return bizerr.InvalidParam("无效的查询参数")
+		return bizerr.InvalidParamWrap(err, "无效的查询参数")
 	}
 
 	result, err := h.service.List(c.Request().Context(), &query)
@@ -80,7 +80,7 @@ func (h *TenantHandler) Update(c *echo.Context) error {
 
 	var req UpdateTenantReq
 	if err := c.Bind(&req); err != nil {
-		return bizerr.InvalidParam("无效的请求参数")
+		return bizerr.InvalidParamWrap(err, "无效的请求参数")
 	}
 
 	if err := c.Validate(&req); err != nil {

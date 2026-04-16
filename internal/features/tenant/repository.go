@@ -2,6 +2,7 @@ package tenant
 
 import (
 	"context"
+	"fmt"
 
 	entgo "github.com/speech/fireworks-admin/internal/ent"
 	"github.com/speech/fireworks-admin/internal/ent/tenant"
@@ -52,11 +53,7 @@ func (r *TenantRepo) Create(ctx context.Context, req *CreateTenantReq) (*Tenant,
 
 	t, err := builder.Save(ctx)
 	if err != nil {
-		// 利用 Ent 的错误类型判断是否是唯一约束冲突
-		if entgo.IsConstraintError(err) {
-			return nil, ErrDuplicateCertNo()
-		}
-		return nil, err
+		return nil, fmt.Errorf("repo:Create: %w", err)
 	}
 
 	return toEntity(t), nil
@@ -65,16 +62,12 @@ func (r *TenantRepo) Create(ctx context.Context, req *CreateTenantReq) (*Tenant,
 func (r *TenantRepo) Delete(ctx context.Context, id string) error {
 	tenantId, err := idgen.Parse(id)
 	if err != nil {
-		return err
+		return fmt.Errorf("repo:Delete id parse id=%s: %w", id, err)
 	}
 
-	// 直接执行删除，靠影响行数/NotFound判断是否存在
 	err = r.tx.DB(ctx).Tenant.DeleteOneID(tenantId).Exec(ctx)
 	if err != nil {
-		if entgo.IsNotFound(err) {
-			return NewTenantNotFound(id)
-		}
-		return err
+		return fmt.Errorf("repo:Delete id=%s: %w", id, err)
 	}
 	return nil
 }
@@ -103,7 +96,7 @@ func (r *TenantRepo) List(ctx context.Context, query *TenantQuery) ([]*Tenant, i
 
 	total, err := builder.Clone().Count(ctx)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, fmt.Errorf("repo:List count: %w", err)
 	}
 
 	tenants, err := builder.
@@ -112,7 +105,7 @@ func (r *TenantRepo) List(ctx context.Context, query *TenantQuery) ([]*Tenant, i
 		Order(entgo.Desc(tenant.FieldCreatedAt)).
 		All(ctx)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, fmt.Errorf("repo:List query: %w", err)
 	}
 
 	result := make([]*Tenant, 0, len(tenants))
@@ -126,16 +119,12 @@ func (r *TenantRepo) List(ctx context.Context, query *TenantQuery) ([]*Tenant, i
 func (r *TenantRepo) GetByID(ctx context.Context, id string) (*Tenant, error) {
 	tenantId, err := idgen.Parse(id)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("repo:GetByID id parse id=%s: %w", id, err)
 	}
 
 	t, err := r.tx.DB(ctx).Tenant.Get(ctx, tenantId)
 	if err != nil {
-		// 在 Repo 层进行错误翻译防腐
-		if entgo.IsNotFound(err) {
-			return nil, NewTenantNotFound(id)
-		}
-		return nil, err
+		return nil, fmt.Errorf("repo:GetByID id=%s: %w", id, err)
 	}
 	return toEntity(t), nil
 }
@@ -143,7 +132,7 @@ func (r *TenantRepo) GetByID(ctx context.Context, id string) (*Tenant, error) {
 func (r *TenantRepo) Update(ctx context.Context, id string, req *UpdateTenantReq) (*Tenant, error) {
 	tenantId, err := idgen.Parse(id)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("repo:Update id parse id=%s: %w", id, err)
 	}
 
 	builder := r.tx.DB(ctx).Tenant.UpdateOneID(tenantId)
@@ -174,13 +163,7 @@ func (r *TenantRepo) Update(ctx context.Context, id string, req *UpdateTenantReq
 
 	t, err := builder.Save(ctx)
 	if err != nil {
-		if entgo.IsNotFound(err) {
-			return nil, NewTenantNotFound(id)
-		}
-		if entgo.IsConstraintError(err) {
-			return nil, ErrDuplicateCertNo()
-		}
-		return nil, err
+		return nil, fmt.Errorf("repo:Update id=%s: %w", id, err)
 	}
 	return toEntity(t), nil
 }

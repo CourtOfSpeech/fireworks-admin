@@ -1,6 +1,7 @@
 package errors
 
 import (
+	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -34,11 +35,6 @@ func (s StackTrace) LogValue() slog.Value {
 }
 
 func (e *BizError) Error() string {
-
-	if e.Err != nil {
-		return fmt.Sprintf("%s: %v", e.Message, e.Err)
-	}
-
 	return e.Message
 }
 
@@ -99,16 +95,21 @@ func New(code int, message string, httpStatus int) *BizError {
 }
 
 func Wrap(err error, code int, message string, httpStatus int) *BizError {
-
+	// 如果已经是 BizError，直接返回，避免重复包装
+	if biz, ok := errors.AsType[*BizError](err); ok {
+		return biz
+	}
 	biz := newBizError(code, message, httpStatus, 3)
-
 	biz.Err = err
-
 	return biz
 }
 
 func InvalidParam(message string) *BizError {
 	return New(ErrInvalidParam, message, http.StatusBadRequest)
+}
+
+func InvalidParamWrap(err error, message string) *BizError {
+	return Wrap(err, ErrInvalidParam, message, http.StatusBadRequest)
 }
 
 func Internal(err error) *BizError {

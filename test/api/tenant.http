@@ -2,6 +2,49 @@
 @contentType = application/json
 
 ### ========================================
+### Bind 错误测试
+### ========================================
+
+### 0. Bind 错误 - JSON 格式不正确（缺少引号）
+POST {{baseUrl}}/tenants
+Content-Type: {{contentType}}
+
+{
+  "certificate_no": "91110000MA00ABCD00",
+  "name": 测试公司,
+  "type": 1,
+  "contact_name": "张三",
+  "email": "test@test.com",
+  "phone": "13800138000",
+  "expired_at": "2025-12-31T23:59:59Z",
+  "status": 2
+}
+
+### 0.1 Bind 错误 - 类型不匹配（type 传字符串）
+POST {{baseUrl}}/tenants
+Content-Type: {{contentType}}
+
+{
+  "certificate_no": "91110000MA00ABCD01",
+  "name": "类型错误测试",
+  "type": "不是数字",
+  "contact_name": "张三",
+  "email": "test@test.com",
+  "phone": "13800138000",
+  "expired_at": "2025-12-31T23:59:59Z",
+  "status": 2
+}
+
+### 0.2 Bind 错误 - JSON 语法错误（缺少大括号）
+POST {{baseUrl}}/tenants
+Content-Type: {{contentType}}
+
+  "certificate_no": "91110000MA00ABCD02",
+  "name": "语法错误测试",
+  "type": 1
+}
+
+### ========================================
 ### 租户 API 测试
 ### ========================================
 
