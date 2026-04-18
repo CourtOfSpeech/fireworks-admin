@@ -25,7 +25,7 @@ func (s *TenantService) Create(ctx context.Context, req *CreateTenantReq) (*Tena
 	}
 	t, err := s.repo.Create(ctx, req)
 	if err != nil {
-		return nil, wrapError(err, "")
+		return nil, wrapError(err)
 	}
 	return t, nil
 }
@@ -37,7 +37,7 @@ func (s *TenantService) Update(ctx context.Context, id string, req *UpdateTenant
 
 	t, err := s.repo.Update(ctx, id, req)
 	if err != nil {
-		return nil, wrapError(err, id)
+		return nil, wrapError(err)
 	}
 	return t, nil
 }
@@ -45,7 +45,7 @@ func (s *TenantService) Update(ctx context.Context, id string, req *UpdateTenant
 func (s *TenantService) Delete(ctx context.Context, id string) error {
 	err := s.repo.Delete(ctx, id)
 	if err != nil {
-		return wrapError(err, id)
+		return wrapError(err)
 	}
 	return nil
 }
@@ -53,7 +53,7 @@ func (s *TenantService) Delete(ctx context.Context, id string) error {
 func (s *TenantService) GetByID(ctx context.Context, id string) (*Tenant, error) {
 	t, err := s.repo.GetByID(ctx, id)
 	if err != nil {
-		return nil, wrapError(err, id)
+		return nil, wrapError(err)
 	}
 	return t, nil
 }
@@ -61,7 +61,7 @@ func (s *TenantService) GetByID(ctx context.Context, id string) (*Tenant, error)
 func (s *TenantService) List(ctx context.Context, query *TenantQuery) (*api.PageResult[*Tenant], error) {
 	list, total, err := s.repo.List(ctx, query)
 	if err != nil {
-		return nil, wrapError(err, "")
+		return nil, wrapError(err)
 	}
 
 	return api.NewPageResult(list, total, query.Page, query.PageSize), nil
@@ -69,8 +69,11 @@ func (s *TenantService) List(ctx context.Context, query *TenantQuery) (*api.Page
 
 // wrapError 解析 Repository 层错误并包装为业务错误。
 // 如果错误已经是 BizError 则直接返回，否则包装为内部错误。
-func wrapError(err error, id string) error {
-	parsed := ParseRepoError(err, id)
+func wrapError(err error) error {
+	if err == nil {
+		return nil
+	}
+	parsed := ParseRepoError(err)
 	if _, ok := parsed.(*bizerr.BizError); ok {
 		return parsed
 	}

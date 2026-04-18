@@ -95,6 +95,9 @@ func New(code int, message string, httpStatus int) *BizError {
 }
 
 func Wrap(err error, code int, message string, httpStatus int) *BizError {
+	if err == nil {
+		return nil
+	}
 	// 如果已经是 BizError，直接返回，避免重复包装
 	if biz, ok := errors.AsType[*BizError](err); ok {
 		return biz
