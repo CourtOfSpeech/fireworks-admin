@@ -11,7 +11,14 @@ import (
 	"github.com/speech/fireworks-admin/internal/pkg/logger"
 )
 
-// Run 封装了所有的启动、监听信号、优雅退出的繁琐代码
+// Run 封装了所有的启动、监听信号、优雅退出的繁琐代码。
+// 该函数是应用程序的主入口点，负责以下工作：
+//  1. 初始化应用依赖容器
+//  2. 启动所有生命周期组件（如 HTTP 服务器）
+//  3. 监听系统信号（SIGINT, SIGTERM）
+//  4. 接收到退出信号后执行优雅关闭
+//  5. 等待所有组件安全退出
+// 如果初始化或启动失败，程序将以非零状态码退出。
 func Run() {
 	a, err := InitializeApp()
 	if err != nil {

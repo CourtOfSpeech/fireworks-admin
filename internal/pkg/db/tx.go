@@ -9,28 +9,30 @@ import (
 	"github.com/speech/fireworks-admin/internal/ent"
 )
 
-// TxOption 现在操作的是标准库的 sql.TxOptions
+// TxOption 定义事务选项的函数类型，用于配置 sql.TxOptions。
 type TxOption func(*sql.TxOptions)
 
-// WithIsolationLevel 设置事务隔离级别（使用标准库类型）
+// WithIsolationLevel 设置事务隔离级别（使用标准库类型）。
 func WithIsolationLevel(level sql.IsolationLevel) TxOption {
 	return func(o *sql.TxOptions) {
 		o.Isolation = level
 	}
 }
 
-// WithReadOnly 设置为只读事务
+// WithReadOnly 设置为只读事务。
 func WithReadOnly() TxOption {
 	return func(o *sql.TxOptions) {
 		o.ReadOnly = true
 	}
 }
 
-// TxManager 提供基础的 DB 访问能力
+// TxManager 事务管理器，提供数据库访问和事务管理能力。
+// 支持从 Context 中提取事务，实现事务传播。
 type TxManager struct {
-	client *ent.Client
+	client *ent.Client // Ent 客户端实例
 }
 
+// NewTxManager 创建新的事务管理器实例。
 func NewTxManager(client *ent.Client) *TxManager {
 	return &TxManager{client: client}
 }
@@ -46,6 +48,10 @@ func (r *TxManager) DB(ctx context.Context) *ent.Client {
 	return r.client
 }
 
+// WithinTx 在事务中执行给定的函数。
+// 如果 Context 中已存在事务，则复用该事务（事务传播）；
+// 否则开启新事务，并根据函数执行结果提交或回滚。
+// 支持通过 TxOption 配置事务隔离级别和只读模式。
 func (r *TxManager) WithinTx(ctx context.Context, fn func(ctx context.Context) error, opts ...TxOption) error {
 	// 1. 检查是否已经在事务中
 	if tx := ent.TxFromContext(ctx); tx != nil {

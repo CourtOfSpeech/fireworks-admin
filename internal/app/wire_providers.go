@@ -11,7 +11,17 @@ import (
 	"github.com/speech/fireworks-admin/internal/pkg/logger"
 )
 
-// ProviderSet app依赖提供者集合。
+// ProviderSet app 依赖提供者集合。
+// 该集合包含了应用程序核心组件的所有提供者，用于 Wire 依赖注入。
+// 包含的提供者：
+//   - config.ProviderSet: 配置相关提供者
+//   - logger.ProviderSet: 日志相关提供者
+//   - db.ProviderSet: 数据库相关提供者
+//   - NewServer: HTTP 服务器提供者
+//   - NewEcho: Echo 框架提供者
+//   - lifecycle.NewLifecycle: 生命周期管理器提供者
+//   - wire.Struct(new(RegistrarIn), "*"): 路由注册器输入结构体提供者
+//   - ProvideRegistrars: 路由注册器列表提供者
 var ProviderSet = wire.NewSet(
 	config.ProviderSet,
 	logger.ProviderSet,
@@ -23,13 +33,19 @@ var ProviderSet = wire.NewSet(
 	ProvideRegistrars,
 )
 
-// Registrars 内部结构体，用于收集所有 RouterRegistrar 实现。
+// RegistrarIn 内部结构体，用于收集所有 RouterRegistrar 实现。
+// 该结构体的字段由 Wire 自动注入，每个字段都是一个实现了 RouterRegistrar 接口的处理器。
+// 通过 ProvideRegistrars 函数将所有字段收集为路由注册器列表。
 type RegistrarIn struct {
-	Tenant *tenant.TenantHandler
-	Health *HealthRouter
+	Tenant *tenant.TenantHandler // 租户管理路由处理器
+	Health *HealthRouter         // 健康检查路由处理器
 }
 
 // ProvideRegistrars 将所有 RouterRegistrar 实现收集为切片。
+// 该函数使用反射遍历 RegistrarIn 结构体的所有字段，
+// 自动收集所有实现了 RouterRegistrar 接口的非空字段。
+// 这种设计使得添加新的路由注册器时无需修改此函数，只需在 RegistrarIn 中添加字段即可。
+// r 是包含所有路由注册器的输入结构体。
 func ProvideRegistrars(r RegistrarIn) []RouterRegistrar {
 	var registrars []RouterRegistrar
 	v := reflect.ValueOf(r)
@@ -39,6 +55,7 @@ func ProvideRegistrars(r RegistrarIn) []RouterRegistrar {
 		return nil
 	}
 
+	// 遍历结构体的所有字段
 	// (注意：如果 Fields() 返回的是迭代器 iter.Seq，这里可能只需 for field := range v.Fields())
 	for _, field := range v.Fields() {
 		// 1. 安全门禁：跳过未导出的私有字段（比如小写开头的 tenant）

@@ -1,3 +1,5 @@
+// Package schema 定义了数据库实体的 Schema 结构。
+// 该包使用 Ent ORM 框架来定义数据库表结构、字段、索引等元数据。
 package schema
 
 import (
@@ -8,12 +10,14 @@ import (
 	"github.com/speech/fireworks-admin/internal/ent/schema/mixin"
 )
 
-// Tenant 租户实体
+// Tenant 表示租户实体的 Schema 定义。
+// 租户可以是企业或个人，包含证件信息、联系方式等基本信息。
 type Tenant struct {
 	ent.Schema
 }
 
-// 使用公共字段 Mixin
+// Mixin 返回 Tenant 实体使用的 Mixin 列表。
+// 该方法组合了公共字段，包括 ID、状态、创建时间、更新时间和软删除字段。
 func (Tenant) Mixin() []ent.Mixin {
 	return []ent.Mixin{
 		mixin.Id{},
@@ -24,7 +28,8 @@ func (Tenant) Mixin() []ent.Mixin {
 	}
 }
 
-// Fields 字段
+// Fields 定义 Tenant 实体的字段列表。
+// 包含证件号码、租户名称、类型、联系人信息、邮箱、电话和过期时间等字段。
 func (Tenant) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("certificate_no").
@@ -58,8 +63,9 @@ func (Tenant) Fields() []ent.Field {
 	}
 }
 
-// Indexes 定义表的索引。
-// 使用部分索引（Partial Index）确保唯一约束只对未删除的记录生效。
+// Indexes 定义 Tenant 实体的索引列表。
+// 使用部分索引（Partial Index）确保唯一约束只对未删除的记录生效，
+// 包括邮箱、电话和证件号码的唯一索引。
 func (Tenant) Indexes() []ent.Index {
 	return []ent.Index{
 		// 邮箱唯一索引（仅对未删除记录）

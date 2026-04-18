@@ -1,3 +1,5 @@
+// Package tenant 提供租户管理功能，包括租户的创建、查询、更新和删除操作。
+// 本文件定义了租户模块的数据持久化层，负责与数据库交互。
 package tenant
 
 import (
@@ -10,18 +12,22 @@ import (
 	"github.com/speech/fireworks-admin/internal/pkg/idgen"
 )
 
-// TenantRepo 租户数据持久化操作的具体实现
+// TenantRepo 租户数据持久化操作的具体实现。
+// 封装了租户相关的数据库操作，包括增删改查。
 type TenantRepo struct {
-	tx *db.TxManager
+	tx *db.TxManager // 数据库事务管理器
 }
 
-// NewTenantRepo 创建 Repository 实例
+// NewTenantRepo 创建租户 Repository 实例。
+// 参数 txManager 为数据库事务管理器，返回初始化后的 Repository 实例。
 func NewTenantRepo(txManager *db.TxManager) *TenantRepo {
 	return &TenantRepo{
 		tx: txManager,
 	}
 }
 
+// toEntity 将 Ent 框架的 Tenant 模型转换为领域模型 Tenant。
+// 参数 t 为 Ent 框架的租户模型，返回领域模型的租户实体。
 func toEntity(t *entgo.Tenant) *Tenant {
 	return &Tenant{
 		ID:            idgen.ToString(t.ID),
@@ -37,6 +43,9 @@ func toEntity(t *entgo.Tenant) *Tenant {
 	}
 }
 
+// Create 创建新租户记录。
+// 参数 ctx 为上下文，req 为创建请求参数。
+// 返回创建成功的租户实体和可能的错误。
 func (r *TenantRepo) Create(ctx context.Context, req *CreateTenantReq) (*Tenant, error) {
 	builder := r.tx.DB(ctx).Tenant.Create().
 		SetCertificateNo(req.CertificateNo).
@@ -59,6 +68,9 @@ func (r *TenantRepo) Create(ctx context.Context, req *CreateTenantReq) (*Tenant,
 	return toEntity(t), nil
 }
 
+// Delete 根据租户 ID 删除租户记录。
+// 参数 ctx 为上下文，id 为租户 ID 字符串。
+// 返回删除操作可能发生的错误。
 func (r *TenantRepo) Delete(ctx context.Context, id string) error {
 	tenantId, err := idgen.Parse(id)
 	if err != nil {
@@ -72,6 +84,9 @@ func (r *TenantRepo) Delete(ctx context.Context, id string) error {
 	return nil
 }
 
+// List 根据查询条件获取租户列表。
+// 参数 ctx 为上下文，query 为查询条件。
+// 返回租户列表、总数和可能的错误。支持分页和条件过滤。
 func (r *TenantRepo) List(ctx context.Context, query *TenantQuery) ([]*Tenant, int64, error) {
 	builder := r.tx.DB(ctx).Tenant.Query()
 
@@ -116,6 +131,9 @@ func (r *TenantRepo) List(ctx context.Context, query *TenantQuery) ([]*Tenant, i
 	return result, int64(total), nil
 }
 
+// GetByID 根据租户 ID 获取租户详情。
+// 参数 ctx 为上下文，id 为租户 ID 字符串。
+// 返回租户实体和可能的错误。
 func (r *TenantRepo) GetByID(ctx context.Context, id string) (*Tenant, error) {
 	tenantId, err := idgen.Parse(id)
 	if err != nil {
@@ -129,6 +147,9 @@ func (r *TenantRepo) GetByID(ctx context.Context, id string) (*Tenant, error) {
 	return toEntity(t), nil
 }
 
+// Update 根据租户 ID 更新租户信息。
+// 参数 ctx 为上下文，id 为租户 ID 字符串，req 为更新请求参数。
+// 仅更新请求中非空字段。返回更新后的租户实体和可能的错误。
 func (r *TenantRepo) Update(ctx context.Context, id string, req *UpdateTenantReq) (*Tenant, error) {
 	tenantId, err := idgen.Parse(id)
 	if err != nil {

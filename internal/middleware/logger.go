@@ -1,3 +1,6 @@
+// Package middleware 提供了 Echo 框架的 HTTP 中间件集合。
+// 包含 CORS、Gzip 压缩、JWT 认证、日志记录、异常恢复、请求 ID 和超时控制等中间件。
+// 所有中间件都提供了项目级别的默认配置，同时支持自定义配置。
 package middleware
 
 import (

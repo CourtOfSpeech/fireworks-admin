@@ -1,3 +1,6 @@
+// Package middleware 提供了 Echo 框架的 HTTP 中间件集合。
+// 包含 CORS、Gzip 压缩、JWT 认证、日志记录、异常恢复、请求 ID 和超时控制等中间件。
+// 所有中间件都提供了项目级别的默认配置，同时支持自定义配置。
 package middleware
 
 import (
@@ -11,22 +14,22 @@ import (
 	bizerr "github.com/speech/fireworks-admin/internal/pkg/errors"
 )
 
-// JWTConfig 定义JWT中间件的配置结构
-// Secret: JWT签名密钥
-// ExpireTime: 令牌过期时间（小时）
+// JWTConfig 定义 JWT 中间件的配置结构。
 type JWTConfig struct {
-	Secret     string
+	// Secret 是 JWT 签名密钥。
+	Secret string
+	// ExpireTime 是令牌过期时间，单位为小时。
 	ExpireTime int
 }
 
-// defaultJWTConfig 项目级别的默认JWT配置
+// defaultJWTConfig 是项目级别的默认 JWT 配置。
 var defaultJWTConfig = JWTConfig{
 	Secret:     "default-secret-key-please-change-in-production",
 	ExpireTime: 24,
 }
 
-// SetDefaultJWTConfig 设置项目级别的默认JWT配置
-// 用于在应用启动时统一配置JWT参数
+// SetDefaultJWTConfig 设置项目级别的默认 JWT 配置。
+// 用于在应用启动时统一配置 JWT 参数。
 func SetDefaultJWTConfig(config JWTConfig) {
 	if config.Secret != "" {
 		defaultJWTConfig.Secret = config.Secret
@@ -36,50 +39,41 @@ func SetDefaultJWTConfig(config JWTConfig) {
 	}
 }
 
-// Skipper 定义跳过中间件的函数类型
+// Skipper 定义跳过中间件的函数类型。
 type Skipper func(c *echo.Context) bool
 
-// jwtMiddlewareConfig JWT中间件内部配置结构
+// jwtMiddlewareConfig 是 JWT 中间件内部配置结构。
 type jwtMiddlewareConfig struct {
-	signingKey     []byte
-	signingMethod  jwt.SigningMethod
-	tokenLookup    string
-	authScheme     string
-	skipper        Skipper
-	errorHandler   func(error) error
+	// signingKey 是签名密钥。
+	signingKey []byte
+	// signingMethod 是签名算法。
+	signingMethod jwt.SigningMethod
+	// tokenLookup 是令牌查找位置。
+	tokenLookup string
+	// authScheme 是认证方案。
+	authScheme string
+	// skipper 是跳过中间件的函数。
+	skipper Skipper
+	// errorHandler 是错误处理函数。
+	errorHandler func(error) error
+	// successHandler 是认证成功后的回调函数。
 	successHandler func(*echo.Context)
 }
 
-// NewJWTMiddleware 创建JWT认证中间件
-// 使用默认配置创建JWT中间件，适用于需要JWT认证的路由组
-// 参数:
-//   - config: JWT配置，如果为nil则使用默认配置
-// 返回:
-//   - echo.MiddlewareFunc: Echo中间件函数
+// NewJWTMiddleware 创建 JWT 认证中间件。
+// 使用默认配置创建 JWT 中间件，适用于需要 JWT 认证的路由组。
 func NewJWTMiddleware(config *JWTConfig) echo.MiddlewareFunc {
 	return NewJWTMiddlewareWithSkipper(config, nil)
 }
 
-// NewJWTMiddlewareWithSkipper 创建带跳过功能的JWT认证中间件
-// 允许通过Skipper函数跳过某些路由的JWT认证
-// 参数:
-//   - config: JWT配置，如果为nil则使用默认配置
-//   - skipper: 跳过中间件的函数，返回true时跳过认证
-// 返回:
-//   - echo.MiddlewareFunc: Echo中间件函数
+// NewJWTMiddlewareWithSkipper 创建带跳过功能的 JWT 认证中间件。
+// 允许通过 Skipper 函数跳过某些路由的 JWT 认证。
 func NewJWTMiddlewareWithSkipper(config *JWTConfig, skipper Skipper) echo.MiddlewareFunc {
 	return NewJWTMiddlewareWithHandler(config, skipper, nil, nil)
 }
 
-// NewJWTMiddlewareWithHandler 创建完全自定义的JWT认证中间件
-// 提供完整的自定义选项，包括错误处理和成功处理回调
-// 参数:
-//   - config: JWT配置，如果为nil则使用默认配置
-//   - skipper: 跳过中间件的函数，返回true时跳过认证
-//   - errorHandler: 自定义错误处理函数
-//   - successHandler: 认证成功后的回调函数
-// 返回:
-//   - echo.MiddlewareFunc: Echo中间件函数
+// NewJWTMiddlewareWithHandler 创建完全自定义的 JWT 认证中间件。
+// 提供完整的自定义选项，包括错误处理和成功处理回调。
 func NewJWTMiddlewareWithHandler(config *JWTConfig, skipper Skipper, errorHandler func(error) error, successHandler func(*echo.Context)) echo.MiddlewareFunc {
 	cfg := defaultJWTConfig
 	if config != nil {
@@ -159,13 +153,8 @@ func NewJWTMiddlewareWithHandler(config *JWTConfig, skipper Skipper, errorHandle
 	}
 }
 
-// GetUserIDFromToken 从JWT令牌中获取用户ID
-// 在认证成功后的处理器中调用，从令牌的claims中提取user_id字段
-// 参数:
-//   - c: Echo上下文
-// 返回:
-//   - string: 用户ID
-//   - error: 错误信息
+// GetUserIDFromToken 从 JWT 令牌中获取用户 ID。
+// 在认证成功后的处理器中调用，从令牌的 claims 中提取 user_id 字段。
 func GetUserIDFromToken(c *echo.Context) (string, error) {
 	user := c.Get("user")
 	if user == nil {
@@ -190,13 +179,8 @@ func GetUserIDFromToken(c *echo.Context) (string, error) {
 	return userID, nil
 }
 
-// GetUsernameFromToken 从JWT令牌中获取用户名
-// 在认证成功后的处理器中调用，从令牌的claims中提取username字段
-// 参数:
-//   - c: Echo上下文
-// 返回:
-//   - string: 用户名
-//   - error: 错误信息
+// GetUsernameFromToken 从 JWT 令牌中获取用户名。
+// 在认证成功后的处理器中调用，从令牌的 claims 中提取 username 字段。
 func GetUsernameFromToken(c *echo.Context) (string, error) {
 	user := c.Get("user")
 	if user == nil {
@@ -221,14 +205,8 @@ func GetUsernameFromToken(c *echo.Context) (string, error) {
 	return username, nil
 }
 
-// GetClaimFromToken 从JWT令牌中获取指定的claim值
-// 通用的claim提取函数，可以获取任意key对应的值
-// 参数:
-//   - c: Echo上下文
-//   - claimKey: 要获取的claim键名
-// 返回:
-//   - interface{}: claim值
-//   - error: 错误信息
+// GetClaimFromToken 从 JWT 令牌中获取指定的 claim 值。
+// 通用的 claim 提取函数，可以获取任意 key 对应的值。
 func GetClaimFromToken(c *echo.Context, claimKey string) (interface{}, error) {
 	user := c.Get("user")
 	if user == nil {
@@ -253,13 +231,8 @@ func GetClaimFromToken(c *echo.Context, claimKey string) (interface{}, error) {
 	return value, nil
 }
 
-// JWTErrorResponse 生成JWT错误响应
-// 用于在处理器中返回统一的JWT认证错误响应
-// 参数:
-//   - c: Echo上下文
-//   - err: 错误信息
-// 返回:
-//   - error: HTTP错误
+// JWTErrorResponse 生成 JWT 错误响应。
+// 用于在处理器中返回统一的 JWT 认证错误响应。
 func JWTErrorResponse(c *echo.Context, err error) error {
 	return bizerr.New(http.StatusUnauthorized, fmt.Sprintf("认证失败: %v", err), http.StatusUnauthorized)
 }

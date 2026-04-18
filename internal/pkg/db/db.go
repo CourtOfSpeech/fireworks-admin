@@ -1,3 +1,6 @@
+// Package db 提供数据库连接和事务管理功能。
+// 该包封装了 Ent ORM 客户端的创建、连接池配置以及事务管理器，
+// 支持 Wire 依赖注入和生命周期管理。
 package db
 
 import (

@@ -1,3 +1,7 @@
+// Package idgen 提供唯一标识符生成功能。
+// 该包封装了 UUID 生成相关的工具函数，支持 UUID v4 和 v7 的生成，
+// 并提供字符串转换和解析功能。UUID v7 生成带有重试机制，
+// 确保在高并发场景下的可靠性。
 package idgen
 
 import (
@@ -9,7 +13,9 @@ import (
 )
 
 const (
+	// maxRetries 是 UUID 生成的最大重试次数。
 	maxRetries = 3
+	// retryDelay 是每次重试之间的延迟时间。
 	retryDelay = 10 * time.Millisecond
 )
 
