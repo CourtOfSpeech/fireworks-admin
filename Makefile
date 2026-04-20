@@ -1,4 +1,4 @@
-.PHONY: run build clean test dev stop restart help ent ent-clean wire wire-clean atlas-diff atlas-apply atlas-status atlas-new atlas-baseline atlas-inspect atlas-validate atlas-hash
+.PHONY: run build clean test dev stop restart help ent ent-clean wire wire-clean atlas-diff atlas-apply atlas-status atlas-new atlas-baseline atlas-inspect atlas-validate atlas-hash crud crud-list
 
 APP_NAME := fireworks-admin
 MAIN_PATH := cmd/server/main.go
@@ -74,6 +74,34 @@ wire-clean:
 	@rm -f $(APP_DIR)/wire_gen.go 2>/dev/null || true
 	@echo "✅ Wire generated code cleaned"
 
+crud:
+	@echo "🔧 CRUD Code Generator"
+	@read -p "Enter schema name (e.g., User): " name; \
+	if [ -z "$$name" ]; then \
+		echo "❌ Schema name is required"; \
+		exit 1; \
+	fi; \
+	read -p "Enter output path (e.g., internal/features/user): " output; \
+	if [ -z "$$output" ]; then \
+		echo "❌ Output path is required"; \
+		exit 1; \
+	fi; \
+	read -p "Add schema name prefix to filenames? (y/N): " prefix; \
+	read -p "Force overwrite? (y/N): " force; \
+	prefix_flag=""; \
+	force_flag=""; \
+	if [ "$$prefix" = "y" ] || [ "$$prefix" = "Y" ]; then \
+		prefix_flag="-prefix"; \
+	fi; \
+	if [ "$$force" = "y" ] || [ "$$force" = "Y" ]; then \
+		force_flag="-force"; \
+	fi; \
+	go run ./cmd/generator -name $$name -output $$output $$prefix_flag $$force_flag
+
+crud-list:
+	@echo "📋 Available schemas:"
+	@go run ./cmd/generator -list
+
 # Atlas migration commands
 atlas-diff:
 	@echo "📝 Generating migration diff..."
@@ -142,6 +170,8 @@ help:
 	@echo "  make ent-clean  - Clean Ent generated code"
 	@echo "  make wire       - Generate Wire dependency injection code"
 	@echo "  make wire-clean - Clean Wire generated code"
+	@echo "  make crud       - Generate CRUD code from Ent schema (interactive)"
+	@echo "  make crud-list  - List available schemas for CRUD generation"
 	@echo ""
 	@echo "Atlas migration commands:"
 	@echo "  make atlas-diff     - Generate migration diff from schema"

@@ -1,0 +1,48 @@
+// Package {{.Schema.PackageName}} 提供{{.Schema.Comment}}功能，包括{{.Schema.Name}}的创建、查询、更新和删除操作。
+// 本文件定义了{{.Schema.Name}}模块的领域模型和常量，包括实体结构。
+package {{.Schema.PackageName}}
+
+import "time"
+
+{{- if .Schema.HasStatus}}
+
+// {{.Schema.Name}}状态常量定义。
+const (
+	{{.Schema.Name}}StatusDisabled int8 = 1 // 禁用状态
+	{{.Schema.Name}}StatusEnabled  int8 = 2 // 正常状态
+)
+{{- end}}
+
+{{- range $field := .Schema.Fields}}
+{{- if $field.EnumValues}}
+
+// {{.Schema.Name}}{{$field.Name}}常量定义。
+const (
+{{- range $enum := $field.EnumValues}}
+	{{$enum.Name}} {{$field.GoType}} = {{$enum.Value}} // {{$enum.Comment}}
+{{- end}}
+)
+{{- end}}
+{{- end}}
+
+// {{.Schema.Name}} {{.Schema.Comment}}实体结构体。
+// 表示系统中的一个{{.Schema.Name}}，包含基本信息和状态。
+type {{.Schema.Name}} struct {
+{{- range $field := .Schema.Fields}}
+{{- if not $field.IsPrimaryKey}}
+	{{$field.Name}} {{$field.GoType}} `json:"{{$field.ColumnName}}"` // {{$field.Comment}}
+{{- else}}
+	{{$field.Name}} {{$field.GoType}} `json:"{{$field.ColumnName}}"` // {{$field.Comment}}
+{{- end}}
+{{- end}}
+}
+
+{{- if .Schema.HasStatus}}
+
+// IsValidStatus 检查给定的状态值是否有效。
+// 有效状态值为 {{.Schema.Name}}StatusDisabled (1) 或 {{.Schema.Name}}StatusEnabled (2)。
+// 返回 true 表示状态值有效，false 表示无效。
+func IsValidStatus(status int8) bool {
+	return status == {{.Schema.Name}}StatusDisabled || status == {{.Schema.Name}}StatusEnabled
+}
+{{- end}}

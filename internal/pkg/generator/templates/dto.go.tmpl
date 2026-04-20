@@ -1,0 +1,84 @@
+// Package {{.Schema.PackageName}} 提供{{.Schema.Comment}}功能，包括{{.Schema.Name}}的创建、查询、更新和删除操作。
+// 本文件定义了{{.Schema.Name}}模块的数据传输对象（DTO），用于 API 请求和响应的数据结构定义。
+package {{.Schema.PackageName}}
+
+import (
+	"time"
+
+	"github.com/speech/fireworks-admin/internal/pkg/api"
+)
+
+// Create{{.Schema.Name}}Req 创建{{.Schema.Comment}}请求结构体。
+// 包含创建新{{.Schema.Comment}}所需的所有必填字段信息。
+type Create{{.Schema.Name}}Req struct {
+{{- range $field := .Schema.Fields}}
+{{- if $field.IsRequired}}
+{{- if not $field.IsPrimaryKey}}
+{{- if eq $field.GoType "string"}}
+	{{$field.Name}} string `json:"{{$field.ColumnName}}" validate:"required"` // {{$field.Comment}}，必填
+{{- else if eq $field.GoType "int8"}}
+	{{$field.Name}} int8 `json:"{{$field.ColumnName}}" validate:"required,min=1,max=2"` // {{$field.Comment}}，必填
+{{- else if eq $field.GoType "time.Time"}}
+	{{$field.Name}} time.Time `json:"{{$field.ColumnName}}" validate:"required"` // {{$field.Comment}}，必填
+{{- else}}
+	{{$field.Name}} {{$field.GoType}} `json:"{{$field.ColumnName}}" validate:"required"` // {{$field.Comment}}，必填
+{{- end}}
+{{- end}}
+{{- end}}
+{{- end}}
+}
+
+// Update{{.Schema.Name}}Req 更新{{.Schema.Comment}}请求结构体。
+// 所有字段均为指针类型，支持部分更新，仅更新非空字段。
+type Update{{.Schema.Name}}Req struct {
+{{- range $field := .Schema.Fields}}
+{{- if not $field.IsPrimaryKey}}
+{{- if not $field.IsImmutable}}
+{{- if eq $field.GoType "string"}}
+	{{$field.Name}} *string `json:"{{$field.ColumnName}}" validate:"omitempty"` // {{$field.Comment}}，可选
+{{- else if eq $field.GoType "int8"}}
+	{{$field.Name}} *int8 `json:"{{$field.ColumnName}}" validate:"omitempty,min=1,max=2"` // {{$field.Comment}}，可选
+{{- else if eq $field.GoType "time.Time"}}
+	{{$field.Name}} *time.Time `json:"{{$field.ColumnName}}" validate:"omitempty"` // {{$field.Comment}}，可选
+{{- else}}
+	{{$field.Name}} *{{$field.GoType}} `json:"{{$field.ColumnName}}" validate:"omitempty"` // {{$field.Comment}}，可选
+{{- end}}
+{{- end}}
+{{- end}}
+{{- end}}
+}
+
+// {{.Schema.Name}}Query {{.Schema.Comment}}查询条件结构体。
+// 用于构建{{.Schema.Comment}}列表查询的过滤条件和分页参数。
+type {{.Schema.Name}}Query struct {
+	api.PageQuery // 分页查询基础字段
+{{- range $field := .Schema.Fields}}
+{{- if not $field.IsPrimaryKey}}
+{{- if eq $field.GoType "string"}}
+	{{$field.Name}} string `query:"{{$field.ColumnName}}"` // {{$field.Comment}}：精确匹配
+{{- else if eq $field.GoType "int8"}}
+	{{$field.Name}} *int8 `query:"{{$field.ColumnName}}"` // {{$field.Comment}}：精确匹配
+{{- end}}
+{{- end}}
+{{- end}}
+}
+
+{{- range $field := .Schema.Fields}}
+{{- if not $field.IsPrimaryKey}}
+{{- if eq $field.GoType "string"}}
+
+// Has{{$field.Name}} 检查是否设置了{{$field.Comment}}查询条件。
+// 返回 true 表示需要按{{$field.Comment}}进行精确查询。
+func (q *{{$.Schema.Name}}Query) Has{{$field.Name}}() bool {
+	return q.{{$field.Name}} != ""
+}
+{{- else if eq $field.GoType "int8"}}
+
+// Has{{$field.Name}} 检查是否设置了{{$field.Comment}}查询条件。
+// 返回 true 表示需要按{{$field.Comment}}进行精确查询。
+func (q *{{$.Schema.Name}}Query) Has{{$field.Name}}() bool {
+	return q.{{$field.Name}} != nil
+}
+{{- end}}
+{{- end}}
+{{- end}}

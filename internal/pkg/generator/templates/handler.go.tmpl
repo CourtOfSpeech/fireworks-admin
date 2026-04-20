@@ -1,0 +1,133 @@
+// Package {{.Schema.PackageName}} 提供{{.Schema.Comment}}功能，包括{{.Schema.Name}}的创建、查询、更新和删除操作。
+// 本文件定义了{{.Schema.Name}}模块的 HTTP 处理器，负责处理{{.Schema.Comment}}相关的 API 请求。
+package {{.Schema.PackageName}}
+
+import (
+	"github.com/labstack/echo/v5"
+	"github.com/speech/fireworks-admin/internal/pkg/api"
+	bizerr "github.com/speech/fireworks-admin/internal/pkg/errors"
+)
+
+// {{.Schema.Name}}Handler {{.Schema.Comment}} HTTP 处理器。
+// 负责处理{{.Schema.Name}}相关的 HTTP 请求，包括创建、查询、更新和删除操作。
+type {{.Schema.Name}}Handler struct {
+	service *{{.Schema.Name}}Service // {{.Schema.Comment}}业务逻辑服务
+}
+
+// New{{.Schema.Name}}Handler 创建{{.Schema.Comment}}处理器实例。
+// 参数 service 为{{.Schema.Comment}}业务逻辑服务，返回初始化后的处理器实例。
+func New{{.Schema.Name}}Handler(service *{{.Schema.Name}}Service) *{{.Schema.Name}}Handler {
+	return &{{.Schema.Name}}Handler{
+		service: service,
+	}
+}
+
+// RegisterRoutes 注册{{.Schema.Name}}模块的路由。
+// 参数 public 为公开路由组，protected 为需认证的路由组。
+// {{.Schema.Name}}相关接口均需要认证，注册在 /{{.Schema.PackageName}}s 路径下。
+func (h *{{.Schema.Name}}Handler) RegisterRoutes(public *echo.Group, protected *echo.Group) {
+	{{.Schema.PackageName}}s := protected.Group("/{{.Schema.PackageName}}s")
+	{{.Schema.PackageName}}s.POST("", h.Create)
+	{{.Schema.PackageName}}s.GET("", h.List)
+	{{.Schema.PackageName}}s.GET("/:id", h.Get)
+	{{.Schema.PackageName}}s.PUT("/:id", h.Update)
+	{{.Schema.PackageName}}s.DELETE("/:id", h.Delete)
+}
+
+// Create 处理创建{{.Schema.Comment}}请求。
+// 绑定并验证请求参数，调用服务层创建{{.Schema.Comment}}。
+// 成功返回空响应，失败返回相应错误。
+func (h *{{.Schema.Name}}Handler) Create(c *echo.Context) error {
+	var req Create{{.Schema.Name}}Req
+	if err := c.Bind(&req); err != nil {
+		return bizerr.InvalidParamWrap(err, "无效的请求参数")
+	}
+
+	if err := c.Validate(&req); err != nil {
+		return err
+	}
+
+	_, err := h.service.Create(c.Request().Context(), &req)
+	if err != nil {
+		return err
+	}
+
+	return api.Success(c, nil)
+
+}
+
+// List 处理查询{{.Schema.Comment}}列表请求。
+// 绑定查询参数，调用服务层获取{{.Schema.Comment}}列表。
+// 成功返回分页结果，失败返回相应错误。
+func (h *{{.Schema.Name}}Handler) List(c *echo.Context) error {
+	var query {{.Schema.Name}}Query
+	if err := c.Bind(&query); err != nil {
+		return bizerr.InvalidParamWrap(err, "无效的查询参数")
+	}
+
+	result, err := h.service.List(c.Request().Context(), &query)
+	if err != nil {
+		return err
+	}
+
+	return api.Success(c, result)
+}
+
+// Get 处理查询单个{{.Schema.Comment}}请求。
+// 从 URL 路径获取{{.Schema.Comment}} ID，调用服务层查询{{.Schema.Comment}}详情。
+// 成功返回{{.Schema.Comment}}信息，失败返回相应错误。
+func (h *{{.Schema.Name}}Handler) Get(c *echo.Context) error {
+	id := c.Param("id")
+	if id == "" {
+		return bizerr.InvalidParam("{{.Schema.Name}}ID不能为空")
+	}
+
+	{{.Schema.PackageName}}, err := h.service.GetByID(c.Request().Context(), id)
+	if err != nil {
+		return err
+	}
+
+	return api.Success(c, {{.Schema.PackageName}})
+}
+
+// Update 处理更新{{.Schema.Comment}}请求。
+// 从 URL 路径获取{{.Schema.Comment}} ID，绑定并验证请求参数，调用服务层更新{{.Schema.Comment}}。
+// 成功返回更新后的{{.Schema.Comment}}信息，失败返回相应错误。
+func (h *{{.Schema.Name}}Handler) Update(c *echo.Context) error {
+	id := c.Param("id")
+	if id == "" {
+		return bizerr.InvalidParam("{{.Schema.Name}}ID不能为空")
+	}
+
+	var req Update{{.Schema.Name}}Req
+	if err := c.Bind(&req); err != nil {
+		return bizerr.InvalidParamWrap(err, "无效的请求参数")
+	}
+
+	if err := c.Validate(&req); err != nil {
+		return err
+	}
+
+	{{.Schema.PackageName}}, err := h.service.Update(c.Request().Context(), id, &req)
+	if err != nil {
+		return err
+	}
+
+	return api.Success(c, {{.Schema.PackageName}})
+}
+
+// Delete 处理删除{{.Schema.Comment}}请求。
+// 从 URL 路径获取{{.Schema.Comment}} ID，调用服务层删除{{.Schema.Comment}}。
+// 成功返回空响应，失败返回相应错误。
+func (h *{{.Schema.Name}}Handler) Delete(c *echo.Context) error {
+	id := c.Param("id")
+	if id == "" {
+		return bizerr.InvalidParam("{{.Schema.Name}}ID不能为空")
+	}
+
+	if err := h.service.Delete(c.Request().Context(), id); err != nil {
+		return err
+	}
+
+	return api.Success(c, nil)
+}

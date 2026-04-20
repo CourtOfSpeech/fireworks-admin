@@ -1,0 +1,13 @@
+// Package {{.Schema.PackageName}} 提供{{.Schema.Comment}}功能，包括{{.Schema.Name}}的创建、查询、更新和删除操作。
+// 本文件定义了{{.Schema.Name}}模块的 Wire 依赖注入提供者集合。
+package {{.Schema.PackageName}}
+
+import "github.com/google/wire"
+
+// ProviderSet {{.Schema.Name}}模块依赖提供者集合。
+// 包含{{.Schema.Name}}模块所有需要注入的组件：Repository、Service 和 Handler。
+var ProviderSet = wire.NewSet(
+	New{{.Schema.Name}}Repo,
+	New{{.Schema.Name}}Service,
+	New{{.Schema.Name}}Handler,
+)

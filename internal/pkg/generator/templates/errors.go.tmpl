@@ -1,0 +1,93 @@
+// Package {{.Schema.PackageName}} 提供{{.Schema.Comment}}功能，包括{{.Schema.Name}}的创建、查询、更新和删除操作。
+// 本文件定义了{{.Schema.Name}}模块的错误码和错误处理函数，用于统一管理业务错误。
+package {{.Schema.PackageName}}
+
+import (
+	"net/http"
+	"strings"
+
+	entgo "github.com/speech/fireworks-admin/internal/ent"
+	bizerr "github.com/speech/fireworks-admin/internal/pkg/errors"
+)
+
+// {{.Schema.Name}}模块错误码常量定义。
+const (
+	ErrCode{{.Schema.Name}}NotFound = 40401 // {{.Schema.Comment}}不存在错误码
+{{- $baseCode := 40901}}
+{{- range $idx := .Schema.Indexes}}
+{{- if $idx.IsUnique}}
+	ErrCodeDuplicate{{index $idx.Fields 0}} = {{$baseCode}} // {{index $idx.Fields 0}}重复错误码
+{{- $baseCode = add $baseCode 1}}
+{{- end}}
+{{- end}}
+{{- if .Schema.HasStatus}}
+	ErrCodeInvalidStatus = 40001 // 无效状态错误码
+{{- end}}
+)
+
+{{- range $idx := .Schema.Indexes}}
+{{- if $idx.IsUnique}}
+{{- $fieldName := index $idx.Fields 0}}
+
+// ErrDuplicate{{$fieldName}} 创建{{$fieldName}}重复错误。
+// 参数 err 为原始错误，返回包装后的业务错误，HTTP 状态码为 409 Conflict。
+func ErrDuplicate{{$fieldName}}(err error) error {
+	return bizerr.Wrap(err, ErrCodeDuplicate{{$fieldName}}, "{{$fieldName}}已被使用", http.StatusConflict)
+}
+{{- end}}
+{{- end}}
+
+{{- if .Schema.HasStatus}}
+
+// ErrInvalidStatus 创建无效状态错误。
+// 返回业务错误，HTTP 状态码为 400 Bad Request。
+func ErrInvalidStatus() error {
+	return bizerr.New(ErrCodeInvalidStatus, "无效的{{.Schema.Comment}}状态值", http.StatusBadRequest)
+}
+{{- end}}
+
+// {{.Schema.Name}}NotFound 创建{{.Schema.Comment}}不存在错误。
+// 参数 err 为原始错误，返回包装后的业务错误，HTTP 状态码为 404 Not Found。
+func {{.Schema.Name}}NotFound(err error) error {
+	return bizerr.Wrap(err, ErrCode{{.Schema.Name}}NotFound, "{{.Schema.Comment}}不存在", http.StatusNotFound)
+}
+
+// ParseRepoError 解析 Repository 层返回的错误并转换为业务错误。
+// 支持处理：未找到错误、约束冲突错误（唯一键冲突）。
+// 如果错误无法识别则返回原始错误。
+func ParseRepoError(err error) error {
+	if err == nil {
+		return nil
+	}
+
+	if entgo.IsNotFound(err) {
+		return {{.Schema.Name}}NotFound(err)
+	}
+
+	if entgo.IsConstraintError(err) {
+		return parseConstraintError(err)
+	}
+
+	return err
+}
+
+// parseConstraintError 解析数据库约束冲突错误。
+// 根据错误信息中的约束名称判断具体冲突类型：
+{{- range $idx := .Schema.Indexes}}
+{{- if $idx.IsUnique}}
+// - {{$idx.StorageKey}}: {{index $idx.Fields 0}}重复
+{{- end}}
+{{- end}}
+func parseConstraintError(err error) error {
+	errMsg := err.Error()
+	switch {
+{{- range $idx := .Schema.Indexes}}
+{{- if $idx.IsUnique}}
+	case strings.Contains(errMsg, "{{$idx.StorageKey}}"):
+		return ErrDuplicate{{index $idx.Fields 0}}(err)
+{{- end}}
+{{- end}}
+	default:
+		return err
+	}
+}

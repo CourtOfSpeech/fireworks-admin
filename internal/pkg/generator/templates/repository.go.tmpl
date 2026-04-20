@@ -1,0 +1,169 @@
+// Package {{.Schema.PackageName}} 提供{{.Schema.Comment}}功能，包括{{.Schema.Name}}的创建、查询、更新和删除操作。
+// 本文件定义了{{.Schema.Name}}模块的数据持久化层，负责与数据库交互。
+package {{.Schema.PackageName}}
+
+import (
+	"context"
+	"fmt"
+
+	entgo "github.com/speech/fireworks-admin/internal/ent"
+	"github.com/speech/fireworks-admin/internal/ent/{{.Schema.PackageName}}"
+	"github.com/speech/fireworks-admin/internal/pkg/db"
+	"github.com/speech/fireworks-admin/internal/pkg/idgen"
+)
+
+// {{.Schema.Name}}Repo {{.Schema.Comment}}数据持久化操作的具体实现。
+// 封装了{{.Schema.Name}}相关的数据库操作，包括增删改查。
+type {{.Schema.Name}}Repo struct {
+	tx *db.TxManager // 数据库事务管理器
+}
+
+// New{{.Schema.Name}}Repo 创建{{.Schema.Name}} Repository 实例。
+// 参数 txManager 为数据库事务管理器，返回初始化后的 Repository 实例。
+func New{{.Schema.Name}}Repo(txManager *db.TxManager) *{{.Schema.Name}}Repo {
+	return &{{.Schema.Name}}Repo{
+		tx: txManager,
+	}
+}
+
+// toEntity 将 Ent 框架的 {{.Schema.Name}} 模型转换为领域模型 {{.Schema.Name}}。
+// 参数 t 为 Ent 框架的{{.Schema.Comment}}模型，返回领域模型的{{.Schema.Comment}}实体。
+func toEntity(t *entgo.{{.Schema.Name}}) *{{.Schema.Name}} {
+	return &{{.Schema.Name}}{
+{{- range $field := .Schema.Fields}}
+{{- if $field.IsPrimaryKey}}
+		{{$field.Name}}: idgen.ToString(t.ID),
+{{- else if eq $field.GoType "time.Time"}}
+		{{$field.Name}}: t.{{$field.Name}},
+{{- else}}
+		{{$field.Name}}: t.{{$field.Name}},
+{{- end}}
+{{- end}}
+	}
+}
+
+// Create 创建新{{.Schema.Comment}}记录。
+// 参数 ctx 为上下文，req 为创建请求参数。
+// 返回创建成功的{{.Schema.Comment}}实体和可能的错误。
+func (r *{{.Schema.Name}}Repo) Create(ctx context.Context, req *Create{{.Schema.Name}}Req) (*{{.Schema.Name}}, error) {
+	builder := r.tx.DB(ctx).{{.Schema.Name}}.Create()
+{{- range $field := .Schema.Fields}}
+{{- if not $field.IsPrimaryKey}}
+{{- if not $field.HasDefault}}
+{{- if not $field.IsImmutable}}
+{{- if $field.IsRequired}}
+	builder.Set{{$field.Name}}(req.{{$field.Name}})
+{{- end}}
+{{- end}}
+{{- end}}
+{{- end}}
+{{- end}}
+
+	t, err := builder.Save(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("repo:Create: %w", err)
+	}
+
+	return toEntity(t), nil
+}
+
+// Delete 根据{{.Schema.Comment}} ID 删除{{.Schema.Comment}}记录。
+// 参数 ctx 为上下文，id 为{{.Schema.Comment}} ID 字符串。
+// 返回删除操作可能发生的错误。
+func (r *{{.Schema.Name}}Repo) Delete(ctx context.Context, id string) error {
+	{{.Schema.PackageName}}Id, err := idgen.Parse(id)
+	if err != nil {
+		return fmt.Errorf("repo:Delete id parse id=%s: %w", id, err)
+	}
+
+	err = r.tx.DB(ctx).{{.Schema.Name}}.DeleteOneID({{.Schema.PackageName}}Id).Exec(ctx)
+	if err != nil {
+		return fmt.Errorf("repo:Delete id=%s: %w", id, err)
+	}
+	return nil
+}
+
+// List 根据查询条件获取{{.Schema.Comment}}列表。
+// 参数 ctx 为上下文，query 为查询条件。
+// 返回{{.Schema.Comment}}列表、总数和可能的错误。支持分页和条件过滤。
+func (r *{{.Schema.Name}}Repo) List(ctx context.Context, query *{{.Schema.Name}}Query) ([]*{{.Schema.Name}}, int64, error) {
+	builder := r.tx.DB(ctx).{{.Schema.Name}}.Query()
+
+{{- range $field := .Schema.Fields}}
+{{- if not $field.IsPrimaryKey}}
+{{- if eq $field.GoType "string"}}
+	if query.Has{{$field.Name}}() {
+		builder.Where({{$.Schema.PackageName}}.{{$field.Name}}EQ(query.{{$field.Name}}))
+	}
+{{- else if eq $field.GoType "int8"}}
+	if query.Has{{$field.Name}}() {
+		builder.Where({{$.Schema.PackageName}}.{{$field.Name}}EQ(*query.{{$field.Name}}))
+	}
+{{- end}}
+{{- end}}
+{{- end}}
+
+	total, err := builder.Clone().Count(ctx)
+	if err != nil {
+		return nil, 0, fmt.Errorf("repo:List count: %w", err)
+	}
+
+	items, err := builder.
+		Offset(query.GetOffset()).
+		Limit(query.GetLimit()).
+		Order(entgo.Desc({{.Schema.PackageName}}.FieldCreatedAt)).
+		All(ctx)
+	if err != nil {
+		return nil, 0, fmt.Errorf("repo:List query: %w", err)
+	}
+
+	result := make([]*{{.Schema.Name}}, 0, len(items))
+	for _, t := range items {
+		result = append(result, toEntity(t))
+	}
+
+	return result, int64(total), nil
+}
+
+// GetByID 根据{{.Schema.Comment}} ID 获取{{.Schema.Comment}}详情。
+// 参数 ctx 为上下文，id 为{{.Schema.Comment}} ID 字符串。
+// 返回{{.Schema.Comment}}实体和可能的错误。
+func (r *{{.Schema.Name}}Repo) GetByID(ctx context.Context, id string) (*{{.Schema.Name}}, error) {
+	{{.Schema.PackageName}}Id, err := idgen.Parse(id)
+	if err != nil {
+		return nil, fmt.Errorf("repo:GetByID id parse id=%s: %w", id, err)
+	}
+
+	t, err := r.tx.DB(ctx).{{.Schema.Name}}.Get(ctx, {{.Schema.PackageName}}Id)
+	if err != nil {
+		return nil, fmt.Errorf("repo:GetByID id=%s: %w", id, err)
+	}
+	return toEntity(t), nil
+}
+
+// Update 根据{{.Schema.Comment}} ID 更新{{.Schema.Comment}}信息。
+// 参数 ctx 为上下文，id 为{{.Schema.Comment}} ID 字符串，req 为更新请求参数。
+// 仅更新请求中非空字段。返回更新后的{{.Schema.Comment}}实体和可能的错误。
+func (r *{{.Schema.Name}}Repo) Update(ctx context.Context, id string, req *Update{{.Schema.Name}}Req) (*{{.Schema.Name}}, error) {
+	{{.Schema.PackageName}}Id, err := idgen.Parse(id)
+	if err != nil {
+		return nil, fmt.Errorf("repo:Update id parse id=%s: %w", id, err)
+	}
+
+	builder := r.tx.DB(ctx).{{.Schema.Name}}.UpdateOneID({{.Schema.PackageName}}Id)
+{{- range $field := .Schema.Fields}}
+{{- if not $field.IsPrimaryKey}}
+{{- if not $field.IsImmutable}}
+	if req.{{$field.Name}} != nil {
+		builder.Set{{$field.Name}}(*req.{{$field.Name}})
+	}
+{{- end}}
+{{- end}}
+{{- end}}
+
+	t, err := builder.Save(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("repo:Update id=%s: %w", id, err)
+	}
+	return toEntity(t), nil
+}

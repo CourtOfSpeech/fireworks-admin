@@ -1,0 +1,110 @@
+// Package {{.Schema.PackageName}} 提供{{.Schema.Comment}}功能，包括{{.Schema.Name}}的创建、查询、更新和删除操作。
+// 本文件定义了{{.Schema.Name}}模块的业务逻辑层，封装{{.Schema.Comment}}相关的业务规则和操作。
+package {{.Schema.PackageName}}
+
+import (
+	"context"
+
+	"github.com/speech/fireworks-admin/internal/pkg/api"
+	bizerr "github.com/speech/fireworks-admin/internal/pkg/errors"
+)
+
+// {{.Schema.Name}}Service 封装{{.Schema.Comment}}业务逻辑操作。
+// 负责协调 Repository 层完成{{.Schema.Name}}的增删改查，并处理业务规则验证。
+type {{.Schema.Name}}Service struct {
+	repo *{{.Schema.Name}}Repo // {{.Schema.Comment}}数据持久化操作
+}
+
+// New{{.Schema.Name}}Service 创建{{.Schema.Name}} Service 实例。
+// 参数 repo 为{{.Schema.Comment}} Repository，返回初始化后的 Service 实例。
+func New{{.Schema.Name}}Service(repo *{{.Schema.Name}}Repo) *{{.Schema.Name}}Service {
+	return &{{.Schema.Name}}Service{
+		repo: repo,
+	}
+}
+
+// Create 创建新{{.Schema.Comment}}。
+// 参数 ctx 为上下文，req 为创建请求参数。
+{{- if .Schema.HasStatus}}
+// 如果未指定状态，默认设置为正常状态。
+{{- end}}
+// 返回创建成功的{{.Schema.Comment}}实体和可能的错误。
+func (s *{{.Schema.Name}}Service) Create(ctx context.Context, req *Create{{.Schema.Name}}Req) (*{{.Schema.Name}}, error) {
+{{- if .Schema.HasStatus}}
+	if req.Status == 0 {
+		req.Status = {{.Schema.Name}}StatusEnabled
+	}
+{{- end}}
+	t, err := s.repo.Create(ctx, req)
+	if err != nil {
+		return nil, wrapError(err)
+	}
+	return t, nil
+}
+
+// Update 更新{{.Schema.Comment}}信息。
+// 参数 ctx 为上下文，id 为{{.Schema.Comment}} ID，req 为更新请求参数。
+{{- if .Schema.HasStatus}}
+// 验证状态值有效性后执行更新。
+{{- end}}
+// 返回更新后的{{.Schema.Comment}}实体和可能的错误。
+func (s *{{.Schema.Name}}Service) Update(ctx context.Context, id string, req *Update{{.Schema.Name}}Req) (*{{.Schema.Name}}, error) {
+{{- if .Schema.HasStatus}}
+	if req.Status != nil && !IsValidStatus(*req.Status) {
+		return nil, ErrInvalidStatus()
+	}
+{{- end}}
+
+	t, err := s.repo.Update(ctx, id, req)
+	if err != nil {
+		return nil, wrapError(err)
+	}
+	return t, nil
+}
+
+// Delete 删除{{.Schema.Comment}}。
+// 参数 ctx 为上下文，id 为{{.Schema.Comment}} ID。
+// 返回删除操作可能发生的错误。
+func (s *{{.Schema.Name}}Service) Delete(ctx context.Context, id string) error {
+	err := s.repo.Delete(ctx, id)
+	if err != nil {
+		return wrapError(err)
+	}
+	return nil
+}
+
+// GetByID 根据{{.Schema.Comment}} ID 获取{{.Schema.Comment}}详情。
+// 参数 ctx 为上下文，id 为{{.Schema.Comment}} ID。
+// 返回{{.Schema.Comment}}实体和可能的错误。
+func (s *{{.Schema.Name}}Service) GetByID(ctx context.Context, id string) (*{{.Schema.Name}}, error) {
+	t, err := s.repo.GetByID(ctx, id)
+	if err != nil {
+		return nil, wrapError(err)
+	}
+	return t, nil
+}
+
+// List 根据查询条件获取{{.Schema.Comment}}列表。
+// 参数 ctx 为上下文，query 为查询条件。
+// 返回分页结果和可能的错误。
+func (s *{{.Schema.Name}}Service) List(ctx context.Context, query *{{.Schema.Name}}Query) (*api.PageResult[*{{.Schema.Name}}], error) {
+	list, total, err := s.repo.List(ctx, query)
+	if err != nil {
+		return nil, wrapError(err)
+	}
+
+	return api.NewPageResult(list, total, query.Page, query.PageSize), nil
+}
+
+// wrapError 解析 Repository 层错误并包装为业务错误。
+// 如果错误已经是 BizError 则直接返回，否则包装为内部错误。
+func wrapError(err error) error {
+	if err == nil {
+		return nil
+	}
+	parsed := ParseRepoError(err)
+	if _, ok := parsed.(*bizerr.BizError); ok {
+		return parsed
+	}
+	return bizerr.Internal(parsed)
+}
