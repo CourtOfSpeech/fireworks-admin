@@ -5,6 +5,7 @@ package tenant
 import (
 	"context"
 	"fmt"
+	"time"
 
 	entgo "github.com/speech/fireworks-admin/internal/ent"
 	"github.com/speech/fireworks-admin/internal/ent/tenant"
@@ -68,16 +69,18 @@ func (r *TenantRepo) Create(ctx context.Context, req *CreateTenantReq) (*Tenant,
 	return toEntity(t), nil
 }
 
-// Delete 根据租户 ID 删除租户记录。
+// Delete 根据租户 ID 软删除租户记录。
 // 参数 ctx 为上下文，id 为租户 ID 字符串。
-// 返回删除操作可能发生的错误。
+// 软删除通过设置 deleted_at 字段实现，返回删除操作可能发生的错误。
 func (r *TenantRepo) Delete(ctx context.Context, id string) error {
 	tenantId, err := idgen.Parse(id)
 	if err != nil {
 		return fmt.Errorf("repo:Delete id parse id=%s: %w", id, err)
 	}
 
-	err = r.tx.DB(ctx).Tenant.DeleteOneID(tenantId).Exec(ctx)
+	err = r.tx.DB(ctx).Tenant.UpdateOneID(tenantId).
+		SetDeletedAt(time.Now()).
+		Exec(ctx)
 	if err != nil {
 		return fmt.Errorf("repo:Delete id=%s: %w", id, err)
 	}
