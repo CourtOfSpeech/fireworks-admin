@@ -29,7 +29,9 @@ const (
 // 表示系统中的一个{{.Schema.Name}}，包含基本信息和状态。
 type {{.Schema.Name}} struct {
 {{- range $field := .Schema.Fields}}
-{{- if not $field.IsPrimaryKey}}
+{{- if eq $field.Name "Password"}}
+	{{$field.Name}} {{$field.GoType}} `json:"-"` // {{$field.Comment}}
+{{- else if not $field.IsPrimaryKey}}
 	{{$field.Name}} {{$field.GoType}} `json:"{{$field.ColumnName}}"` // {{$field.Comment}}
 {{- else}}
 	{{$field.Name}} {{$field.GoType}} `json:"{{$field.ColumnName}}"` // {{$field.Comment}}

@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/wire"
 	"github.com/speech/fireworks-admin/internal/features/tenant"
+	"github.com/speech/fireworks-admin/internal/features/user"
 	"github.com/speech/fireworks-admin/internal/pkg/config"
 	"github.com/speech/fireworks-admin/internal/pkg/db"
 	"github.com/speech/fireworks-admin/internal/pkg/lifecycle"
@@ -38,7 +39,8 @@ var ProviderSet = wire.NewSet(
 // 通过 ProvideRegistrars 函数将所有字段收集为路由注册器列表。
 type RegistrarIn struct {
 	Tenant *tenant.TenantHandler // 租户管理路由处理器
-	Health *HealthRouter         // 健康检查路由处理器
+	User   *user.UserHandler    // 用户管理路由处理器
+	Health *HealthRouter        // 健康检查路由处理器
 }
 
 // ProvideRegistrars 将所有 RouterRegistrar 实现收集为切片。

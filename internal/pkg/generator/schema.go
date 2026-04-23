@@ -28,6 +28,7 @@ type FieldInfo struct {
 	IsUnique     bool   // IsUnique 是否唯一
 	IsOptional   bool   // IsOptional 是否可选
 	IsImmutable  bool   // IsImmutable 是否不可变
+	IsUUID       bool   // IsUUID 是否为 UUID 类型
 	HasDefault   bool   // HasDefault 是否有默认值
 	DefaultValue string // DefaultValue 默认值表达式
 	MaxLen       int    // MaxLen 最大长度（字符串类型）
@@ -175,6 +176,18 @@ func (s *SchemaInfo) GetQueryFields() []FieldInfo {
 func (s *SchemaInfo) HasMixin(name string) bool {
 	for _, m := range s.Mixins {
 		if m.Name == name {
+			return true
+		}
+	}
+	return false
+}
+
+// HasField 检查是否包含指定的字段。
+// 参数 name 为字段名称。
+// 返回 true 表示包含该字段。
+func (s *SchemaInfo) HasField(name string) bool {
+	for _, f := range s.Fields {
+		if f.Name == name {
 			return true
 		}
 	}

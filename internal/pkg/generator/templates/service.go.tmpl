@@ -7,6 +7,9 @@ import (
 
 	"github.com/speech/fireworks-admin/internal/pkg/api"
 	bizerr "github.com/speech/fireworks-admin/internal/pkg/errors"
+{{- if .Schema.HasField "Password"}}
+	"github.com/speech/fireworks-admin/internal/pkg/crypto"
+{{- end}}
 )
 
 // {{.Schema.Name}}Service 封装{{.Schema.Comment}}业务逻辑操作。
@@ -28,12 +31,22 @@ func New{{.Schema.Name}}Service(repo *{{.Schema.Name}}Repo) *{{.Schema.Name}}Ser
 {{- if .Schema.HasStatus}}
 // 如果未指定状态，默认设置为正常状态。
 {{- end}}
+{{- if .Schema.HasField "Password"}}
+// 密码字段会被加密存储。
+{{- end}}
 // 返回创建成功的{{.Schema.Comment}}实体和可能的错误。
 func (s *{{.Schema.Name}}Service) Create(ctx context.Context, req *Create{{.Schema.Name}}Req) (*{{.Schema.Name}}, error) {
 {{- if .Schema.HasStatus}}
 	if req.Status == 0 {
 		req.Status = {{.Schema.Name}}StatusEnabled
 	}
+{{- end}}
+{{- if .Schema.HasField "Password"}}
+	hashedPassword, err := crypto.HashPassword(req.Password)
+	if err != nil {
+		return nil, bizerr.Internal(err)
+	}
+	req.Password = hashedPassword
 {{- end}}
 	t, err := s.repo.Create(ctx, req)
 	if err != nil {
@@ -47,11 +60,23 @@ func (s *{{.Schema.Name}}Service) Create(ctx context.Context, req *Create{{.Sche
 {{- if .Schema.HasStatus}}
 // 验证状态值有效性后执行更新。
 {{- end}}
+{{- if .Schema.HasField "Password"}}
+// 如果更新密码字段，密码会被加密存储。
+{{- end}}
 // 返回更新后的{{.Schema.Comment}}实体和可能的错误。
 func (s *{{.Schema.Name}}Service) Update(ctx context.Context, id string, req *Update{{.Schema.Name}}Req) (*{{.Schema.Name}}, error) {
 {{- if .Schema.HasStatus}}
 	if req.Status != nil && !IsValidStatus(*req.Status) {
 		return nil, ErrInvalidStatus()
+	}
+{{- end}}
+{{- if .Schema.HasField "Password"}}
+	if req.Password != nil {
+		hashedPassword, err := crypto.HashPassword(*req.Password)
+		if err != nil {
+			return nil, bizerr.Internal(err)
+		}
+		*req.Password = hashedPassword
 	}
 {{- end}}
 

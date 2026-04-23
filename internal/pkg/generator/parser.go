@@ -620,10 +620,10 @@ func (p *EntSchemaParser) getKnownMixinFields(name string) []string {
 func (p *EntSchemaParser) addMixinFields(schemaInfo *SchemaInfo) {
 	mixinFieldDefs := map[string][]FieldInfo{
 		"Id": {
-			{Name: "ID", ColumnName: "id", GoType: "string", IsPrimaryKey: true, HasDefault: true, IsImmutable: true, Comment: "主键"},
+			{Name: "ID", ColumnName: "id", GoType: "string", IsPrimaryKey: true, HasDefault: true, IsImmutable: true, IsUUID: true, Comment: "主键"},
 		},
 		"TenantId": {
-			{Name: "TenantID", ColumnName: "tenant_id", GoType: "string", HasDefault: true, IsImmutable: true, Comment: "租户ID"},
+			{Name: "TenantID", ColumnName: "tenant_id", GoType: "string", HasDefault: true, IsImmutable: true, IsUUID: true, Comment: "租户ID"},
 		},
 		"Status": {
 			{Name: "Status", ColumnName: "status", GoType: "int8", IsRequired: true, Comment: "状态"},
@@ -635,6 +635,14 @@ func (p *EntSchemaParser) addMixinFields(schemaInfo *SchemaInfo) {
 			{Name: "UpdatedAt", ColumnName: "updated_at", GoType: "time.Time", HasDefault: true, Comment: "更新时间"},
 		},
 		"SoftDelete": {
+			{Name: "DeletedAt", ColumnName: "deleted_at", GoType: "time.Time", IsOptional: true, Comment: "删除时间"},
+		},
+		"CommonMixin": {
+			{Name: "ID", ColumnName: "id", GoType: "string", IsPrimaryKey: true, HasDefault: true, IsImmutable: true, IsUUID: true, Comment: "主键"},
+			{Name: "TenantID", ColumnName: "tenant_id", GoType: "string", HasDefault: true, IsImmutable: true, IsUUID: true, Comment: "租户ID"},
+			{Name: "Status", ColumnName: "status", GoType: "int8", IsRequired: true, Comment: "状态"},
+			{Name: "CreatedAt", ColumnName: "created_at", GoType: "time.Time", HasDefault: true, IsImmutable: true, Comment: "创建时间"},
+			{Name: "UpdatedAt", ColumnName: "updated_at", GoType: "time.Time", HasDefault: true, Comment: "更新时间"},
 			{Name: "DeletedAt", ColumnName: "deleted_at", GoType: "time.Time", IsOptional: true, Comment: "删除时间"},
 		},
 	}
@@ -671,7 +679,7 @@ func (p *EntSchemaParser) mapFieldTypeToGo(entType string) string {
 		"JSON":     "json.RawMessage",
 		"Bytes":    "[]byte",
 		"Enum":     "string",
-		"UUID":     "uuid.UUID",
+		"UUID":     "string",
 		"Text":     "string",
 	}
 

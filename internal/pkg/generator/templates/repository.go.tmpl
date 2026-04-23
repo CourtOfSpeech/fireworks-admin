@@ -5,6 +5,9 @@ package {{.Schema.PackageName}}
 import (
 	"context"
 	"fmt"
+{{- if .Schema.HasSoftDelete}}
+	"time"
+{{- end}}
 
 	entgo "github.com/speech/fireworks-admin/internal/ent"
 	"github.com/speech/fireworks-admin/internal/ent/{{.Schema.PackageName}}"
@@ -31,8 +34,8 @@ func New{{.Schema.Name}}Repo(txManager *db.TxManager) *{{.Schema.Name}}Repo {
 func toEntity(t *entgo.{{.Schema.Name}}) *{{.Schema.Name}} {
 	return &{{.Schema.Name}}{
 {{- range $field := .Schema.Fields}}
-{{- if $field.IsPrimaryKey}}
-		{{$field.Name}}: idgen.ToString(t.ID),
+{{- if $field.IsUUID}}
+		{{$field.Name}}: idgen.ToString(t.{{$field.Name}}),
 {{- else if eq $field.GoType "time.Time"}}
 		{{$field.Name}}: t.{{$field.Name}},
 {{- else}}
@@ -76,7 +79,11 @@ func (r *{{.Schema.Name}}Repo) Delete(ctx context.Context, id string) error {
 		return fmt.Errorf("repo:Delete id parse id=%s: %w", id, err)
 	}
 
+{{- if .Schema.HasSoftDelete}}
+	err = r.tx.DB(ctx).{{.Schema.Name}}.UpdateOneID({{.Schema.PackageName}}Id).SetDeletedAt(time.Now()).Exec(ctx)
+{{- else}}
 	err = r.tx.DB(ctx).{{.Schema.Name}}.DeleteOneID({{.Schema.PackageName}}Id).Exec(ctx)
+{{- end}}
 	if err != nil {
 		return fmt.Errorf("repo:Delete id=%s: %w", id, err)
 	}
@@ -91,7 +98,16 @@ func (r *{{.Schema.Name}}Repo) List(ctx context.Context, query *{{.Schema.Name}}
 
 {{- range $field := .Schema.Fields}}
 {{- if not $field.IsPrimaryKey}}
-{{- if eq $field.GoType "string"}}
+{{- if ne $field.Name "Password"}}
+{{- if $field.IsUUID}}
+	if query.Has{{$field.Name}}() {
+		{{$field.Name | toLower}}, err := idgen.Parse(query.{{$field.Name}})
+		if err != nil {
+			return nil, 0, fmt.Errorf("repo:List parse {{$field.Name | toLower}}=%s: %w", query.{{$field.Name}}, err)
+		}
+		builder.Where({{$.Schema.PackageName}}.{{$field.Name}}EQ({{$field.Name | toLower}}))
+	}
+{{- else if eq $field.GoType "string"}}
 	if query.Has{{$field.Name}}() {
 		builder.Where({{$.Schema.PackageName}}.{{$field.Name}}EQ(query.{{$field.Name}}))
 	}
@@ -99,6 +115,7 @@ func (r *{{.Schema.Name}}Repo) List(ctx context.Context, query *{{.Schema.Name}}
 	if query.Has{{$field.Name}}() {
 		builder.Where({{$.Schema.PackageName}}.{{$field.Name}}EQ(*query.{{$field.Name}}))
 	}
+{{- end}}
 {{- end}}
 {{- end}}
 {{- end}}
@@ -154,9 +171,13 @@ func (r *{{.Schema.Name}}Repo) Update(ctx context.Context, id string, req *Updat
 {{- range $field := .Schema.Fields}}
 {{- if not $field.IsPrimaryKey}}
 {{- if not $field.IsImmutable}}
+{{- if ne $field.Name "UpdatedAt"}}
+{{- if ne $field.Name "DeletedAt"}}
 	if req.{{$field.Name}} != nil {
 		builder.Set{{$field.Name}}(*req.{{$field.Name}})
 	}
+{{- end}}
+{{- end}}
 {{- end}}
 {{- end}}
 {{- end}}

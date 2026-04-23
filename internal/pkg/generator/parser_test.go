@@ -46,7 +46,7 @@ func TestMapFieldTypeToGo(t *testing.T) {
 		{"Time", "time.Time"},
 		{"JSON", "json.RawMessage"},
 		{"Bytes", "[]byte"},
-		{"UUID", "uuid.UUID"},
+		{"UUID", "string"},
 		{"Text", "string"},
 		{"Unknown", "interface{}"},
 	}
