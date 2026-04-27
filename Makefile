@@ -60,8 +60,8 @@ ent:
 
 ent-clean:
 	@echo "🧹 Cleaning Ent generated code..."
-	@find $(ENT_DIR) -name "*.go" ! -path "$(ENT_DIR)/schema/*" ! -name "generate.go" -delete 2>/dev/null || true
-	@rm -rf $(ENT_DIR)/enttest $(ENT_DIR)/hook $(ENT_DIR)/migrate $(ENT_DIR)/predicate $(ENT_DIR)/runtime $(ENT_DIR)/teltent 2>/dev/null || true
+	@find $(ENT_DIR) -name "*.go" ! -path "$(ENT_DIR)/schema/*" ! -path "$(ENT_DIR)/hook/*" ! -path "$(ENT_DIR)/intercept/*" ! -name "generate.go" -delete 2>/dev/null || true
+	@rm -rf $(ENT_DIR)/enttest $(ENT_DIR)/migrate $(ENT_DIR)/predicate $(ENT_DIR)/runtime $(ENT_DIR)/teltent 2>/dev/null || true
 	@echo "✅ Ent generated code cleaned"
 
 wire:

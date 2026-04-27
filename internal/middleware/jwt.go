@@ -10,8 +10,10 @@ import (
 	"strings"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v5"
 	bizerr "github.com/speech/fireworks-admin/internal/pkg/errors"
+	"github.com/speech/fireworks-admin/internal/pkg/ctxutil"
 )
 
 // JWTConfig 定义 JWT 中间件的配置结构。
@@ -148,6 +150,14 @@ func NewJWTMiddlewareWithHandler(config *JWTConfig, skipper Skipper, errorHandle
 				middlewareConfig.successHandler(c)
 			}
 
+			if claims, ok := token.Claims.(jwt.MapClaims); ok {
+				if tenantIDStr, ok := claims["tenant_id"].(string); ok {
+					if tenantID, err := uuid.Parse(tenantIDStr); err == nil {
+						c.SetRequest(c.Request().WithContext(ctxutil.WithTenant(c.Request().Context(), tenantID)))
+					}
+				}
+			}
+
 			return next(c)
 		}
 	}
@@ -229,6 +239,27 @@ func GetClaimFromToken(c *echo.Context, claimKey string) (interface{}, error) {
 	}
 
 	return value, nil
+}
+
+// GetTenantIDFromToken 从 JWT 令牌中获取租户 ID。
+// 在认证成功后的处理器中调用，从令牌的 claims 中提取 tenant_id 字段。
+func GetTenantIDFromToken(c *echo.Context) (uuid.UUID, error) {
+	value, err := GetClaimFromToken(c, "tenant_id")
+	if err != nil {
+		return uuid.Nil, err
+	}
+
+	tenantIDStr, ok := value.(string)
+	if !ok {
+		return uuid.Nil, errors.New("租户ID格式错误")
+	}
+
+	tenantID, err := uuid.Parse(tenantIDStr)
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("解析租户ID失败: %w", err)
+	}
+
+	return tenantID, nil
 }
 
 // JWTErrorResponse 生成 JWT 错误响应。

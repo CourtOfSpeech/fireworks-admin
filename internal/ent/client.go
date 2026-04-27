@@ -317,12 +317,14 @@ func (c *TenantClient) GetX(ctx context.Context, id uuid.UUID) *Tenant {
 
 // Hooks returns the client hooks.
 func (c *TenantClient) Hooks() []Hook {
-	return c.hooks.Tenant
+	hooks := c.hooks.Tenant
+	return append(hooks[:len(hooks):len(hooks)], tenant.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.
 func (c *TenantClient) Interceptors() []Interceptor {
-	return c.inters.Tenant
+	inters := c.inters.Tenant
+	return append(inters[:len(inters):len(inters)], tenant.Interceptors[:]...)
 }
 
 func (c *TenantClient) mutate(ctx context.Context, m *TenantMutation) (Value, error) {
