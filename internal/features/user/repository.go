@@ -118,7 +118,7 @@ func (r *UserRepo) List(ctx context.Context, query *UserQuery) ([]*User, int64, 
 	items, err := builder.
 		Offset(query.GetOffset()).
 		Limit(query.GetLimit()).
-		Order(entgo.Desc(user.FieldCreatedAt)).
+		Order(entgo.Desc(user.FieldID)).
 		All(ctx)
 	if err != nil {
 		return nil, 0, fmt.Errorf("repo:List query: %w", err)

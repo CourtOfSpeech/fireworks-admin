@@ -128,7 +128,7 @@ func (r *{{.Schema.Name}}Repo) List(ctx context.Context, query *{{.Schema.Name}}
 	items, err := builder.
 		Offset(query.GetOffset()).
 		Limit(query.GetLimit()).
-		Order(entgo.Desc({{.Schema.PackageName}}.FieldCreatedAt)).
+		Order(entgo.Desc({{.Schema.PackageName}}.FieldID)).
 		All(ctx)
 	if err != nil {
 		return nil, 0, fmt.Errorf("repo:List query: %w", err)

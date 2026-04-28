@@ -116,7 +116,7 @@ func (r *TenantRepo) List(ctx context.Context, query *TenantQuery) ([]*Tenant, i
 	tenants, err := builder.
 		Offset(query.GetOffset()).
 		Limit(query.GetLimit()).
-		Order(entgo.Desc(tenant.FieldCreatedAt)).
+		Order(entgo.Desc(tenant.FieldID)).
 		All(ctx)
 	if err != nil {
 		return nil, 0, fmt.Errorf("repo:List query: %w", err)
