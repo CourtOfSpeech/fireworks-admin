@@ -20,7 +20,12 @@ type User struct {
 // 该方法组合了公共字段，包括 ID、租户ID、状态、创建时间、更新时间和软删除字段。
 func (User) Mixin() []ent.Mixin {
 	return []ent.Mixin{
-		mixin.CommonMixin{},
+		mixin.Id{},
+		mixin.TenantId{},
+		mixin.Status{},
+		mixin.CreateTime{},
+		mixin.UpdateTime{},
+		mixin.SoftDelete{},
 	}
 }
 

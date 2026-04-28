@@ -16,6 +16,7 @@ user = "postgres"
 password = "your-password"
 dbname = "postgres"
 sslmode = "disable"
+debug = false
 
 [jwt]
 secret = "your-production-secret-key"

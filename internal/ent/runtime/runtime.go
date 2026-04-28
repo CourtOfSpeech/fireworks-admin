@@ -153,20 +153,34 @@ func init() {
 	// tenant.DefaultID holds the default value on creation for the id field.
 	tenant.DefaultID = tenantDescID.Default.(func() uuid.UUID)
 	userMixin := schema.User{}.Mixin()
+	userMixinHooks1 := userMixin[1].Hooks()
+	userMixinHooks5 := userMixin[5].Hooks()
+	user.Hooks[0] = userMixinHooks1[0]
+	user.Hooks[1] = userMixinHooks5[0]
+	userMixinInters1 := userMixin[1].Interceptors()
+	userMixinInters5 := userMixin[5].Interceptors()
+	user.Interceptors[0] = userMixinInters1[0]
+	user.Interceptors[1] = userMixinInters5[0]
 	userMixinFields0 := userMixin[0].Fields()
 	_ = userMixinFields0
+	userMixinFields1 := userMixin[1].Fields()
+	_ = userMixinFields1
+	userMixinFields3 := userMixin[3].Fields()
+	_ = userMixinFields3
+	userMixinFields4 := userMixin[4].Fields()
+	_ = userMixinFields4
 	userFields := schema.User{}.Fields()
 	_ = userFields
 	// userDescTenantID is the schema descriptor for tenant_id field.
-	userDescTenantID := userMixinFields0[1].Descriptor()
+	userDescTenantID := userMixinFields1[0].Descriptor()
 	// user.DefaultTenantID holds the default value on creation for the tenant_id field.
 	user.DefaultTenantID = userDescTenantID.Default.(func() uuid.UUID)
 	// userDescCreatedAt is the schema descriptor for created_at field.
-	userDescCreatedAt := userMixinFields0[3].Descriptor()
+	userDescCreatedAt := userMixinFields3[0].Descriptor()
 	// user.DefaultCreatedAt holds the default value on creation for the created_at field.
 	user.DefaultCreatedAt = userDescCreatedAt.Default.(func() time.Time)
 	// userDescUpdatedAt is the schema descriptor for updated_at field.
-	userDescUpdatedAt := userMixinFields0[4].Descriptor()
+	userDescUpdatedAt := userMixinFields4[0].Descriptor()
 	// user.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	user.DefaultUpdatedAt = userDescUpdatedAt.Default.(func() time.Time)
 	// user.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.

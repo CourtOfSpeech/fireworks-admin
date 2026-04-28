@@ -6,7 +6,11 @@ package db
 import (
 	"context"
 	"database/sql"
+	"fmt"
+	"strings"
 	"time"
+
+	_ "github.com/speech/fireworks-admin/internal/ent/runtime"
 
 	"github.com/speech/fireworks-admin/internal/ent"
 	"github.com/speech/fireworks-admin/internal/pkg/config"
@@ -32,7 +36,13 @@ func NewEntClient(lc *lifecycle.Lifecycle, cfg *config.Config) (*ent.Client, err
 	db.SetConnMaxIdleTime(defaultConnMaxIdleTime(cfg.Database.ConnMaxIdleTime))
 
 	drv := entsql.OpenDB(dialect.Postgres, db)
-	client := ent.NewClient(ent.Driver(drv))
+
+	opts := []ent.Option{ent.Driver(drv)}
+	if cfg.Database.Debug {
+		opts = append(opts, ent.Debug(), ent.Log(myPrettyLogger))
+	}
+
+	client := ent.NewClient(opts...)
 
 	lc.Append(lifecycle.Hook{
 		Name: "Database",
@@ -77,4 +87,35 @@ func defaultConnMaxIdleTime(v int) time.Duration {
 		return 600 * time.Second
 	}
 	return time.Duration(v) * time.Second
+}
+
+// formatSQL 实现一个简单的 SQL 换行美化器
+func formatSQL(query string) string {
+	// 需要换行的核心关键字
+	keywords := []string{
+		"SELECT ", "FROM ", "WHERE ", "UPDATE ", "INSERT ", "DELETE ", "AND ",
+		"LEFT JOIN ", "INNER JOIN ", "ORDER BY ", "GROUP BY ", "LIMIT ", "OFFSET ", "SET ",
+	}
+
+	formatted := query
+	for _, kw := range keywords {
+		// 在关键字前面加上换行和缩进，让结构更清晰
+		// 使用 strings.ReplaceAll 忽略大小写的替换（ent 默认生成的是大写）
+		formatted = strings.ReplaceAll(formatted, kw, "\n  "+kw)
+	}
+	return formatted
+}
+
+// myPrettyLogger 自定义日志处理器
+func myPrettyLogger(v ...any) {
+	// ent 传过来的日志参数通常拼接后是一个包含 driver.Query 或 driver.Exec 的字符串
+	msg := fmt.Sprint(v...)
+
+	// 只处理包含 SQL 的日志记录
+	if strings.Contains(msg, "driver.Query") || strings.Contains(msg, "driver.Exec") {
+		msg = formatSQL(msg)
+	}
+
+	// 打印美化后的日志
+	fmt.Printf("\n========== [ENT SQL DEBUG] ==========%s\n=====================================\n\n", msg)
 }

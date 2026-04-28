@@ -43,6 +43,7 @@ type DatabaseConfig struct {
 	MaxIdleConns    int    `mapstructure:"max_idle_conns"`    // 最大空闲连接数
 	ConnMaxLifetime int    `mapstructure:"conn_max_lifetime"` // 连接最大生命周期（秒）
 	ConnMaxIdleTime int    `mapstructure:"conn_max_idle_time"` // 连接最大空闲时间（秒）
+	Debug           bool   `mapstructure:"debug"`             // 是否启用 SQL 调试模式
 }
 
 // DSN 生成 PostgreSQL 数据库连接字符串。

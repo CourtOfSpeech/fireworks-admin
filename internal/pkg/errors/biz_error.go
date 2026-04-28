@@ -52,7 +52,11 @@ func (s StackTrace) LogValue() slog.Value {
 }
 
 // Error 实现 error 接口，返回错误消息。
+// 如果有原始错误，则包含原始错误信息。
 func (e *BizError) Error() string {
+	if e.Err != nil {
+		return fmt.Sprintf("%s: %v", e.Message, e.Err)
+	}
 	return e.Message
 }
 
@@ -64,6 +68,18 @@ func (e *BizError) Unwrap() error {
 // StackValue 返回堆栈跟踪的结构化日志值，便于日志输出。
 func (e *BizError) StackValue() slog.Value {
 	return StackTrace(e.Stack).LogValue()
+}
+
+// LogValue 实现 slog.LogValuer 接口，自定义日志输出格式。
+// 返回包含错误消息和原始错误的结构化日志值。
+func (e *BizError) LogValue() slog.Value {
+	if e.Err != nil {
+		return slog.GroupValue(
+			slog.String("message", e.Message),
+			slog.String("cause", e.Err.Error()),
+		)
+	}
+	return slog.StringValue(e.Message)
 }
 
 // newBizError 创建一个新的 BizError 实例，并自动捕获调用堆栈。
