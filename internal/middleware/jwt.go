@@ -8,26 +8,27 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v5"
-	bizerr "github.com/speech/fireworks-admin/internal/pkg/errors"
 	"github.com/speech/fireworks-admin/internal/pkg/ctxutil"
+	bizerr "github.com/speech/fireworks-admin/internal/pkg/errors"
 )
 
 // JWTConfig 定义 JWT 中间件的配置结构。
 type JWTConfig struct {
 	// Secret 是 JWT 签名密钥。
 	Secret string
-	// ExpireTime 是令牌过期时间，单位为小时。
+	// ExpireTime 是令牌过期时间，单位为秒。
 	ExpireTime int
 }
 
 // defaultJWTConfig 是项目级别的默认 JWT 配置。
 var defaultJWTConfig = JWTConfig{
 	Secret:     "default-secret-key-please-change-in-production",
-	ExpireTime: 24,
+	ExpireTime: 7200,
 }
 
 // SetDefaultJWTConfig 设置项目级别的默认 JWT 配置。
@@ -39,6 +40,32 @@ func SetDefaultJWTConfig(config JWTConfig) {
 	if config.ExpireTime > 0 {
 		defaultJWTConfig.ExpireTime = config.ExpireTime
 	}
+}
+
+// GetExpireDuration 获取 JWT 令牌的过期时长。
+// 返回当前配置的过期时长，供外部模块计算 token 过期时间戳使用。
+func GetExpireDuration() time.Duration {
+	return time.Duration(defaultJWTConfig.ExpireTime) * time.Second
+}
+
+// GenerateToken 生成 JWT 令牌。
+// 接收用户ID、用户名和租户ID作为参数，使用默认配置生成包含这些信息的 JWT 令牌。
+// 令牌使用 HS256 算法签名，包含 user_id、username、tenant_id、exp（过期时间）和 iat（签发时间）声明。
+// 返回签名后的令牌字符串和可能的错误。
+func GenerateToken(userID, username, tenantID string) (string, error) {
+	now := time.Now()
+	expireTime := now.Add(time.Duration(defaultJWTConfig.ExpireTime) * time.Second)
+
+	claims := jwt.MapClaims{
+		"user_id":   userID,
+		"username":  username,
+		"tenant_id": tenantID,
+		"exp":       expireTime.Unix(),
+		"iat":       now.Unix(),
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString([]byte(defaultJWTConfig.Secret))
 }
 
 // Skipper 定义跳过中间件的函数类型。
@@ -76,16 +103,12 @@ func NewJWTMiddlewareWithSkipper(config *JWTConfig, skipper Skipper) echo.Middle
 
 // NewJWTMiddlewareWithHandler 创建完全自定义的 JWT 认证中间件。
 // 提供完整的自定义选项，包括错误处理和成功处理回调。
+// 同时将传入的配置同步更新到 defaultJWTConfig，确保 GenerateToken 使用相同的密钥和过期时间。
 func NewJWTMiddlewareWithHandler(config *JWTConfig, skipper Skipper, errorHandler func(error) error, successHandler func(*echo.Context)) echo.MiddlewareFunc {
-	cfg := defaultJWTConfig
 	if config != nil {
-		if config.Secret != "" {
-			cfg.Secret = config.Secret
-		}
-		if config.ExpireTime > 0 {
-			cfg.ExpireTime = config.ExpireTime
-		}
+		SetDefaultJWTConfig(*config)
 	}
+	cfg := defaultJWTConfig
 
 	if skipper == nil {
 		skipper = func(c *echo.Context) bool {

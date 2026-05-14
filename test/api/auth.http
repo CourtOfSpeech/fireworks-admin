@@ -1,0 +1,77 @@
+### 创建测试租户
+POST http://localhost:9090/api/v1/tenants
+Content-Type: application/json
+
+{
+  "certificate_no": "91110000MA00ABCD12",
+  "name": "测试租户",
+  "type": 1,
+  "contact_name": "张三",
+  "email": "test@example.com",
+  "phone": "13800138000",
+  "status": 1
+}
+
+### 创建测试用户
+POST http://localhost:9090/api/v1/users
+Content-Type: application/json
+
+{
+  "username": "testuser",
+  "email": "testuser@example.com",
+  "phone": "13900139000",
+  "password": "password123",
+  "status": 1
+}
+
+### 测试登录 - 使用用户名
+POST http://localhost:9090/auth/login
+Content-Type: application/json
+
+{
+  "identity": "testuser",
+  "password": "password123",
+  "tenant_name": "测试租户"
+}
+
+### 测试登录 - 使用邮箱
+POST http://localhost:9090/auth/login
+Content-Type: application/json
+
+{
+  "identity": "testuser@example.com",
+  "password": "password123",
+  "tenant_name": "测试租户"
+}
+
+### 测试登录 - 使用手机号
+POST http://localhost:9090/auth/login
+Content-Type: application/json
+
+{
+  "identity": "13900139000",
+  "password": "password123",
+  "tenant_name": "测试租户"
+}
+
+### 测试登录 - 使用租户ID
+POST http://localhost:9090/auth/login
+Content-Type: application/json
+
+{
+  "identity": "testuser",
+  "password": "password123",
+  "tenant_id": "{{tenant_id}}"
+}
+
+### 测试获取当前用户信息
+GET http://localhost:9090/api/v1/auth/me
+Authorization: Bearer {{token}}
+
+### 测试刷新Token
+POST http://localhost:9090/api/v1/auth/refresh
+Authorization: Bearer {{token}}
+
+### 测试退出登录
+POST http://localhost:9090/api/v1/auth/logout
+Authorization: Bearer {{token}}

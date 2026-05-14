@@ -25,7 +25,7 @@ func NewEcho(
 ) *echo.Echo {
 	e := newEcho(l)
 	setupMiddleware(e, cfg)
-	RegisterRoutes(e, registrars)
+	RegisterRoutes(e, registrars, cfg)
 	return e
 }
 

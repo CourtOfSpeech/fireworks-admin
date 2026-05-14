@@ -3,9 +3,14 @@
 package user
 
 import (
+	"net/http"
+
 	"github.com/labstack/echo/v5"
+	"github.com/speech/fireworks-admin/internal/middleware"
 	"github.com/speech/fireworks-admin/internal/pkg/api"
 	bizerr "github.com/speech/fireworks-admin/internal/pkg/errors"
+	"github.com/speech/fireworks-admin/internal/pkg/ctxutil"
+	"github.com/speech/fireworks-admin/internal/pkg/idgen"
 )
 
 // UserHandler User HTTP 处理器。
@@ -25,6 +30,7 @@ func NewUserHandler(service *UserService) *UserHandler {
 // RegisterRoutes 注册User模块的路由。
 // 参数 public 为公开路由组，protected 为需认证的路由组。
 // User相关接口均需要认证，注册在 /users 路径下。
+// 认证相关接口注册在 /auth 路径下，登录为公开接口，其他需认证。
 func (h *UserHandler) RegisterRoutes(public *echo.Group, protected *echo.Group) {
 	users := protected.Group("/users")
 	users.POST("", h.Create)
@@ -32,6 +38,14 @@ func (h *UserHandler) RegisterRoutes(public *echo.Group, protected *echo.Group) 
 	users.GET("/:id", h.Get)
 	users.PUT("/:id", h.Update)
 	users.DELETE("/:id", h.Delete)
+
+	auth := public.Group("/auth")
+	auth.POST("/login", h.Login)
+
+	authProtected := protected.Group("/auth")
+	authProtected.POST("/refresh", h.RefreshToken)
+	authProtected.GET("/me", h.GetCurrentUserInfo)
+	authProtected.POST("/logout", h.Logout)
 }
 
 // Create 处理创建User请求。
@@ -47,7 +61,13 @@ func (h *UserHandler) Create(c *echo.Context) error {
 		return err
 	}
 
-	_, err := h.service.Create(c.Request().Context(), &req)
+	tenantID, err := idgen.Parse(req.TenantID)
+	if err != nil {
+		return bizerr.InvalidParamWrap(err, "无效的租户ID")
+	}
+
+	ctx := ctxutil.WithTenant(c.Request().Context(), tenantID)
+	_, err = h.service.Create(ctx, &req)
 	if err != nil {
 		return err
 	}
@@ -126,6 +146,72 @@ func (h *UserHandler) Delete(c *echo.Context) error {
 	}
 
 	if err := h.service.Delete(c.Request().Context(), id); err != nil {
+		return err
+	}
+
+	return api.Success(c, nil)
+}
+
+// Login 处理用户登录请求。
+// 绑定并验证登录请求参数，调用服务层进行用户认证。
+// 成功返回 JWT token 和用户信息，失败返回相应错误。
+func (h *UserHandler) Login(c *echo.Context) error {
+	var req LoginReq
+	if err := c.Bind(&req); err != nil {
+		return bizerr.InvalidParamWrap(err, "无效的请求参数")
+	}
+
+	if err := c.Validate(&req); err != nil {
+		return err
+	}
+
+	resp, err := h.service.Login(c.Request().Context(), &req)
+	if err != nil {
+		return err
+	}
+
+	return api.Success(c, resp)
+}
+
+// RefreshToken 处理刷新Token请求。
+// 从 JWT token 中获取用户ID，调用服务层刷新Token。
+// 成功返回新的 JWT token，失败返回相应错误。
+func (h *UserHandler) RefreshToken(c *echo.Context) error {
+	userID, err := middleware.GetUserIDFromToken(c)
+	if err != nil {
+		return bizerr.New(http.StatusUnauthorized, "获取用户信息失败", http.StatusUnauthorized)
+	}
+
+	resp, err := h.service.RefreshToken(c.Request().Context(), userID)
+	if err != nil {
+		return err
+	}
+
+	return api.Success(c, resp)
+}
+
+// GetCurrentUserInfo 处理获取当前用户信息请求。
+// 从 JWT token 中获取用户ID，调用服务层查询用户详情。
+// 成功返回当前用户信息，失败返回相应错误。
+func (h *UserHandler) GetCurrentUserInfo(c *echo.Context) error {
+	userID, err := middleware.GetUserIDFromToken(c)
+	if err != nil {
+		return bizerr.New(http.StatusUnauthorized, "获取用户信息失败", http.StatusUnauthorized)
+	}
+
+	resp, err := h.service.GetCurrentUserInfo(c.Request().Context(), userID)
+	if err != nil {
+		return err
+	}
+
+	return api.Success(c, resp)
+}
+
+// Logout 处理用户登出请求。
+// 调用服务层执行登出操作。
+// 成功返回空响应，失败返回相应错误。
+func (h *UserHandler) Logout(c *echo.Context) error {
+	if err := h.service.Logout(c.Request().Context()); err != nil {
 		return err
 	}
 

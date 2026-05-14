@@ -146,6 +146,19 @@ func (r *TenantRepo) GetByID(ctx context.Context, id string) (*Tenant, error) {
 	return toEntity(t), nil
 }
 
+// FindByName 根据租户名称查询租户。
+// 参数 ctx 为上下文，name 为租户名称。
+// 返回租户实体和可能的错误。如果找不到租户，返回错误。
+func (r *TenantRepo) FindByName(ctx context.Context, name string) (*Tenant, error) {
+	t, err := r.tx.DB(ctx).Tenant.Query().
+		Where(tenant.NameEQ(name)).
+		Only(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("repo:FindByName name=%s: %w", name, err)
+	}
+	return toEntity(t), nil
+}
+
 // Update 根据租户 ID 更新租户信息。
 // 参数 ctx 为上下文，id 为租户 ID 字符串，req 为更新请求参数。
 // 仅更新请求中非空字段。返回更新后的租户实体和可能的错误。

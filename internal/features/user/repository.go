@@ -49,7 +49,13 @@ func toEntity(t *entgo.User) *User {
 // 参数 ctx 为上下文，req 为创建请求参数。
 // 返回创建成功的User实体和可能的错误。
 func (r *UserRepo) Create(ctx context.Context, req *CreateUserReq) (*User, error) {
+	tenantID, err := idgen.Parse(req.TenantID)
+	if err != nil {
+		return nil, fmt.Errorf("repo:Create parse tenant_id=%s: %w", req.TenantID, err)
+	}
+
 	builder := r.tx.DB(ctx).User.Create()
+	builder.SetTenantID(tenantID)
 	builder.SetUsername(req.Username)
 	builder.SetEmail(req.Email)
 	builder.SetPhone(req.Phone)
@@ -144,6 +150,45 @@ func (r *UserRepo) GetByID(ctx context.Context, id string) (*User, error) {
 	t, err := r.tx.DB(ctx).User.Get(ctx, userId)
 	if err != nil {
 		return nil, fmt.Errorf("repo:GetByID id=%s: %w", id, err)
+	}
+	return toEntity(t), nil
+}
+
+// FindByUsername 根据用户名查询用户信息。
+// 参数 ctx 为上下文，username 为用户名。
+// 返回User实体和可能的错误。如果找不到用户，返回错误。
+func (r *UserRepo) FindByUsername(ctx context.Context, username string) (*User, error) {
+	t, err := r.tx.DB(ctx).User.Query().
+		Where(user.UsernameEQ(username)).
+		Only(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("repo:FindByUsername username=%s: %w", username, err)
+	}
+	return toEntity(t), nil
+}
+
+// FindByEmail 根据邮箱查询用户信息。
+// 参数 ctx 为上下文，email 为邮箱地址。
+// 返回User实体和可能的错误。如果找不到用户，返回错误。
+func (r *UserRepo) FindByEmail(ctx context.Context, email string) (*User, error) {
+	t, err := r.tx.DB(ctx).User.Query().
+		Where(user.EmailEQ(email)).
+		Only(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("repo:FindByEmail email=%s: %w", email, err)
+	}
+	return toEntity(t), nil
+}
+
+// FindByPhone 根据手机号查询用户信息。
+// 参数 ctx 为上下文，phone 为手机号。
+// 返回User实体和可能的错误。如果找不到用户，返回错误。
+func (r *UserRepo) FindByPhone(ctx context.Context, phone string) (*User, error) {
+	t, err := r.tx.DB(ctx).User.Query().
+		Where(user.PhoneEQ(phone)).
+		Only(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("repo:FindByPhone phone=%s: %w", phone, err)
 	}
 	return toEntity(t), nil
 }

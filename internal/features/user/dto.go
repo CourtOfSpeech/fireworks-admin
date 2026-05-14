@@ -11,6 +11,7 @@ import (
 // CreateUserReq 创建User请求结构体。
 // 包含创建新User所需的所有必填字段信息。
 type CreateUserReq struct {
+	TenantID string `json:"tenant_id" validate:"required,uuid"`     // 租户ID，必填
 	Username string `json:"username" validate:"required"`           // 用户名，必填
 	Email    string `json:"email" validate:"required"`              // 邮箱，必填
 	Phone    string `json:"phone" validate:"required"`              // 手机号，必填
@@ -92,4 +93,47 @@ func (q *UserQuery) HasTenantID() bool {
 // 返回 true 表示需要按状态进行精确查询。
 func (q *UserQuery) HasStatus() bool {
 	return q.Status != nil
+}
+
+// LoginReq 登录请求结构体。
+// 支持使用用户名、邮箱或手机号进行登录，可选指定租户信息。
+type LoginReq struct {
+	Identity   string  `json:"identity" validate:"required"`           // 用户名/邮箱/手机号，必填
+	Password   string  `json:"password" validate:"required"`           // 密码，必填
+	TenantID   *string `json:"tenant_id" validate:"omitempty,uuid"`    // 租户ID，可选
+	TenantName *string `json:"tenant_name" validate:"omitempty"`       // 租户名称，可选
+}
+
+// LoginResp 登录响应结构体。
+// 包含登录成功后返回的用户信息和JWT token。
+type LoginResp struct {
+	Token     string `json:"token"`      // JWT token
+	UserID    string `json:"user_id"`    // 用户ID
+	Username  string `json:"username"`   // 用户名
+	Email     string `json:"email"`      // 邮箱
+	Phone     string `json:"phone"`      // 手机号
+	Nickname  string `json:"nickname"`   // 昵称
+	Avatar    string `json:"avatar"`     // 头像URL
+	TenantID  string `json:"tenant_id"`  // 租户ID
+	ExpiresAt int64  `json:"expires_at"` // token 过期时间戳
+}
+
+// RefreshTokenResp 刷新Token响应结构体。
+// 包含刷新后返回的新JWT token和过期时间。
+type RefreshTokenResp struct {
+	Token     string `json:"token"`      // 新的 JWT token
+	ExpiresAt int64  `json:"expires_at"` // token 过期时间戳
+}
+
+// CurrentUserResp 当前用户信息响应结构体。
+// 包含当前登录用户的详细信息。
+type CurrentUserResp struct {
+	UserID   string `json:"user_id"`   // 用户ID
+	Username string `json:"username"`  // 用户名
+	Email    string `json:"email"`     // 邮箱
+	Phone    string `json:"phone"`     // 手机号
+	Nickname string `json:"nickname"`  // 昵称
+	Avatar   string `json:"avatar"`    // 头像URL
+	TenantID string `json:"tenant_id"` // 租户ID
+	Status   int8   `json:"status"`    // 状态
 }

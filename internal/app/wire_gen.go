@@ -37,7 +37,7 @@ func InitializeApp() (*App, error) {
 	tenantService := tenant.NewTenantService(tenantRepo)
 	tenantHandler := tenant.NewTenantHandler(tenantService)
 	userRepo := user.NewUserRepo(txManager)
-	userService := user.NewUserService(userRepo)
+	userService := user.NewUserService(userRepo, tenantRepo)
 	userHandler := user.NewUserHandler(userService)
 	healthRouter := NewHealthRouter(client)
 	registrarIn := RegistrarIn{
