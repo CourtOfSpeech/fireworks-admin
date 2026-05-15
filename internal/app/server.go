@@ -13,6 +13,9 @@ import (
 	"github.com/speech/fireworks-admin/internal/pkg/logger"
 )
 
+// maxHeaderBytes 最大请求头字节数（1MB）。
+const maxHeaderBytes = 1 << 20
+
 // Server HTTP 服务器。
 // 封装了 Echo 框架实例和标准库 http.Server，
 // 并通过生命周期管理器实现优雅启动和关闭。
@@ -64,7 +67,7 @@ func newHTTPServer(e *echo.Echo, cfg *config.Config) *http.Server {
 		ReadTimeout:    durationOrDefault(cfg.Server.ReadTimeout, 15*time.Second),    // 读取超时
 		WriteTimeout:   durationOrDefault(cfg.Server.WriteTimeout, 15*time.Second),   // 写入超时
 		IdleTimeout:    durationOrDefault(cfg.Server.IdleTimeout, 60*time.Second),    // 空闲超时
-		MaxHeaderBytes: bytesOrDefault(cfg.Server.MaxHeaderBytes, 1<<20),             // 最大请求头字节数 (默认 1MB)
+		MaxHeaderBytes: bytesOrDefault(cfg.Server.MaxHeaderBytes, maxHeaderBytes),
 	}
 }
 

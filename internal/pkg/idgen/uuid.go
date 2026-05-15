@@ -40,7 +40,7 @@ func NewV7() (uuid.UUID, error) {
 // 如果 3 次重试后仍失败，则返回 uuid.Nil。
 func NewV7Safe() uuid.UUID {
 	for range maxRetries {
-		id, err := NewV7()
+		id, err := uuid.NewV7()
 		if err == nil {
 			return id
 		}

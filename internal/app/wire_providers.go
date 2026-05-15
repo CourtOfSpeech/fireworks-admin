@@ -12,6 +12,12 @@ import (
 	"github.com/speech/fireworks-admin/internal/pkg/logger"
 )
 
+// 确保实现 RouterRegistrar 接口。
+var (
+	_ RouterRegistrar = (*tenant.TenantHandler)(nil)
+	_ RouterRegistrar = (*user.UserHandler)(nil)
+)
+
 // ProviderSet app 依赖提供者集合。
 // 该集合包含了应用程序核心组件的所有提供者，用于 Wire 依赖注入。
 // 包含的提供者：

@@ -14,6 +14,9 @@ import (
 	"github.com/speech/fireworks-admin/internal/pkg/validator"
 )
 
+// formParseMaxMemory 表单解析最大内存（10MB）。
+const formParseMaxMemory = 10 << 20
+
 // NewEcho 创建 Echo 实例并注册中间件和路由。
 // 该函数是 Wire 依赖注入的提供者，负责初始化 Echo 框架并配置完整的请求处理链。
 // l 是日志记录器用于记录请求和错误信息，cfg 是应用配置用于获取服务器相关配置，
@@ -37,7 +40,7 @@ func newEcho(l *slog.Logger) *echo.Echo {
 		Logger:             l,                      // 日志记录器
 		HTTPErrorHandler:   customHTTPErrorHandler, // 自定义错误处理器
 		Validator:          validator.NewValidator(), // 请求验证器
-		FormParseMaxMemory: 10 << 20,               // 表单解析最大内存 (10MB)
+		FormParseMaxMemory: formParseMaxMemory,
 	})
 }
 
@@ -103,7 +106,7 @@ func customHTTPErrorHandler(c *echo.Context, err error) {
 	}
 
 	if c.Request().Method == http.MethodHead {
-		_ = c.NoContent(code)
+		_ = c.NoContent(httpStatus)
 		return
 	}
 	_ = c.JSON(httpStatus, api.ApiResponse{

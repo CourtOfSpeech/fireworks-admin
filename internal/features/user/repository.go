@@ -1,5 +1,5 @@
-// Package user 提供User功能，包括User的创建、查询、更新和删除操作。
-// 本文件定义了User模块的数据持久化层，负责与数据库交互。
+// Package user 提供用户管理功能，包括用户的创建、查询、更新和删除操作。
+// 本文件定义了用户模块的数据持久化层，负责与数据库交互。
 package user
 
 import (
@@ -12,13 +12,13 @@ import (
 	"github.com/speech/fireworks-admin/internal/pkg/idgen"
 )
 
-// UserRepo User数据持久化操作的具体实现。
-// 封装了User相关的数据库操作，包括增删改查。
+// UserRepo 用户数据持久化操作的具体实现。
+// 封装了用户相关的数据库操作，包括增删改查。
 type UserRepo struct {
 	tx *db.TxManager // 数据库事务管理器
 }
 
-// NewUserRepo 创建User Repository 实例。
+// NewUserRepo 创建用户 Repository 实例。
 // 参数 txManager 为数据库事务管理器，返回初始化后的 Repository 实例。
 func NewUserRepo(txManager *db.TxManager) *UserRepo {
 	return &UserRepo{
@@ -26,8 +26,8 @@ func NewUserRepo(txManager *db.TxManager) *UserRepo {
 	}
 }
 
-// toEntity 将 Ent 框架的 User 模型转换为领域模型 User。
-// 参数 t 为 Ent 框架的User模型，返回领域模型的User实体。
+// toEntity 将 Ent 框架的用户模型转换为领域模型用户。
+// 参数 t 为 Ent 框架的用户模型，返回领域模型的用户实体。
 func toEntity(t *entgo.User) *User {
 	return &User{
 		Username:  t.Username,
@@ -45,9 +45,9 @@ func toEntity(t *entgo.User) *User {
 	}
 }
 
-// Create 创建新User记录。
+// Create 创建新用户记录。
 // 参数 ctx 为上下文，req 为创建请求参数。
-// 返回创建成功的User实体和可能的错误。
+// 返回创建成功的用户实体和可能的错误。
 func (r *UserRepo) Create(ctx context.Context, req *CreateUserReq) (*User, error) {
 	tenantID, err := idgen.Parse(req.TenantID)
 	if err != nil {
@@ -70,8 +70,8 @@ func (r *UserRepo) Create(ctx context.Context, req *CreateUserReq) (*User, error
 	return toEntity(t), nil
 }
 
-// Delete 根据User ID 删除User记录。
-// 参数 ctx 为上下文，id 为User ID 字符串。
+// Delete 根据用户 ID 删除用户记录。
+// 参数 ctx 为上下文，id 为用户 ID 字符串。
 // 返回删除操作可能发生的错误。
 func (r *UserRepo) Delete(ctx context.Context, id string) error {
 	userId, err := idgen.Parse(id)
@@ -85,9 +85,9 @@ func (r *UserRepo) Delete(ctx context.Context, id string) error {
 	return nil
 }
 
-// List 根据查询条件获取User列表。
+// List 根据查询条件获取用户列表。
 // 参数 ctx 为上下文，query 为查询条件。
-// 返回User列表、总数和可能的错误。支持分页和条件过滤。
+// 返回用户列表、总数和可能的错误。支持分页和条件过滤。
 func (r *UserRepo) List(ctx context.Context, query *UserQuery) ([]*User, int64, error) {
 	builder := r.tx.DB(ctx).User.Query()
 	if query.HasUsername() {
@@ -101,9 +101,6 @@ func (r *UserRepo) List(ctx context.Context, query *UserQuery) ([]*User, int64, 
 	}
 	if query.HasNickname() {
 		builder.Where(user.NicknameEQ(query.Nickname))
-	}
-	if query.HasAvatar() {
-		builder.Where(user.AvatarEQ(query.Avatar))
 	}
 	if query.HasTenantID() {
 		tenantid, err := idgen.Parse(query.TenantID)
@@ -138,9 +135,9 @@ func (r *UserRepo) List(ctx context.Context, query *UserQuery) ([]*User, int64, 
 	return result, int64(total), nil
 }
 
-// GetByID 根据User ID 获取User详情。
-// 参数 ctx 为上下文，id 为User ID 字符串。
-// 返回User实体和可能的错误。
+// GetByID 根据用户 ID 获取用户详情。
+// 参数 ctx 为上下文，id 为用户 ID 字符串。
+// 返回用户实体和可能的错误。
 func (r *UserRepo) GetByID(ctx context.Context, id string) (*User, error) {
 	userId, err := idgen.Parse(id)
 	if err != nil {
@@ -156,7 +153,7 @@ func (r *UserRepo) GetByID(ctx context.Context, id string) (*User, error) {
 
 // FindByUsername 根据用户名查询用户信息。
 // 参数 ctx 为上下文，username 为用户名。
-// 返回User实体和可能的错误。如果找不到用户，返回错误。
+// 返回用户实体和可能的错误。如果找不到用户，返回错误。
 func (r *UserRepo) FindByUsername(ctx context.Context, username string) (*User, error) {
 	t, err := r.tx.DB(ctx).User.Query().
 		Where(user.UsernameEQ(username)).
@@ -169,7 +166,7 @@ func (r *UserRepo) FindByUsername(ctx context.Context, username string) (*User, 
 
 // FindByEmail 根据邮箱查询用户信息。
 // 参数 ctx 为上下文，email 为邮箱地址。
-// 返回User实体和可能的错误。如果找不到用户，返回错误。
+// 返回用户实体和可能的错误。如果找不到用户，返回错误。
 func (r *UserRepo) FindByEmail(ctx context.Context, email string) (*User, error) {
 	t, err := r.tx.DB(ctx).User.Query().
 		Where(user.EmailEQ(email)).
@@ -182,7 +179,7 @@ func (r *UserRepo) FindByEmail(ctx context.Context, email string) (*User, error)
 
 // FindByPhone 根据手机号查询用户信息。
 // 参数 ctx 为上下文，phone 为手机号。
-// 返回User实体和可能的错误。如果找不到用户，返回错误。
+// 返回用户实体和可能的错误。如果找不到用户，返回错误。
 func (r *UserRepo) FindByPhone(ctx context.Context, phone string) (*User, error) {
 	t, err := r.tx.DB(ctx).User.Query().
 		Where(user.PhoneEQ(phone)).
@@ -193,9 +190,9 @@ func (r *UserRepo) FindByPhone(ctx context.Context, phone string) (*User, error)
 	return toEntity(t), nil
 }
 
-// Update 根据User ID 更新User信息。
-// 参数 ctx 为上下文，id 为User ID 字符串，req 为更新请求参数。
-// 仅更新请求中非空字段。返回更新后的User实体和可能的错误。
+// Update 根据用户 ID 更新用户信息。
+// 参数 ctx 为上下文，id 为用户 ID 字符串，req 为更新请求参数。
+// 仅更新请求中非空字段。返回更新后的用户实体和可能的错误。
 func (r *UserRepo) Update(ctx context.Context, id string, req *UpdateUserReq) (*User, error) {
 	userId, err := idgen.Parse(id)
 	if err != nil {

@@ -189,52 +189,28 @@ func NewJWTMiddlewareWithHandler(config *JWTConfig, skipper Skipper, errorHandle
 // GetUserIDFromToken 从 JWT 令牌中获取用户 ID。
 // 在认证成功后的处理器中调用，从令牌的 claims 中提取 user_id 字段。
 func GetUserIDFromToken(c *echo.Context) (string, error) {
-	user := c.Get("user")
-	if user == nil {
-		return "", errors.New("未找到JWT令牌信息")
+	value, err := GetClaimFromToken(c, "user_id")
+	if err != nil {
+		return "", err
 	}
-
-	token, ok := user.(*jwt.Token)
+	userID, ok := value.(string)
 	if !ok {
-		return "", errors.New("令牌类型错误")
+		return "", errors.New("user_id 类型错误")
 	}
-
-	claims, ok := token.Claims.(jwt.MapClaims)
-	if !ok {
-		return "", errors.New("令牌声明类型错误")
-	}
-
-	userID, ok := claims["user_id"].(string)
-	if !ok {
-		return "", errors.New("令牌中未找到user_id")
-	}
-
 	return userID, nil
 }
 
 // GetUsernameFromToken 从 JWT 令牌中获取用户名。
 // 在认证成功后的处理器中调用，从令牌的 claims 中提取 username 字段。
 func GetUsernameFromToken(c *echo.Context) (string, error) {
-	user := c.Get("user")
-	if user == nil {
-		return "", errors.New("未找到JWT令牌信息")
+	value, err := GetClaimFromToken(c, "username")
+	if err != nil {
+		return "", err
 	}
-
-	token, ok := user.(*jwt.Token)
+	username, ok := value.(string)
 	if !ok {
-		return "", errors.New("令牌类型错误")
+		return "", errors.New("username 类型错误")
 	}
-
-	claims, ok := token.Claims.(jwt.MapClaims)
-	if !ok {
-		return "", errors.New("令牌声明类型错误")
-	}
-
-	username, ok := claims["username"].(string)
-	if !ok {
-		return "", errors.New("令牌中未找到username")
-	}
-
 	return username, nil
 }
 

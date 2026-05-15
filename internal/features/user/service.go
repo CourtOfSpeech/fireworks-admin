@@ -1,10 +1,9 @@
-// Package user 提供User功能，包括User的创建、查询、更新和删除操作。
-// 本文件定义了User模块的业务逻辑层，封装User相关的业务规则和操作。
+// Package user 提供用户管理功能，包括用户的创建、查询、更新和删除操作。
+// 本文件定义了用户模块的业务逻辑层，封装用户相关的业务规则和操作。
 package user
 
 import (
 	"context"
-	"regexp"
 	"time"
 
 	"github.com/speech/fireworks-admin/internal/features/tenant"
@@ -16,43 +15,50 @@ import (
 	"github.com/speech/fireworks-admin/internal/pkg/idgen"
 )
 
-// UserService 封装User业务逻辑操作。
-// 负责协调 Repository 层完成User的增删改查，并处理业务规则验证。
+// UserService 封装用户业务逻辑操作。
+// 负责协调 Repository 层完成用户的增删改查，并处理业务规则验证。
 type UserService struct {
-	repo       *UserRepo          // User数据持久化操作
-	tenantRepo *tenant.TenantRepo // 租户数据持久化操作
+	repo      *UserRepo             // 用户数据持久化操作
+	tenantSvc *tenant.TenantService // 租户业务逻辑操作
 }
 
-// NewUserService 创建User Service 实例。
-// 参数 repo 为User Repository，tenantRepo 为租户 Repository，返回初始化后的 Service 实例。
-func NewUserService(repo *UserRepo, tenantRepo *tenant.TenantRepo) *UserService {
+// NewUserService 创建用户 Service 实例。
+// 参数 repo 为用户 Repository，tenantSvc 为租户 Service，返回初始化后的 Service 实例。
+func NewUserService(repo *UserRepo, tenantSvc *tenant.TenantService) *UserService {
 	return &UserService{
-		repo:       repo,
-		tenantRepo: tenantRepo,
+		repo:      repo,
+		tenantSvc: tenantSvc,
 	}
 }
 
-// Create 创建新User。
+// Create 创建新用户。
 // 参数 ctx 为上下文，req 为创建请求参数。
 // 密码字段会被加密存储。
-// 返回创建成功的User实体和可能的错误。
+// 返回创建成功的用户实体和可能的错误。
 func (s *UserService) Create(ctx context.Context, req *CreateUserReq) (*User, error) {
+	tenantID, err := idgen.Parse(req.TenantID)
+	if err != nil {
+		return nil, bizerr.InvalidParamWrap(err, "无效的租户ID")
+	}
+
 	hashedPassword, err := crypto.HashPassword(req.Password)
 	if err != nil {
 		return nil, bizerr.Internal(err)
 	}
 	req.Password = hashedPassword
+
+	ctx = ctxutil.WithTenant(ctx, tenantID)
 	t, err := s.repo.Create(ctx, req)
 	if err != nil {
-		return nil, wrapError(err)
+		return nil, bizerr.WrapRepoError(err, repoParser)
 	}
 	return t, nil
 }
 
-// Update 更新User信息。
-// 参数 ctx 为上下文，id 为User ID，req 为更新请求参数。
+// Update 更新用户信息。
+// 参数 ctx 为上下文，id 为用户 ID，req 为更新请求参数。
 // 如果更新密码字段，密码会被加密存储。
-// 返回更新后的User实体和可能的错误。
+// 返回更新后的用户实体和可能的错误。
 func (s *UserService) Update(ctx context.Context, id string, req *UpdateUserReq) (*User, error) {
 	if req.Password != nil {
 		hashedPassword, err := crypto.HashPassword(*req.Password)
@@ -64,63 +70,44 @@ func (s *UserService) Update(ctx context.Context, id string, req *UpdateUserReq)
 
 	t, err := s.repo.Update(ctx, id, req)
 	if err != nil {
-		return nil, wrapError(err)
+		return nil, bizerr.WrapRepoError(err, repoParser)
 	}
 	return t, nil
 }
 
-// Delete 删除User。
-// 参数 ctx 为上下文，id 为User ID。
+// Delete 删除用户。
+// 参数 ctx 为上下文，id 为用户 ID。
 // 返回删除操作可能发生的错误。
 func (s *UserService) Delete(ctx context.Context, id string) error {
 	err := s.repo.Delete(ctx, id)
 	if err != nil {
-		return wrapError(err)
+		return bizerr.WrapRepoError(err, repoParser)
 	}
 	return nil
 }
 
-// GetByID 根据User ID 获取User详情。
-// 参数 ctx 为上下文，id 为User ID。
-// 返回User实体和可能的错误。
+// GetByID 根据用户 ID 获取用户详情。
+// 参数 ctx 为上下文，id 为用户 ID。
+// 返回用户实体和可能的错误。
 func (s *UserService) GetByID(ctx context.Context, id string) (*User, error) {
 	t, err := s.repo.GetByID(ctx, id)
 	if err != nil {
-		return nil, wrapError(err)
+		return nil, bizerr.WrapRepoError(err, repoParser)
 	}
 	return t, nil
 }
 
-// List 根据查询条件获取User列表。
+// List 根据查询条件获取用户列表。
 // 参数 ctx 为上下文，query 为查询条件。
 // 返回分页结果和可能的错误。
 func (s *UserService) List(ctx context.Context, query *UserQuery) (*api.PageResult[*User], error) {
 	list, total, err := s.repo.List(ctx, query)
 	if err != nil {
-		return nil, wrapError(err)
+		return nil, bizerr.WrapRepoError(err, repoParser)
 	}
 
 	return api.NewPageResult(list, total, query.Page, query.PageSize), nil
 }
-
-// wrapError 解析 Repository 层错误并包装为业务错误。
-// 如果错误已经是 BizError 则直接返回，否则包装为内部错误。
-func wrapError(err error) error {
-	if err == nil {
-		return nil
-	}
-	parsed := ParseRepoError(err)
-	if _, ok := parsed.(*bizerr.BizError); ok {
-		return parsed
-	}
-	return bizerr.Internal(parsed)
-}
-
-// emailRegex 邮箱格式正则表达式。
-var emailRegex = regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
-
-// phoneRegex 手机号格式正则表达式（中国大陆手机号）。
-var phoneRegex = regexp.MustCompile(`^1[3-9]\d{9}$`)
 
 // Login 用户登录。
 // 参数 ctx 为上下文，req 为登录请求参数。
@@ -134,7 +121,7 @@ func (s *UserService) Login(ctx context.Context, req *LoginReq) (*LoginResp, err
 	if req.TenantID != nil && *req.TenantID != "" {
 		tenantID = *req.TenantID
 	} else if req.TenantName != nil && *req.TenantName != "" {
-		tenant, err := s.tenantRepo.FindByName(ctx, *req.TenantName)
+		tenant, err := s.tenantSvc.FindByName(ctx, *req.TenantName)
 		if err != nil {
 			return nil, ErrTenantMismatch()
 		}
@@ -152,9 +139,9 @@ func (s *UserService) Login(ctx context.Context, req *LoginReq) (*LoginResp, err
 
 	var user *User
 	switch {
-	case isEmail(req.Identity):
+	case IsEmail(req.Identity):
 		user, err = s.repo.FindByEmail(loginCtx, req.Identity)
-	case isPhone(req.Identity):
+	case IsPhone(req.Identity):
 		user, err = s.repo.FindByPhone(loginCtx, req.Identity)
 	default:
 		user, err = s.repo.FindByUsername(loginCtx, req.Identity)
@@ -168,7 +155,7 @@ func (s *UserService) Login(ctx context.Context, req *LoginReq) (*LoginResp, err
 		return nil, ErrTenantMismatch()
 	}
 
-	if user.Status == 2 {
+	if user.Status == UserStatusDisabled {
 		return nil, ErrUserDisabled()
 	}
 
@@ -201,10 +188,10 @@ func (s *UserService) Login(ctx context.Context, req *LoginReq) (*LoginResp, err
 func (s *UserService) RefreshToken(ctx context.Context, userID string) (*RefreshTokenResp, error) {
 	user, err := s.repo.GetByID(ctx, userID)
 	if err != nil {
-		return nil, wrapError(err)
+		return nil, bizerr.WrapRepoError(err, repoParser)
 	}
 
-	if user.Status == 2 {
+	if user.Status == UserStatusDisabled {
 		return nil, ErrUserDisabled()
 	}
 
@@ -225,7 +212,7 @@ func (s *UserService) RefreshToken(ctx context.Context, userID string) (*Refresh
 func (s *UserService) GetCurrentUserInfo(ctx context.Context, userID string) (*CurrentUserResp, error) {
 	user, err := s.repo.GetByID(ctx, userID)
 	if err != nil {
-		return nil, wrapError(err)
+		return nil, bizerr.WrapRepoError(err, repoParser)
 	}
 
 	return &CurrentUserResp{
@@ -246,18 +233,4 @@ func (s *UserService) GetCurrentUserInfo(ctx context.Context, userID string) (*C
 // 返回可能的错误。
 func (s *UserService) Logout(ctx context.Context) error {
 	return nil
-}
-
-// isEmail 判断字符串是否为邮箱格式。
-// 参数 s 为待判断的字符串。
-// 返回 true 表示是邮箱格式，false 表示不是。
-func isEmail(s string) bool {
-	return emailRegex.MatchString(s)
-}
-
-// isPhone 判断字符串是否为手机号格式。
-// 参数 s 为待判断的字符串。
-// 返回 true 表示是手机号格式，false 表示不是。
-func isPhone(s string) bool {
-	return phoneRegex.MatchString(s)
 }
